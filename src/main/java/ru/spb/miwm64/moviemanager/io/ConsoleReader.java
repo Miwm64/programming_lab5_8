@@ -1,3 +1,5 @@
+package main.java.ru.spb.miwm64.moviemanager.io;
+
 import java.util.Scanner;
 
 public class ConsoleReader implements Reader {
