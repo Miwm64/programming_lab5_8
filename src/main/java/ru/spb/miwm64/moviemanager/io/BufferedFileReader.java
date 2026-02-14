@@ -1,3 +1,5 @@
+package main.java.ru.spb.miwm64.moviemanager.io;
+
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
