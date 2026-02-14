@@ -4,11 +4,19 @@ import java.io.IOException;
 
 public class FileWriter implements Writer {
     private final String filepath;
-    private final java.io.FileWriter  fileWriter;
+    private java.io.FileWriter  fileWriter;
+    private final boolean append;
+
+    public FileWriter(String filepath, boolean append) throws IOException {
+        this.filepath = filepath;
+        this.append = append;
+        fileWriter = new java.io.FileWriter(filepath, this.append);
+    }
 
     public FileWriter(String filepath) throws IOException {
         this.filepath = filepath;
-        fileWriter = new java.io.FileWriter(filepath);
+        append = false;
+        fileWriter = new java.io.FileWriter(filepath, this.append);
     }
 
     @Override
@@ -22,21 +30,15 @@ public class FileWriter implements Writer {
     }
 
     @Override
-    public void append(String line) throws IOException {
-        fileWriter.append(line);
-    }
-
-    @Override
-    public void appendln(String line) throws IOException {
-        fileWriter.append(line).append("\r\n");
-    }
-
-    @Override
     public void close() throws Exception {
         fileWriter.close();
     }
 
     public String getFilepath() {
         return filepath;
+    }
+
+    public boolean isAppend() {
+        return append;
     }
 }
