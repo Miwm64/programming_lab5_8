@@ -4,7 +4,7 @@ import java.io.IOException;
 
 public class FileWriter implements Writer {
     private final String filepath;
-    private java.io.FileWriter  fileWriter;
+    private final java.io.FileWriter  fileWriter;
     private final boolean append;
 
     public FileWriter(String filepath, boolean append) throws IOException {
