@@ -1,4 +1,4 @@
-package main.java.ru.spb.miwm64.moviemanager.io;
+package ru.spb.miwm64.moviemanager.io;
 
 import java.util.Scanner;
 
