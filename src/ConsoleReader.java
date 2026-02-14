@@ -1,12 +1,8 @@
+import java.io.IOException;
 import java.util.Scanner;
 
-public class ConsoleReader implements Reader{
-    Scanner scanner = new Scanner(System.in);
-
-    @Override
-    public String read() {
-        return scanner.nextLine();
-    }
+public class ConsoleReader implements Reader {
+    private Scanner scanner = new Scanner(System.in);
 
     @Override
     public String readNextLine() {
@@ -15,6 +11,10 @@ public class ConsoleReader implements Reader{
 
     @Override
     public boolean hasNextLine() {
-        return true;
+        return scanner.hasNextLine();
+    }
+
+    public void close() {
+        scanner.close();
     }
 }
