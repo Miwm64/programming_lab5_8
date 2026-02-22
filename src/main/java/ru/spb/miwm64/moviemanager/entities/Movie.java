@@ -4,7 +4,7 @@ import ru.spb.miwm64.moviemanager.exceptions.InvalidValueException;
 
 import java.time.ZonedDateTime;
 import java.util.Objects;
-
+// TODO toString, equals, check throws
 public class Movie {
     private Long id; //Поле не может быть null, Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
     private String name; //Поле не может быть null, Строка не может быть пустой
@@ -69,6 +69,9 @@ public class Movie {
     }
 
     public void setId(Long id) {
+        if (id <= 0){
+            throw new InvalidValueException("movie id must be greater than 0");
+        }
         this.id = id;
     }
 

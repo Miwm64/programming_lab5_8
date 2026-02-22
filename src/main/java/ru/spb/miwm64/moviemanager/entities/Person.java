@@ -3,7 +3,7 @@ package ru.spb.miwm64.moviemanager.entities;
 import ru.spb.miwm64.moviemanager.exceptions.InvalidValueException;
 
 import java.util.Objects;
-
+// TODO toString, equals
 public class Person {
     private String name; //Поле не может быть null, Строка не может быть пустой
     private float weight; //Значение поля должно быть больше 0

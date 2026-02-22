@@ -3,7 +3,7 @@ package ru.spb.miwm64.moviemanager.entities;
 import ru.spb.miwm64.moviemanager.exceptions.InvalidValueException;
 
 import java.util.Objects;
-
+// TODO toString, equals
 public class Coordinates {
     private float x; //Максимальное значение поля: 274
     private Long y; //Значение поля должно быть больше -559, Поле не может быть null
