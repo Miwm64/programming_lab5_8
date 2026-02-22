@@ -5,7 +5,7 @@ import ru.spb.miwm64.moviemanager.exceptions.InvalidValueException;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 // TODO toString, equals, check throws
-public class Movie {
+public class Movie implements Comparable<Movie> {
     private Long id; //Поле не может быть null, Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
     private String name; //Поле не может быть null, Строка не может быть пустой
     private Coordinates coordinates; //Поле не может быть null
@@ -111,6 +111,23 @@ public class Movie {
             throw new InvalidValueException("oscarsCount must be greater than 0");
         }
         this.oscarsCount = oscarsCount;
+    }
+
+    @Override
+    public int compareTo(Movie o) {
+        if (this.goldenPalmCount < o.goldenPalmCount){
+            return -1;
+        }
+        if (this.goldenPalmCount > o.goldenPalmCount){
+            return 1;
+        }
+        if (this.oscarsCount < o.oscarsCount){
+            return -1;
+        }
+        if (this.oscarsCount > o.oscarsCount){
+            return 1;
+        }
+        return 0;
     }
 }
 

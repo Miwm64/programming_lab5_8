@@ -4,7 +4,7 @@ import ru.spb.miwm64.moviemanager.exceptions.InvalidValueException;
 
 import java.util.Objects;
 // TODO toString, equals
-public class Person {
+public class Person implements Comparable<Person> {
     private String name; //Поле не может быть null, Строка не может быть пустой
     private float weight; //Значение поля должно быть больше 0
     private Color hairColor; //Поле не может быть null
@@ -53,5 +53,16 @@ public class Person {
             throw new InvalidValueException("weight must be greater than 0");
         }
         this.weight = weight;
+    }
+
+    @Override
+    public int compareTo(Person o) {
+        if (this.weight < o.weight){
+            return -1;
+        }
+        if (this.weight > o.weight){
+            return 1;
+        }
+        return 0;
     }
 }
