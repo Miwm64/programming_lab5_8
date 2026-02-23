@@ -2,8 +2,13 @@ package ru.spb.miwm64.moviemanager.command;
 
 
 public class CommandResultSuccess implements CommandResult{
-    String message;
-    Object data;
+    private String message;
+    private Object data;
+
+    public CommandResultSuccess(Object data, String message) {
+        this.data = data;
+        this.message = message;
+    }
 
     @Override
     public boolean isSuccess() {

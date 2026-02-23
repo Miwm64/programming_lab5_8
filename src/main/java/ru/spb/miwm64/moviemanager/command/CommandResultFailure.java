@@ -2,6 +2,11 @@ package ru.spb.miwm64.moviemanager.command;
 
 public class CommandResultFailure implements CommandResult{
     String errorMessage;
+
+    public CommandResultFailure(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+
     @Override
     public boolean isSuccess() {
         return false;

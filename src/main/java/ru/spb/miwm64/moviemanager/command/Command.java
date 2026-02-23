@@ -9,4 +9,7 @@ public interface Command {
     void setParam(Parameter<?> param);
     void setParams(ArrayList<Parameter<?>> params);
     CommandResult execute();
+
+    String getName();
+    String getHelp();
 }
