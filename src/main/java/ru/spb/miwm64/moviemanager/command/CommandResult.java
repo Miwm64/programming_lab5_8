@@ -1,6 +1,4 @@
-package ru.spb.miwm64.moviemanager.commands;
-
-import java.util.Objects;
+package ru.spb.miwm64.moviemanager.command;
 
 public interface CommandResult {
     boolean isSuccess();

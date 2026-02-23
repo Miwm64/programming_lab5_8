@@ -1,4 +1,4 @@
-package ru.spb.miwm64.moviemanager.commands;
+package ru.spb.miwm64.moviemanager.command;
 
 import ru.spb.miwm64.moviemanager.exceptions.InvalidValueException;
 
