@@ -3,18 +3,18 @@ package ru.spb.miwm64.moviemanager.entities;
 import ru.spb.miwm64.moviemanager.exceptions.InvalidValueException;
 
 import java.util.Objects;
-// TODO toString, equals
+
 public class Person implements Comparable<Person> {
     private String name; //Поле не может быть null, Строка не может быть пустой
     private float weight; //Значение поля должно быть больше 0
     private Color hairColor; //Поле не может быть null
     private Country nationality; //Поле не может быть null
 
-    public Person(Color hairColor, String name, Country nationality, float weight) {
-        this.hairColor = hairColor;
-        this.name = name;
-        this.nationality = nationality;
-        this.weight = weight;
+    public Person(String name, float weight, Color hairColor, Country nationality) {
+        setName(name);
+        setWeight(weight);
+        setHairColor(hairColor);
+        setNationality(nationality);
     }
 
     public Color getHairColor() {
@@ -64,5 +64,28 @@ public class Person implements Comparable<Person> {
             return 1;
         }
         return 0;
+    }
+
+    @Override
+    public String toString() {
+        return "Person{" +
+                "hairColor=" + hairColor +
+                ", name='" + name + '\'' +
+                ", weight=" + weight +
+                ", nationality=" + nationality +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Person person = (Person) o;
+        return Float.compare(weight, person.weight) == 0 && Objects.equals(name, person.name) &&
+                hairColor == person.hairColor && nationality == person.nationality;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, weight, hairColor, nationality);
     }
 }

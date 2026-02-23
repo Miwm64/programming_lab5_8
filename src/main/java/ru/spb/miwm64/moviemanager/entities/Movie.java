@@ -4,7 +4,7 @@ import ru.spb.miwm64.moviemanager.exceptions.InvalidValueException;
 
 import java.time.ZonedDateTime;
 import java.util.Objects;
-// TODO toString, equals, check throws
+
 public class Movie implements Comparable<Movie> {
     private Long id; //Поле не может быть null, Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
     private String name; //Поле не может быть null, Строка не может быть пустой
@@ -16,17 +16,17 @@ public class Movie implements Comparable<Movie> {
     private MpaaRating mpaaRating; //Поле не может быть null
     private Person operator; //Поле может быть null
 
-    public Movie(Coordinates coordinates, ZonedDateTime creationDate, MovieGenre genre, long goldenPalmCount, Long id,
-                 MpaaRating mpaaRating, String name, Person operator, int oscarsCount) {
-        this.coordinates = coordinates;
-        this.creationDate = creationDate;
-        this.genre = genre;
-        this.goldenPalmCount = goldenPalmCount;
-        this.id = id;
-        this.mpaaRating = mpaaRating;
-        this.name = name;
-        this.operator = operator;
-        this.oscarsCount = oscarsCount;
+    public Movie(Long id, String name, Coordinates coordinates, ZonedDateTime creationDate, int oscarsCount,
+                 long goldenPalmCount, MovieGenre genre, MpaaRating mpaaRating,  Person operator ) {
+        setCoordinates(coordinates);
+        setCreationDate(creationDate);
+        setGenre(genre);
+        setGoldenPalmCount(goldenPalmCount);
+        setId(id);
+        setMpaaRating(mpaaRating);
+        setName(name);
+        setOperator(operator);
+        setOscarsCount(oscarsCount);
     }
 
     public Coordinates getCoordinates() {
@@ -69,6 +69,7 @@ public class Movie implements Comparable<Movie> {
     }
 
     public void setId(Long id) {
+        Objects.requireNonNull(id);
         if (id <= 0){
             throw new InvalidValueException("movie id must be greater than 0");
         }
@@ -88,10 +89,11 @@ public class Movie implements Comparable<Movie> {
     }
 
     public void setName(String name) {
+        Objects.requireNonNull(name, "name cannot be null");
         if (name.isEmpty()){
             throw new InvalidValueException("name can not be empty");
         }
-        this.name = Objects.requireNonNull(name);
+        this.name = name;
     }
 
     public Person getOperator() {
@@ -128,6 +130,35 @@ public class Movie implements Comparable<Movie> {
             return 1;
         }
         return 0;
+    }
+
+    @Override
+    public String toString() {
+        return "Movie{" +
+                "coordinates=" + coordinates +
+                ", id=" + id +
+                ", name='" + name + '\'' +
+                ", creationDate=" + creationDate +
+                ", oscarsCount=" + oscarsCount +
+                ", goldenPalmCount=" + goldenPalmCount +
+                ", genre=" + genre +
+                ", mpaaRating=" + mpaaRating +
+                ", operator=" + operator +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Movie movie = (Movie) o;
+        return oscarsCount == movie.oscarsCount && goldenPalmCount == movie.goldenPalmCount &&
+                Objects.equals(name, movie.name) && Objects.equals(coordinates, movie.coordinates) &&
+                genre == movie.genre && mpaaRating == movie.mpaaRating && Objects.equals(operator, movie.operator);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, coordinates, oscarsCount, goldenPalmCount, genre, mpaaRating, operator);
     }
 }
 
