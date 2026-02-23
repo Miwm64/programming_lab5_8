@@ -23,6 +23,11 @@ public class SortedCollectionManager implements CollectionManager {
     @Override
     public void append(Movie movie) {
         Objects.requireNonNull(movie);
+        for (Movie mv : movies){
+            if (Objects.equals(mv.getId(), movie.getId())){
+                throw new InvalidValueException("Movie id must be unique");
+            }
+        }
         int index = Collections.binarySearch(movies, movie);
 
         if (index < 0) {
