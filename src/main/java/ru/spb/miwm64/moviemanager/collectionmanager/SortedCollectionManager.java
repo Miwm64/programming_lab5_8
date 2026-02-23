@@ -1,0 +1,153 @@
+package ru.spb.miwm64.moviemanager.collectionmanager;
+
+import ru.spb.miwm64.moviemanager.entities.Movie;
+import ru.spb.miwm64.moviemanager.entities.Person;
+import ru.spb.miwm64.moviemanager.exceptions.InvalidValueException;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.NoSuchElementException;
+import java.util.Objects;
+
+public class SortedCollectionManager implements CollectionManager {
+    ArrayList<Movie> movies;
+
+    public SortedCollectionManager() {
+        movies = new ArrayList<>();
+    }
+
+    public SortedCollectionManager(ArrayList<Movie> movies) {
+        this.movies = new ArrayList<>(movies);
+    }
+
+    @Override
+    public void append(Movie movie) {
+        Objects.requireNonNull(movie);
+        int index = Collections.binarySearch(movies, movie);
+
+        if (index < 0) {
+            index = -index - 1;
+        }
+
+        movies.add(index, movie);
+    }
+
+    @Override
+    public void updateId(Long oldId, Long newId) {
+        if (oldId.equals(newId)) return;
+
+        Movie m = null;
+        for (Movie mv : movies){
+            if (Objects.equals(mv.getId(), newId)){
+                throw new InvalidValueException("Movie id must be unique");
+            }
+            if (Objects.equals(mv.getId(), oldId)){
+                m = mv;
+            }
+        }
+
+        if (Objects.isNull(m)) {
+            throw new NoSuchElementException("Movie with id " + oldId + " not found");
+        }
+
+        m.setId(newId);
+    }
+
+    @Override
+    public void addIfMin(Movie movie) {
+        if (movies.isEmpty()) {
+            movies.add(movie);
+            return;
+        }
+
+        if (movie.compareTo(movies.getFirst()) < 0) {
+            movies.add(0, movie);
+        }
+    }
+
+    @Override
+    public Movie getById(Long id) {
+        for (Movie mv : movies){
+            if (Objects.equals(mv.getId(), id)){
+                return mv;
+            }
+        }
+        throw new NoSuchElementException("Movie with id " + id + " not found");
+    }
+
+    @Override
+    public Movie getByIndex(int index) {
+        if (index < 0 || index >= movies.size()) {
+            throw new InvalidValueException("Index out of bounds: " + index);
+        }
+        return movies.get(index);
+    }
+
+    @Override
+    public ArrayList<Movie> getGreater(Person person) {
+        Objects.requireNonNull(person);
+        var res = new ArrayList<Movie>();
+
+        for (Movie mv : movies){
+            Person operator = mv.getOperator();
+            if (Objects.isNull(operator)){
+                continue;
+            }
+            if (operator.compareTo(person) > 0){
+                res.add(mv);
+            }
+        }
+        return res;
+    }
+
+    @Override
+    public ArrayList<Movie> getAll() {
+        return new ArrayList<>(movies);
+    }
+
+    @Override
+    public void removeById(Long id) {
+        int c = 0;
+        for (Movie mv : movies){
+            if (Objects.equals(mv.getId(), id)){
+                 movies.remove(c);
+                 return;
+            }
+            ++c;
+        }
+        throw new NoSuchElementException("Movie with id " + id + " not found");
+    }
+
+    @Override
+    public void removeByIndex(int index) {
+        if (index < 0 || index >= movies.size()){
+            throw new InvalidValueException("Index is out of bounds: " + index);
+        }
+        movies.remove(index);
+    }
+
+    @Override
+    public void removeGreater(Movie movie) {
+        Objects.requireNonNull(movie);
+        int index = Collections.binarySearch(movies, movie);
+
+        if (index >= 0) {
+            while (index < movies.size() && movies.get(index).compareTo(movie) == 0) {
+                ++index;
+            }
+        }
+        else {
+            index = -index - 1;
+        }
+
+        if (index < movies.size()) {
+            movies.subList(index, movies.size()).clear();
+        }
+    }
+
+    @Override
+    public void removeAll() {
+        this.movies.clear();
+    }
+
+}
