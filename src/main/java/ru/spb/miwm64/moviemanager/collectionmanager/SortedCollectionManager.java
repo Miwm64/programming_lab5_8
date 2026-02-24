@@ -80,6 +80,12 @@ public class SortedCollectionManager implements CollectionManager {
     }
 
     @Override
+    public void setCollection(ArrayList<Movie> movies) {
+        this.movies.clear();
+        this.movies = new ArrayList<>(movies);
+    }
+
+    @Override
     public Movie getById(Long id) {
         for (Movie mv : movies){
             if (Objects.equals(mv.getId(), id)){
