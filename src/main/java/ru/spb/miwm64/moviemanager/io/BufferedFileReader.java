@@ -48,7 +48,7 @@ public class BufferedFileReader implements Reader {
     }
 
     @Override
-    public boolean hasNextLine() throws IOException {
+    public boolean hasNextLine() {
         return cachedLine != null;
     }
 
