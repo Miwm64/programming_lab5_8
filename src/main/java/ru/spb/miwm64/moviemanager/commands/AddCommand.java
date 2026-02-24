@@ -93,7 +93,7 @@ public class AddCommand extends AbstractCommand {
                 "Enter operator weight (float > 0)",
                 Float::parseFloat,
                 w -> w > 0,
-                true
+                false
         );
 
         // operator.hairColor - Color enum, cannot be null
@@ -102,7 +102,7 @@ public class AddCommand extends AbstractCommand {
                 "Enter hair color (GREEN/RED/YELLOW/ORANGE/BROWN)",
                 s -> Color.valueOf(s.toUpperCase()),
                 color -> true,
-                true
+                false
         );
 
         // operator.nationality - Country enum, cannot be null
@@ -111,7 +111,7 @@ public class AddCommand extends AbstractCommand {
                 "Enter nationality (UNITED_KINGDOM/CHINA/INDIA/ITALY/THAILAND)",
                 s -> Country.valueOf(s.toUpperCase()),
                 country -> true,
-                true
+                false
         );
 
         // Movie fields
@@ -149,8 +149,6 @@ public class AddCommand extends AbstractCommand {
                         getValue("nationality")
                 );
             }
-            System.out.println(getValue("mpaaRating").toString());
-            System.out.println(getValue("mpaaRating").getClass());
             Movie movie = new Movie(
                     null,
                     getValue("name"),
