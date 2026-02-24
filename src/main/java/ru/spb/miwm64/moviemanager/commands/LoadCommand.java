@@ -40,8 +40,7 @@ public final class LoadCommand extends AbstractCommand {
             return new CommandResultSuccess(xml, "File loaded successfully");
         }
         catch (Exception e) {
-            System.out.println(e.getMessage());
-            return new CommandResultFailure(e.getMessage());
+            return new CommandResultFailure("Couldn't load file: " + e.getMessage());
         }
     }
 }

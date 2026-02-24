@@ -39,8 +39,7 @@ public final class SaveCommand extends AbstractCommand {
             return new CommandResultSuccess(xml, "File saved successfully");
         }
         catch (Exception e) {
-            System.out.println(e.getMessage());
-            return new CommandResultFailure(e.getMessage());
+            return new CommandResultFailure("Couldn't save file: " + e.getMessage());
         }
     }
 }

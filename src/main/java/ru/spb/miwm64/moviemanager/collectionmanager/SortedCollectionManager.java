@@ -81,8 +81,11 @@ public class SortedCollectionManager implements CollectionManager {
 
     @Override
     public void setCollection(ArrayList<Movie> movies) {
-        this.movies.clear();
+        removeAll();
         this.movies = new ArrayList<>(movies);
+        for (var mv : movies){
+            currentIDs.put(mv.getId(), true);
+        }
     }
 
     @Override
@@ -168,6 +171,8 @@ public class SortedCollectionManager implements CollectionManager {
     @Override
     public void removeAll() {
         this.movies.clear();
+        this.currentIDs.clear();
+        this.lastAssignedId = 1L;
     }
 
 }

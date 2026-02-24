@@ -54,11 +54,13 @@ public class XMLParser {
      */
     private Movie parseSingleMovie(String movieXml) {
         // Extract fields using helper method
+        Long id = Long.parseLong(extractTag(movieXml, "id"));
         String name = extractTag(movieXml, "name");
         Float coordX = Float.parseFloat(extractTag(movieXml, "coordX"));
         Long coordY = Long.parseLong(extractTag(movieXml, "coordY"));
         Integer oscarsCount = Integer.parseInt(extractTag(movieXml, "oscarsCount"));
         Long goldenPalmCount = Long.parseLong(extractTag(movieXml, "goldenPalmCount"));
+        java.time.ZonedDateTime zonedDateTime = ZonedDateTime.parse(extractTag(movieXml, "creationDate"));
         String genreStr = extractTagOptional(movieXml, "genre");
         String mpaaStr = extractTag(movieXml, "mpaaRating");
 
@@ -89,10 +91,10 @@ public class XMLParser {
 
         // Create movie (id and creationDate will be set by collection manager)
         return new Movie(
-                null, // id auto-generated
+                id,
                 name,
                 coords,
-                ZonedDateTime.now(), // creation date auto-generated
+                zonedDateTime,
                 oscarsCount,
                 goldenPalmCount,
                 genre,
