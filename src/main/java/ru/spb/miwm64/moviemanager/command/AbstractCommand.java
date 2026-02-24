@@ -1,6 +1,7 @@
 package ru.spb.miwm64.moviemanager.command;
 
 import ru.spb.miwm64.moviemanager.exceptions.NonExistentParameter;
+import ru.spb.miwm64.moviemanager.exceptions.NotEnoughParameters;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -66,8 +67,24 @@ abstract public class AbstractCommand implements  Command {
         return help;
     }
 
-    public String getName(){
+    public String getName() {
         return name;
     }
 
+    protected void addParam(Parameter<?> parameter) {
+        params.put(parameter.getName(), parameter);
+    }
+
+    protected void checkParams() {
+        for (var param : params.values()){
+            if (param.isRequired() && ! param.isSet()){
+                throw new NotEnoughParameters("Too few parameters were specified for " + name + " command");
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    protected <T> T getValue(String name) {
+        return (T) params.get(name).getValue();
+    }
 }

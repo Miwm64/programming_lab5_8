@@ -11,26 +11,22 @@ public class Parameter<T> implements Cloneable{
     private final String prompt;
     private final Function<String, T> parser;
     private final Predicate<T> validator;
-    private final T defaultValue;
     private final boolean required;
     private T value;
     private boolean isSet = false;
 
     public Parameter(String name, String prompt, Function<String, T> parser,
-                 Predicate<T> validator, T defaultValue, boolean required) {
+                 Predicate<T> validator, boolean required) {
         this.name = name;
         this.prompt = prompt;
         this.parser = parser;
         this.validator = validator;
-        this.defaultValue = defaultValue;
         this.required = required;
     }
 
     public void fromString(String input) {
         if (Objects.isNull(input) || input.trim().isEmpty()) {
             if (!required){
-                value = defaultValue;
-                isSet = true;
                 return;
             }
             isSet = false;
@@ -59,10 +55,6 @@ public class Parameter<T> implements Cloneable{
 
     public String getPrompt() {
         return prompt;
-    }
-
-    public T getDefaultValue() {
-        return defaultValue;
     }
 
     public boolean isRequired() {

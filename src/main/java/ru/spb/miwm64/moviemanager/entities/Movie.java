@@ -69,10 +69,6 @@ public class Movie implements Comparable<Movie> {
     }
 
     public void setId(Long id) {
-        Objects.requireNonNull(id);
-        if (id <= 0){
-            throw new InvalidValueException("movie id must be greater than 0");
-        }
         this.id = id;
     }
 
