@@ -2,6 +2,7 @@ package ru.spb.miwm64.moviemanager;
 
 import ru.spb.miwm64.moviemanager.collectionmanager.CollectionManager;
 import ru.spb.miwm64.moviemanager.command.Command;
+import ru.spb.miwm64.moviemanager.command.CommandFactory;
 import ru.spb.miwm64.moviemanager.command.CommandResult;
 import ru.spb.miwm64.moviemanager.commands.*;
 import ru.spb.miwm64.moviemanager.entities.Movie;
@@ -30,6 +31,7 @@ public final class MainController {
     private Writer defaultWriter;
     private Writer writer;
     private XMLParser xmlParser;
+    private CommandFactory commandFactory;
 
     public MainController(CollectionManager collectionManager, Reader defaultReader,
                           Writer defaultWriter, XMLParser xmlParser) {
@@ -40,6 +42,7 @@ public final class MainController {
         this.defaultReader = defaultReader;
         this.defaultWriter = defaultWriter;
         this.xmlParser = xmlParser;
+        this.commandFactory = new CommandFactory(collectionManager, xmlParser);
     }
 
     public void run() {
@@ -74,7 +77,7 @@ public final class MainController {
             ArrayList<String> inputs = new ArrayList<>(Arrays.asList(input.trim().split(" ")));
             switch (inputs.get(0)){
                 case "help": {
-                    cmd = new HelpCommand();
+                    cmd = new HelpCommand(commandFactory);
                     break;
                 }
                 case "show": {
@@ -151,7 +154,7 @@ public final class MainController {
             Command cmd;
             switch (inputs.get(0)){
                 case "help": {
-                    cmd = new HelpCommand();
+                    cmd = new HelpCommand(commandFactory);
                     break;
                 }
                 case "show": {

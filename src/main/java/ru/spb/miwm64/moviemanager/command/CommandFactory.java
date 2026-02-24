@@ -5,14 +5,11 @@ import ru.spb.miwm64.moviemanager.commands.*;
 import ru.spb.miwm64.moviemanager.exceptions.NonExistentCommand;
 import ru.spb.miwm64.moviemanager.io.XMLParser;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Supplier;
 
 public final class CommandFactory {
-    private final Map<String, Supplier<Command>> commandsRegistry = new HashMap<>();
+    private final Map<String, Supplier<Command>> commandsRegistry = new LinkedHashMap<>();
     private CollectionManager collectionManager;
     private XMLParser xmlParser;
 
