@@ -14,7 +14,12 @@ abstract public class AbstractCommand implements  Command {
 
     @Override
     public ArrayList<Parameter<?>> getParams(){
-        return new ArrayList<>(params.values());
+        var res = new ArrayList<Parameter<?>>();
+        for (var param : params.values()){
+            res.add(param.clone());
+        }
+
+        return res;
     }
 
     @Override
@@ -22,26 +27,32 @@ abstract public class AbstractCommand implements  Command {
         var res = new ArrayList<Parameter<?>>();
         for (var param : params.values()){
             if (!param.isSet()){
-                res.add(param);
+                res.add(param.clone());
             }
         }
-        return new ArrayList<>(res);
+
+        return res;
     }
 
     public ArrayList<Parameter<?>> getRemainingRequiredParams() {
         var res = new ArrayList<Parameter<?>>();
         for (var param : params.values()){
             if (!param.isSet() && param.isRequired()){
-                res.add(param);
+                res.add(param.clone());
             }
         }
-        return new ArrayList<>(res);
+
+        return res;
     }
 
     public void setParam(Parameter<?> param) {
         if (params.isEmpty()) {
-            throw new NonExistentParameter("Params can not be set in command" + name);
+            throw new NonExistentParameter("Params can not be set in command " + name);
         }
+        if (!params.containsKey(param.getName())) {
+            throw new NonExistentParameter(param.getName() + " can not be set in command " + name);
+        }
+
         params.put(param.getName(), param);
     }
 
