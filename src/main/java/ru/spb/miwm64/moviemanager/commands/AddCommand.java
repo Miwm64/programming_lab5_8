@@ -174,9 +174,4 @@ public class AddCommand extends AbstractCommand {
             return new CommandResultFailure(e.getMessage());
         }
     }
-
-    @SuppressWarnings("unchecked")
-    protected <T> T getValue(String name) {
-        return (T) params.get(name).getValue();
-    }
 }
