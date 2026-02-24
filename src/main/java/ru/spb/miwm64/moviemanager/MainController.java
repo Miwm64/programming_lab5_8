@@ -3,9 +3,8 @@ package ru.spb.miwm64.moviemanager;
 import ru.spb.miwm64.moviemanager.collectionmanager.CollectionManager;
 import ru.spb.miwm64.moviemanager.command.Command;
 import ru.spb.miwm64.moviemanager.command.CommandResult;
-import ru.spb.miwm64.moviemanager.commands.AddCommand;
-import ru.spb.miwm64.moviemanager.commands.HelpCommand;
-import ru.spb.miwm64.moviemanager.commands.ShowCommand;
+import ru.spb.miwm64.moviemanager.commands.*;
+import ru.spb.miwm64.moviemanager.entities.Movie;
 import ru.spb.miwm64.moviemanager.exceptions.InvalidValueException;
 import ru.spb.miwm64.moviemanager.exceptions.NonExistentCommand;
 import ru.spb.miwm64.moviemanager.io.BufferedFileReader;
@@ -14,12 +13,17 @@ import ru.spb.miwm64.moviemanager.io.Writer;
 import ru.spb.miwm64.moviemanager.io.XMLParser;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 public final class MainController {
+    final String ENV_VARIABLE = "XML_LOAD";
+
     private CollectionManager collectionManager;
     private List<Reader> readers;
     private Reader defaultReader;
@@ -39,6 +43,7 @@ public final class MainController {
     }
 
     public void run() {
+        loadCollection();
         try {
             readers.add(0, new BufferedFileReader("input.txt"));
             while (true) {
@@ -55,11 +60,9 @@ public final class MainController {
             }
         }
         catch (Exception e) {
-            System.out.println("FUCK!");
-            System.out.println(e.getStackTrace().toString());
             return;
         }
-        // save xml
+        saveCollection();
     }
 
     private boolean consoleRun() throws IOException {
@@ -194,5 +197,31 @@ public final class MainController {
             throw new RuntimeException(e);
         }
         return false;
+    }
+
+    private void loadCollection() {
+        Command cmd = new LoadCommand(collectionManager, xmlParser);
+        var filepathParam = cmd.getParams().get(0);
+        filepathParam.fromString(System.getenv(ENV_VARIABLE));
+        cmd.setParams(new ArrayList<>(List.of(filepathParam)));
+        try {
+            writer.writeln(cmd.execute().getMessage());
+        }
+        catch (Exception e){
+            return;
+        }
+    }
+
+    private void saveCollection() {
+        Command cmd = new SaveCommand(collectionManager, xmlParser);
+        var filepathParam = cmd.getParams().get(0);
+        filepathParam.fromString(System.getenv(ENV_VARIABLE));
+        cmd.setParams(new ArrayList<>(List.of(filepathParam)));
+        try {
+            writer.writeln(cmd.execute().getMessage());
+        }
+        catch (Exception e){
+            return;
+        }
     }
 }
