@@ -149,8 +149,6 @@ public class AddCommand extends AbstractCommand {
                         getValue("nationality")
                 );
             }
-            System.out.println(getValue("mpaaRating").toString());
-            System.out.println(getValue("mpaaRating").getClass());
             Movie movie = new Movie(
                     null,
                     getValue("name"),
