@@ -4,13 +4,12 @@ import ru.spb.miwm64.moviemanager.entities.Movie;
 import ru.spb.miwm64.moviemanager.entities.Person;
 import ru.spb.miwm64.moviemanager.exceptions.InvalidValueException;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.NoSuchElementException;
-import java.util.Objects;
+import java.util.*;
 
 public class SortedCollectionManager implements CollectionManager {
-    ArrayList<Movie> movies;
+    private ArrayList<Movie> movies;
+    private Long lastAssignedId = 1L;
+    private Map<Long, Boolean> currentIDs = new HashMap<>();
 
     public SortedCollectionManager() {
         movies = new ArrayList<>();
@@ -23,11 +22,21 @@ public class SortedCollectionManager implements CollectionManager {
     @Override
     public void append(Movie movie) {
         Objects.requireNonNull(movie);
-        for (Movie mv : movies){
-            if (Objects.equals(mv.getId(), movie.getId())){
-                throw new InvalidValueException("Movie id must be unique");
+        if (!Objects.isNull(movie.getId())) {
+            for (Movie mv : movies) {
+                if (Objects.equals(mv.getId(), movie.getId())) {
+                    throw new InvalidValueException("Movie id must be unique");
+                }
             }
         }
+        else {
+            while (currentIDs.containsKey(lastAssignedId)){
+                ++lastAssignedId;
+            }
+            movie.setId(lastAssignedId);
+            currentIDs.put(lastAssignedId, true);
+        }
+
         int index = Collections.binarySearch(movies, movie);
 
         if (index < 0) {
