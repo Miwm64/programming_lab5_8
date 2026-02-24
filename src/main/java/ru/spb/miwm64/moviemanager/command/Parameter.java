@@ -6,7 +6,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public class Parameter<T> {
+public class Parameter<T> implements Cloneable{
     private final String name;
     private final String prompt;
     private final Function<String, T> parser;
@@ -75,5 +75,17 @@ public class Parameter<T> {
 
     public boolean isSet() {
         return isSet;
+    }
+
+
+    @Override
+    public Parameter<T> clone() {
+        try {
+            Parameter clone = (Parameter) super.clone();
+            clone.value = this.value;
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }

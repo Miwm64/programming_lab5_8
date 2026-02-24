@@ -7,46 +7,27 @@ import ru.spb.miwm64.moviemanager.exceptions.NonExistentParameter;
 
 import java.util.ArrayList;
 
-public class ShowCommand implements Command {
-    private final String name = "show";
+public final class ShowCommand extends AbstractCommand {
     private CollectionManager collectionManager;
 
     public ShowCommand(CollectionManager collectionManager) {
         this.collectionManager = collectionManager;
+        this.name = "show";
+        this.help = "show - show all elements of collection";
     }
 
-    @Override
-    public ArrayList<Parameter<?>> getParams() {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public ArrayList<Parameter<?>> getMissingParams() {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public ArrayList<Parameter<?>> getRemainingRequiredParams() {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public void setParam(Parameter<?> param) {
-        throw new NonExistentParameter("Params can not be set in command" + name);
-    }
-
-    @Override
-    public void setParams(ArrayList<Parameter<?>> params) {
-        throw new NonExistentParameter("Params can not be set in command" + name);
-    }
 
     @Override
     public CommandResult execute() {
         CommandResult res;
         try {
             ArrayList<Movie> movies = collectionManager.getAll();
-            String message = ""+movies.size();
-            res = new CommandResultSuccess(movies, message);
+            StringBuilder message = new StringBuilder();
+            for (var mv : movies) {
+                message.append(mv);
+                message.append("\n");
+            }
+            res = new CommandResultSuccess(movies, message.toString());
         }
         catch (Exception e){
             res = new CommandResultFailure(e.getMessage());
@@ -54,13 +35,4 @@ public class ShowCommand implements Command {
         return res;
     }
 
-    @Override
-    public String getName() {
-        return "";
-    }
-
-    @Override
-    public String getHelp() {
-        return "";
-    }
 }
