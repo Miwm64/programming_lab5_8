@@ -6,7 +6,7 @@ import ru.spb.miwm64.moviemanager.entities.*;
 
 import java.time.ZonedDateTime;
 
-public class AddIfMinCommand extends AbstractCommand {
+public final class AddIfMinCommand extends AbstractCommand {
     private CollectionManager collectionManager;
 
     public AddIfMinCommand(CollectionManager collectionManager){

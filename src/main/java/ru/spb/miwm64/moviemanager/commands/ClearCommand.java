@@ -7,7 +7,7 @@ import ru.spb.miwm64.moviemanager.command.CommandResult;
 import ru.spb.miwm64.moviemanager.command.CommandResultFailure;
 import ru.spb.miwm64.moviemanager.command.CommandResultSuccess;
 
-public class ClearCommand extends AbstractCommand {
+public final class ClearCommand extends AbstractCommand {
     private CollectionManager collectionManager;
 
     public ClearCommand(CollectionManager collectionManager) {

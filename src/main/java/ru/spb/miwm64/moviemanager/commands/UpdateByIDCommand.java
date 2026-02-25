@@ -6,7 +6,7 @@ import ru.spb.miwm64.moviemanager.entities.*;
 
 import java.time.ZonedDateTime;
 
-public class UpdateByIDCommand extends AbstractCommand {
+public final class UpdateByIDCommand extends AbstractCommand {
     private CollectionManager collectionManager;
 
     public UpdateByIDCommand(CollectionManager collectionManager) {

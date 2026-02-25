@@ -7,7 +7,7 @@ import ru.spb.miwm64.moviemanager.command.CommandResult;
 import ru.spb.miwm64.moviemanager.command.CommandResultFailure;
 import ru.spb.miwm64.moviemanager.command.CommandResultSuccess;
 
-public class InfoCommand extends AbstractCommand {
+public final class InfoCommand extends AbstractCommand {
     private CollectionManager collectionManager;
 
     public InfoCommand(CollectionManager collectionManager) {

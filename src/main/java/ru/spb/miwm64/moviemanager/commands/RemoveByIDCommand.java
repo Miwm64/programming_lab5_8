@@ -4,7 +4,7 @@ import ru.spb.miwm64.moviemanager.collectionmanager.CollectionManager;
 import ru.spb.miwm64.moviemanager.collectionmanager.SortedCollectionManager;
 import ru.spb.miwm64.moviemanager.command.*;
 
-public class RemoveByIDCommand extends AbstractCommand {
+public final class RemoveByIDCommand extends AbstractCommand {
     private CollectionManager collectionManager;
 
     public RemoveByIDCommand(CollectionManager collectionManager) {

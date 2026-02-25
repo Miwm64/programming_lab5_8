@@ -6,7 +6,7 @@ import ru.spb.miwm64.moviemanager.entities.*;
 
 import java.time.ZonedDateTime;
 
-public class AddCommand extends AbstractCommand {
+public final class AddCommand extends AbstractCommand {
     private CollectionManager collectionManager;
     public AddCommand(CollectionManager collectionManager){
         this.collectionManager = collectionManager;

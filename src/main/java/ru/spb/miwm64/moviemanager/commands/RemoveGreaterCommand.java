@@ -6,7 +6,7 @@ import ru.spb.miwm64.moviemanager.entities.*;
 
 import java.time.ZonedDateTime;
 
-public class RemoveGreaterCommand extends AbstractCommand {
+public final class RemoveGreaterCommand extends AbstractCommand {
     private CollectionManager collectionManager;
 
     public RemoveGreaterCommand(CollectionManager collectionManager){

@@ -4,7 +4,7 @@ import ru.spb.miwm64.moviemanager.collectionmanager.CollectionManager;
 import ru.spb.miwm64.moviemanager.collectionmanager.SortedCollectionManager;
 import ru.spb.miwm64.moviemanager.command.*;
 
-public class RemoveByIndexCommand extends AbstractCommand {
+public final class RemoveByIndexCommand extends AbstractCommand {
     private CollectionManager collectionManager;
 
     public RemoveByIndexCommand(CollectionManager collectionManager) {
