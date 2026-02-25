@@ -6,13 +6,14 @@ import ru.spb.miwm64.moviemanager.entities.*;
 
 import java.time.ZonedDateTime;
 
-public final class AddCommand extends AbstractCommand {
+public final class RemoveGreaterCommand extends AbstractCommand {
     private CollectionManager collectionManager;
-    public AddCommand(CollectionManager collectionManager){
-        this.collectionManager = collectionManager;
-        this.name = "add";
-        this.help = "add - add new element to collection";
 
+    public RemoveGreaterCommand(CollectionManager collectionManager){
+        this.collectionManager = collectionManager;
+        this.name = "remove_greater";
+        this.help = "remove_greater - remove all elements of collection, if its value is greater than " +
+                "of the specified element";
 
         // name - String, cannot be null or empty
         Parameter<String> nameParam = new Parameter<>(
@@ -128,6 +129,7 @@ public final class AddCommand extends AbstractCommand {
         addParam(operatorWeightParam);
         addParam(hairColorParam);
         addParam(nationalityParam);
+
     }
 
     @Override
@@ -142,9 +144,9 @@ public final class AddCommand extends AbstractCommand {
 
             Person operator = null;
             if (params.get("operatorName").isSet() &&
-                params.get("operatorWeight").isSet() &&
-                params.get("hairColor").isSet() &&
-                params.get("nationality").isSet() ) {
+                    params.get("operatorWeight").isSet() &&
+                    params.get("hairColor").isSet() &&
+                    params.get("nationality").isSet() ) {
                 operator = new Person(
                         getValue("operatorName"),
                         getValue("operatorWeight"),
@@ -163,12 +165,13 @@ public final class AddCommand extends AbstractCommand {
                     MpaaRating.PG_13,
                     operator
             );
-
-            collectionManager.append(movie);
+            int size = collectionManager.getAll().size();
+            collectionManager.removeGreater(movie);
+            size -= collectionManager.getAll().size();
 
             return new CommandResultSuccess(
-                    movie,
-                    "Movie added successfully with ID: " + movie.getId()
+                    size,
+                    size + " movies were removed"
             );
         } catch (Exception e) {
             return new CommandResultFailure(e.getMessage());

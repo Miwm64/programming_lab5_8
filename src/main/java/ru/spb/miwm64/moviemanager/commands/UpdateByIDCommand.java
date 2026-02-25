@@ -6,13 +6,23 @@ import ru.spb.miwm64.moviemanager.entities.*;
 
 import java.time.ZonedDateTime;
 
-public final class AddCommand extends AbstractCommand {
+public final class UpdateByIDCommand extends AbstractCommand {
     private CollectionManager collectionManager;
-    public AddCommand(CollectionManager collectionManager){
-        this.collectionManager = collectionManager;
-        this.name = "add";
-        this.help = "add - add new element to collection";
 
+    public UpdateByIDCommand(CollectionManager collectionManager) {
+        this.collectionManager = collectionManager;
+
+        this.name = "update_id";
+        this.help = "update_id <id> - updates element by speicified id";
+
+        // id, can not be null, >0
+        Parameter<Long> idParam = new Parameter<>(
+                "id",
+                "Enter id",
+                Long::parseLong,
+                s -> s > 0,
+                true
+        );
 
         // name - String, cannot be null or empty
         Parameter<String> nameParam = new Parameter<>(
@@ -115,6 +125,7 @@ public final class AddCommand extends AbstractCommand {
         );
 
         // Movie fields
+        addParam(idParam);
         addParam(nameParam);
         addParam(coordXParam);
         addParam(coordYParam);
@@ -134,7 +145,6 @@ public final class AddCommand extends AbstractCommand {
     public CommandResult execute() {
         try {
             checkParams();
-
             Coordinates coords = new Coordinates(
                     getValue("coordX"),
                     getValue("coordY")
@@ -142,9 +152,9 @@ public final class AddCommand extends AbstractCommand {
 
             Person operator = null;
             if (params.get("operatorName").isSet() &&
-                params.get("operatorWeight").isSet() &&
-                params.get("hairColor").isSet() &&
-                params.get("nationality").isSet() ) {
+                    params.get("operatorWeight").isSet() &&
+                    params.get("hairColor").isSet() &&
+                    params.get("nationality").isSet() ) {
                 operator = new Person(
                         getValue("operatorName"),
                         getValue("operatorWeight"),
@@ -153,7 +163,7 @@ public final class AddCommand extends AbstractCommand {
                 );
             }
             Movie movie = new Movie(
-                    null,
+                    getValue("id"),
                     getValue("name"),
                     coords,
                     ZonedDateTime.now(),
@@ -164,14 +174,15 @@ public final class AddCommand extends AbstractCommand {
                     operator
             );
 
-            collectionManager.append(movie);
+            collectionManager.setById(getValue("id"), movie);
 
             return new CommandResultSuccess(
                     movie,
-                    "Movie added successfully with ID: " + movie.getId()
+                    "Movie updated successfully by ID: " + movie.getId()
             );
+
         } catch (Exception e) {
-            return new CommandResultFailure(e.getMessage());
+            return new CommandResultFailure("Failed to get collection info: " + e.getMessage());
         }
     }
 }

@@ -46,8 +46,7 @@ public class SortedCollectionManager implements CollectionManager {
         movies.add(index, movie);
     }
 
-    @Override
-    public void updateId(Long oldId, Long newId) {
+    private void updateId(Long oldId, Long newId) {
         if (oldId.equals(newId)) return;
 
         Movie m = null;
@@ -68,15 +67,17 @@ public class SortedCollectionManager implements CollectionManager {
     }
 
     @Override
-    public void addIfMin(Movie movie) {
+    public boolean addIfMin(Movie movie) {
         if (movies.isEmpty()) {
-            movies.add(movie);
-            return;
+            append(movie);
+            return true;
         }
 
         if (movie.compareTo(movies.getFirst()) < 0) {
-            movies.add(0, movie);
+            append(movie);
+            return true;
         }
+        return false;
     }
 
     @Override
@@ -86,6 +87,17 @@ public class SortedCollectionManager implements CollectionManager {
         for (var mv : movies){
             currentIDs.put(mv.getId(), true);
         }
+    }
+
+    @Override
+    public void setById(Long id, Movie movie) {
+        for (int i = 0; i < movies.size(); ++i){
+            if (Objects.equals(movies.get(i).getId(), id)){
+                movies.set(i, movie);
+                return;
+            }
+        }
+        throw new NoSuchElementException("Movie with id " + id + " not found");
     }
 
     @Override

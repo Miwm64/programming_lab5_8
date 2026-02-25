@@ -6,15 +6,15 @@ import ru.spb.miwm64.moviemanager.entities.*;
 
 import java.time.ZonedDateTime;
 
-public final class AddCommand extends AbstractCommand {
+public final class AddIfMinCommand extends AbstractCommand {
     private CollectionManager collectionManager;
-    public AddCommand(CollectionManager collectionManager){
+
+    public AddIfMinCommand(CollectionManager collectionManager){
         this.collectionManager = collectionManager;
-        this.name = "add";
-        this.help = "add - add new element to collection";
-
-
-        // name - String, cannot be null or empty
+        this.name = "add_if_min";
+        this.help = "add_if_min - add new element to collection, if its value is less than " +
+                "of the smallest in the collection ";
+// name - String, cannot be null or empty
         Parameter<String> nameParam = new Parameter<>(
                 "name",
                 "Enter movie name",
@@ -128,6 +128,7 @@ public final class AddCommand extends AbstractCommand {
         addParam(operatorWeightParam);
         addParam(hairColorParam);
         addParam(nationalityParam);
+
     }
 
     @Override
@@ -142,9 +143,9 @@ public final class AddCommand extends AbstractCommand {
 
             Person operator = null;
             if (params.get("operatorName").isSet() &&
-                params.get("operatorWeight").isSet() &&
-                params.get("hairColor").isSet() &&
-                params.get("nationality").isSet() ) {
+                    params.get("operatorWeight").isSet() &&
+                    params.get("hairColor").isSet() &&
+                    params.get("nationality").isSet() ) {
                 operator = new Person(
                         getValue("operatorName"),
                         getValue("operatorWeight"),
@@ -164,11 +165,16 @@ public final class AddCommand extends AbstractCommand {
                     operator
             );
 
-            collectionManager.append(movie);
-
+            boolean res = collectionManager.addIfMin(movie);
+            if (res) {
+                return new CommandResultSuccess(
+                        res,
+                        "Movie added successfully with ID: " + movie.getId()
+                );
+            }
             return new CommandResultSuccess(
-                    movie,
-                    "Movie added successfully with ID: " + movie.getId()
+                res,
+                "Movie was not added"
             );
         } catch (Exception e) {
             return new CommandResultFailure(e.getMessage());

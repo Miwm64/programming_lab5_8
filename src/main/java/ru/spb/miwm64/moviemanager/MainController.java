@@ -2,50 +2,46 @@ package ru.spb.miwm64.moviemanager;
 
 import ru.spb.miwm64.moviemanager.collectionmanager.CollectionManager;
 import ru.spb.miwm64.moviemanager.command.Command;
+import ru.spb.miwm64.moviemanager.command.CommandFactory;
 import ru.spb.miwm64.moviemanager.command.CommandResult;
 import ru.spb.miwm64.moviemanager.commands.*;
-import ru.spb.miwm64.moviemanager.entities.Movie;
 import ru.spb.miwm64.moviemanager.exceptions.InvalidValueException;
-import ru.spb.miwm64.moviemanager.exceptions.NonExistentCommand;
 import ru.spb.miwm64.moviemanager.io.BufferedFileReader;
 import ru.spb.miwm64.moviemanager.io.Reader;
 import ru.spb.miwm64.moviemanager.io.Writer;
 import ru.spb.miwm64.moviemanager.io.XMLParser;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public final class MainController {
     final String ENV_VARIABLE = "XML_LOAD";
 
     private CollectionManager collectionManager;
     private List<Reader> readers;
+    private Set<String> openedFilesSet;
     private Reader defaultReader;
     private Writer defaultWriter;
     private Writer writer;
     private XMLParser xmlParser;
+    private CommandFactory commandFactory;
 
     public MainController(CollectionManager collectionManager, Reader defaultReader,
                           Writer defaultWriter, XMLParser xmlParser) {
         this.collectionManager = collectionManager;
-        this.readers = new ArrayList<>();
+        this.readers = new LinkedList<>();
         readers.add(defaultReader);
         this.writer = defaultWriter;
         this.defaultReader = defaultReader;
         this.defaultWriter = defaultWriter;
         this.xmlParser = xmlParser;
+        this.openedFilesSet = new HashSet<String>();
+        this.commandFactory = new CommandFactory(collectionManager, xmlParser, readers, openedFilesSet);
     }
 
     public void run() {
         loadCollection();
         try {
-            readers.add(0, new BufferedFileReader("input.txt"));
             while (true) {
                 boolean result;
                 if (readers.get(0) instanceof BufferedFileReader) {
@@ -62,47 +58,45 @@ public final class MainController {
         catch (Exception e) {
             return;
         }
-        saveCollection();
+//        saveCollection();
     }
 
     private boolean consoleRun() throws IOException {
         try {
             writer.writeln("Enter command:");
             String input = readers.get(0).readNextLine();
-            Command cmd;
 
             ArrayList<String> inputs = new ArrayList<>(Arrays.asList(input.trim().split(" ")));
-            switch (inputs.get(0)){
-                case "help": {
-                    cmd = new HelpCommand();
-                    break;
-                }
-                case "show": {
-                    cmd = new ShowCommand(collectionManager);
-                    break;
-                }
-                case "add": {
-                    cmd = new AddCommand(collectionManager);
-                    break;
-                }
-                case "exit": {
-                    return true;
-                }
-                case null, default: {
-                    throw new NonExistentCommand("Command \"" + inputs.get(0) + "\" does not exist");
-                }
+
+            if (Objects.equals(inputs.get(0), "exit")){
+                return true;
             }
+            if (Objects.equals(inputs.get(0), "save") && inputs.size() == 1){
+                saveCollection();
+                return false;
+            }
+            if (Objects.equals(inputs.get(0), "load") && inputs.size() == 1){
+                loadCollection();
+                return false;
+            }
+
+            Command cmd = commandFactory.newCommand(inputs.get(0).trim());
 
             var params = cmd.getParams();
 
-            if (params.size() == 1 && inputs.size() >= 2) {
+            if (!params.isEmpty() && inputs.size() >= 2) {
                 params.get(0).fromString(inputs.get(1));
+                cmd.setParam(params.get(0));
             }
-            else {
+            {
                 int i = 0;
                 while (i != params.size()) {
                     try {
                         var param = params.get(i);
+                        if (param.isSet()){
+                            ++i;
+                            continue;
+                        }
                         writer.writeln(param.getPrompt() + ":");
                         input = readers.get(0).readNextLine();
                         if (Objects.equals(input.trim(), "abort")){
@@ -137,8 +131,10 @@ public final class MainController {
         return false;
     }
 
-    private boolean fileRun() {
+    private boolean fileRun() throws IOException {
         if (!readers.get(0).hasNextLine()) {
+            BufferedFileReader reader = (BufferedFileReader) readers.get(0);
+            openedFilesSet.remove(reader.getFilepath());
             readers.remove(0);
             return false;
         }
@@ -148,27 +144,10 @@ public final class MainController {
                     Arrays.asList(input.trim().split(" ", 2))
             );
 
-            Command cmd;
-            switch (inputs.get(0)){
-                case "help": {
-                    cmd = new HelpCommand();
-                    break;
-                }
-                case "show": {
-                    cmd = new ShowCommand(collectionManager);
-                    break;
-                }
-                case "add": {
-                    cmd = new AddCommand(collectionManager);
-                    break;
-                }
-                case "exit": {
-                    return true;
-                }
-                case null, default: {
-                    throw new NonExistentCommand("Command \"" + inputs.get(0) + "\" does not exist");
-                }
+            if (Objects.equals(inputs.get(0), "exit")){
+                return true;
             }
+            Command cmd = commandFactory.newCommand(inputs.get(0).trim());
 
             var params = cmd.getParams();
             if (!params.isEmpty()) {
@@ -183,7 +162,7 @@ public final class MainController {
                 }
             }
             cmd.setParams(params);
-            cmd.execute();
+            writer.writeln(cmd.execute().getMessage());
         }
         catch (IOException e) {
             readers.clear();
@@ -191,7 +170,10 @@ public final class MainController {
             writer = defaultWriter;
         }
         catch (InvalidValueException e){
-            System.out.println(e.getMessage());
+            writer.writeln("error: " + e.getMessage());
+        }
+        catch (RuntimeException e){
+            writer.writeln("error: " + e.getMessage());
         }
         catch (Exception e) {
             throw new RuntimeException(e);
