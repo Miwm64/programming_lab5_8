@@ -16,7 +16,7 @@ public final class SaveCommand extends AbstractCommand {
         this.xmlParser = xmlParser;
 
         this.name = "save";
-        this.help = "save - saves collection into file specified by environment variable";
+        this.help = "save <filepath> - saves collection into file specified by filepath/environment variable";
 
         Parameter<String> filepathParam = new Parameter<>(
                 "filepath",

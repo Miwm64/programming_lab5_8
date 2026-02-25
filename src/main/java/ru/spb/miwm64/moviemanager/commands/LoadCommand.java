@@ -16,7 +16,8 @@ public final class LoadCommand extends AbstractCommand {
         this.xmlParser = xmlParser;
 
         this.name = "load";
-        this.help = "load - loads collection from file specified by environment variable. Clears old collection";
+        this.help = "load <filepath> - loads collection from file " +
+                "specified by filepath/environment variable. Clears old collection";
 
         Parameter<String> filepathParam = new Parameter<>(
                 "filepath",

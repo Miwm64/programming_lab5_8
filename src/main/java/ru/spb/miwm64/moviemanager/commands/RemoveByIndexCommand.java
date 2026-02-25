@@ -11,7 +11,7 @@ public class RemoveByIndexCommand extends AbstractCommand {
         this.collectionManager = collectionManager;
 
         this.name = "remove_at";
-        this.help = "remove_at - remove by index";
+        this.help = "remove_at <id> - remove by index";
 
         // id, can not be null, >0
         Parameter<Integer> indexParam = new Parameter<>(

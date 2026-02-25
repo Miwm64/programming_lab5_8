@@ -13,7 +13,7 @@ public class UpdateByIDCommand extends AbstractCommand {
         this.collectionManager = collectionManager;
 
         this.name = "update_id";
-        this.help = "update_id - updates element by id";
+        this.help = "update_id <id> - updates element by speicified id";
 
         // id, can not be null, >0
         Parameter<Long> idParam = new Parameter<>(
