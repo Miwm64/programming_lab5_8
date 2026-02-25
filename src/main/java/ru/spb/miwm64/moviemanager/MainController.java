@@ -78,18 +78,32 @@ public final class MainController {
             if (Objects.equals(inputs.get(0), "exit")){
                 return true;
             }
+            if (Objects.equals(inputs.get(0), "save") && inputs.size() == 1){
+                saveCollection();
+                return false;
+            }
+            if (Objects.equals(inputs.get(0), "load") && inputs.size() == 1){
+                loadCollection();
+                return false;
+            }
+
             Command cmd = commandFactory.newCommand(inputs.get(0).trim());
 
             var params = cmd.getParams();
 
-            if (params.size() == 1 && inputs.size() >= 2) {
+            if (!params.isEmpty() && inputs.size() >= 2) {
                 params.get(0).fromString(inputs.get(1));
+                cmd.setParam(params.get(0));
             }
-            else {
+            {
                 int i = 0;
                 while (i != params.size()) {
                     try {
                         var param = params.get(i);
+                        if (param.isSet()){
+                            ++i;
+                            continue;
+                        }
                         writer.writeln(param.getPrompt() + ":");
                         input = readers.get(0).readNextLine();
                         if (Objects.equals(input.trim(), "abort")){
