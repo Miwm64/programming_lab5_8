@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 public interface CollectionManager {
     void append(Movie movie);
-    void addIfMin(Movie movie);
+    boolean addIfMin(Movie movie);
 
     void setCollection(ArrayList<Movie> movies);
     void setById(Long id, Movie movie);

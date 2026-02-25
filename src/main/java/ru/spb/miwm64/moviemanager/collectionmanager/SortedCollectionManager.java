@@ -67,15 +67,17 @@ public class SortedCollectionManager implements CollectionManager {
     }
 
     @Override
-    public void addIfMin(Movie movie) {
+    public boolean addIfMin(Movie movie) {
         if (movies.isEmpty()) {
-            movies.add(movie);
-            return;
+            append(movie);
+            return true;
         }
 
         if (movie.compareTo(movies.getFirst()) < 0) {
-            movies.add(0, movie);
+            append(movie);
+            return true;
         }
+        return false;
     }
 
     @Override

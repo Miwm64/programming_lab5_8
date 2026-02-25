@@ -27,6 +27,7 @@ public final class CommandFactory {
         register("show", () -> new ShowCommand(collectionManager));
         register("info", () -> new InfoCommand(collectionManager));
         register("add", () -> new AddCommand(collectionManager));
+        register("add_if_min", () -> new AddIfMinCommand(collectionManager));
         register("update_id", () -> new UpdateByIDCommand(collectionManager));
         register("remove_by_id", () -> new RemoveByIDCommand(collectionManager));
         register("remove_at", () -> new RemoveByIndexCommand(collectionManager));
