@@ -1,14 +1,13 @@
-package ru.spb.miwm64.moviemanager.command;
+package ru.spb.miwm64.moviemanager.commands;
 
 import ru.spb.miwm64.moviemanager.collectionmanager.CollectionManager;
 import ru.spb.miwm64.moviemanager.collectionmanager.SortedCollectionManager;
-import ru.spb.miwm64.moviemanager.entities.Movie;
-import ru.spb.miwm64.moviemanager.io.Reader;
-import ru.spb.miwm64.moviemanager.io.SimpleFileReader;
+import ru.spb.miwm64.moviemanager.command.AbstractCommand;
+import ru.spb.miwm64.moviemanager.command.CommandResult;
+import ru.spb.miwm64.moviemanager.command.CommandResultFailure;
+import ru.spb.miwm64.moviemanager.command.CommandResultSuccess;
 
-import java.util.ArrayList;
-
-public class InfoCommand extends AbstractCommand{
+public class InfoCommand extends AbstractCommand {
     private CollectionManager collectionManager;
 
     public InfoCommand(CollectionManager collectionManager) {

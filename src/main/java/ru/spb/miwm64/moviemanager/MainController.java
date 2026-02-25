@@ -74,6 +74,10 @@ public final class MainController {
             String input = readers.get(0).readNextLine();
 
             ArrayList<String> inputs = new ArrayList<>(Arrays.asList(input.trim().split(" ")));
+
+            if (Objects.equals(inputs.get(0), "exit")){
+                return true;
+            }
             Command cmd = commandFactory.newCommand(inputs.get(0).trim());
 
             var params = cmd.getParams();
@@ -131,6 +135,9 @@ public final class MainController {
                     Arrays.asList(input.trim().split(" ", 2))
             );
 
+            if (Objects.equals(inputs.get(0), "exit")){
+                return true;
+            }
             Command cmd = commandFactory.newCommand(inputs.get(0).trim());
 
             var params = cmd.getParams();
