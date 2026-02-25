@@ -26,7 +26,10 @@ public final class CommandFactory {
 
         register("show", () -> new ShowCommand(collectionManager));
         register("info", () -> new InfoCommand(collectionManager));
-        register("count_by_golden_palm_count", () -> new CountByGoldenPalmCountCommand(collectionManager));
+        register("count_by_golden_palm_count", () ->
+                new CountByGoldenPalmCountCommand(collectionManager));
+        register("filter_greater_than_operator", () ->
+                new FilterGreaterThanOperatorCommand(collectionManager));
         register("add", () -> new AddCommand(collectionManager));
         register("add_if_min", () -> new AddIfMinCommand(collectionManager));
         register("update_id", () -> new UpdateByIDCommand(collectionManager));
