@@ -130,17 +130,26 @@ public class Movie implements Comparable<Movie> {
 
     @Override
     public String toString() {
-        return "Movie{" +
-                "coordinates=" + coordinates +
-                ", id=" + id +
-                ", name='" + name + '\'' +
-                ", creationDate=" + creationDate +
-                ", oscarsCount=" + oscarsCount +
-                ", goldenPalmCount=" + goldenPalmCount +
-                ", genre=" + genre +
-                ", mpaaRating=" + mpaaRating +
-                ", operator=" + operator +
-                '}';
+        StringBuilder sb = new StringBuilder();
+        sb.append("   Movie #").append(id).append("\n");
+        sb.append("  ├─ Name: ").append(name).append("\n");
+        sb.append("  ├─ Coordinates: (").append(coordinates.getX()).append(", ").append(coordinates.getY()).append(")\n");
+        sb.append("  ├─ Created: ").append(creationDate).append("\n");
+        sb.append("  ├─ Oscars: ").append(oscarsCount).append("\n");
+        sb.append("  ├─ Golden Palms: ").append(goldenPalmCount).append("\n");
+        sb.append("  ├─ Genre: ").append(genre != null ? genre : "—").append("\n");
+        sb.append("  ├─ MPAA Rating: ").append(mpaaRating).append("\n");
+
+        if (operator != null) {
+            sb.append("  └─ Operator: ").append(operator.getName()).append("\n");
+            sb.append("       ├─ Weight: ").append(operator.getWeight()).append("\n");
+            sb.append("       ├─ Hair: ").append(operator.getHairColor()).append("\n");
+            sb.append("       └─ Nationality: ").append(operator.getNationality());
+        } else {
+            sb.append("  └─ Operator: none");
+        }
+        sb.append("\n");
+        return sb.toString();
     }
 
     @Override
