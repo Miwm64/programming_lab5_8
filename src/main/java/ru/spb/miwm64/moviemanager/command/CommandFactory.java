@@ -4,6 +4,7 @@ import ru.spb.miwm64.moviemanager.collectionmanager.CollectionManager;
 import ru.spb.miwm64.moviemanager.commands.*;
 import ru.spb.miwm64.moviemanager.exceptions.NonExistentCommand;
 import ru.spb.miwm64.moviemanager.io.XMLParser;
+import ru.spb.miwm64.moviemanager.io.Reader;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -12,10 +13,15 @@ public final class CommandFactory {
     private final Map<String, Supplier<Command>> commandsRegistry = new LinkedHashMap<>();
     private CollectionManager collectionManager;
     private XMLParser xmlParser;
+    private List<Reader> readers;
+    private Set<String> openedFilesSet;
 
-    public CommandFactory(CollectionManager collectionManager, XMLParser xmlParser) {
+    public CommandFactory(CollectionManager collectionManager, XMLParser xmlParser,
+                          List<Reader> readers, Set<String> openedFilesSet) {
         this.collectionManager = collectionManager;
         this.xmlParser = xmlParser;
+        this.readers = readers;
+        this.openedFilesSet = openedFilesSet;
 
         // Register all commands
         registerCommands();
@@ -40,6 +46,7 @@ public final class CommandFactory {
         register("remove_greater", () -> new RemoveGreaterCommand(collectionManager));
         register("clear", () -> new ClearCommand(collectionManager));
 
+        register("execute_script", () -> new ExecuteScriptCommand(readers, openedFilesSet));
         register("load", () -> new LoadCommand(collectionManager, xmlParser));
         register("save", () -> new SaveCommand(collectionManager, xmlParser));
     }

@@ -30,7 +30,7 @@ public class FullFileReader implements Reader {
     public String readNextLine() throws IOException {
         if (!consumed) {
             consumed = true;
-            return fullContent;
+            return fullContent.trim();
         }
         return null;
     }
