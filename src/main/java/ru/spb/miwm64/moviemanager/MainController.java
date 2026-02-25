@@ -48,7 +48,6 @@ public final class MainController {
     public void run() {
         loadCollection();
         try {
-            readers.add(0, new BufferedFileReader("input.txt"));
             while (true) {
                 boolean result;
                 if (readers.get(0) instanceof BufferedFileReader) {
@@ -65,7 +64,7 @@ public final class MainController {
         catch (Exception e) {
             return;
         }
-        saveCollection();
+//        saveCollection();
     }
 
     private boolean consoleRun() throws IOException {

@@ -33,7 +33,7 @@ public final class LoadCommand extends AbstractCommand {
     public CommandResult execute() {
         try {
             checkParams();
-            Reader reader = new SimpleFileReader(getValue("filepath"));
+            Reader reader = new FullFileReader(getValue("filepath"));
             String xml = reader.readNextLine();
             ArrayList<Movie> movies = xmlParser.parseFromXMLCollection(xml);
             collectionManager.setCollection(movies);
