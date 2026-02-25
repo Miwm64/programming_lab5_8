@@ -40,7 +40,12 @@ public final class MainController {
     }
 
     public void run() {
-        loadCollection();
+        try {
+            loadCollection();
+        }
+        catch (Exception e) {
+
+        }
         try {
             while (true) {
                 boolean result;

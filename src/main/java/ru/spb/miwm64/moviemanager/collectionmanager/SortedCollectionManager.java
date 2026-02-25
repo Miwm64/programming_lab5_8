@@ -73,7 +73,7 @@ public class SortedCollectionManager implements CollectionManager {
             return true;
         }
 
-        if (movie.compareTo(movies.getFirst()) < 0) {
+        if (movie.compareTo(movies.get(0)) < 0) {
             append(movie);
             return true;
         }
