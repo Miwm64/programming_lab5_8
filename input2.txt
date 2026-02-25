@@ -1,0 +1,5 @@
+execute_script <filepath>input.txt</filepath>
+show
+execute_script <filepath>input.txt</filepath>
+execute_script <filepath>input.txt</filepath>
+execute_script <filepath>input.txt</filepath>
