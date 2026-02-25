@@ -178,9 +178,10 @@ public final class MainController {
             writer.writeln("error: " + e.getMessage());
         }
         catch (RuntimeException e){
-            writer.writeln("error: " + e.getMessage());
+            writer.writeln("error: " + e.getMessage() + e.getClass().getSimpleName());
         }
         catch (Exception e) {
+            writer.writeln("error: " + e.getMessage() + e.getClass().getSimpleName());
             throw new RuntimeException(e);
         }
         return false;

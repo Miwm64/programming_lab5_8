@@ -3,11 +3,18 @@ package ru.spb.miwm64.moviemanager.io;
 import java.util.Scanner;
 
 public class ConsoleReader implements Reader {
-    private final Scanner scanner = new Scanner(System.in);
+    private Scanner scanner = new Scanner(System.in);
 
     @Override
     public String readNextLine() {
-        return scanner.nextLine();
+        String text = "";
+        try {
+            text = scanner.nextLine();
+        }
+        catch (Exception e) {
+            scanner = new Scanner(System.in);
+        }
+        return text;
     }
 
     @Override

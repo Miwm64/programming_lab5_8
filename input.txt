@@ -4,7 +4,7 @@ add <movie><name>The Godfather</name><coordX>100</coordX><coordY>300</coordY><os
 info
 add <movie><name>Pulp Fiction</name><coordX>180</coordX><coordY>250</coordY><oscarsCount>1</oscarsCount><goldenPalmCount>1</goldenPalmCount><mpaaRating>R</mpaaRating><operatorName>Quentin Tarantino</operatorName><operatorWeight>70.0</operatorWeight><hairColor>BROWN</hairColor><nationality>USA</nationality></movie>
 show
-add <movie><name>Spirited Away</name><coordX>50</coordX><coordY>100</coordY><oscarsCount>1</oscarsCount><goldenPalmCount>0</goldenPalmCount><genre>DRAMA</genre><mpaaRating>PG</mpaaRating></movie>
+add <movie>\nsi<name>Spirited Away</name><coordX>50</coordX><coordY>100</coordY><oscarsCount>1</oscarsCount><goldenPalmCount>0</goldenPalmCount><genre>DRAMA</genre><mpaaRating>PG</mpaaRating></movie>
 add <movie><name>The Godfather</name><coordX>100</coordX><coordY>300</coordY><oscarsCount>3</oscarsCount><goldenPalmCount>1</goldenPalmCount><genre>DRAMA</genre><mpaaRating>R</mpaaRating><operatorName>Francis Ford Coppola</operatorName><operatorWeight>80.0</operatorWeight><hairColor>BLACK</hairColor><nationality>ITALY</nationality></movie>
 add <movie><name>Spirited Away</name><coordX>50</coordX><coordY>100</coordY><oscarsCount>1</oscarsCount><goldenPalmCount>1</goldenPalmCount><genre>DRAMA</genre><mpaaRating>PG_13</mpaaRating></movie>
 

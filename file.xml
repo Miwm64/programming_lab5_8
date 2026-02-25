@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <movies>
   <movie>
-    <id>4</id>
+    <id>null</id>
     <name>Spirited Away</name>
     <coordX>50.0</coordX>
     <coordY>100</coordY>
@@ -13,7 +13,7 @@
   </movie>
   <movie>
     <id>2</id>
-    <name>Parasite</name>
+\n    <name>Parasite</name>
     <coordX>120.0</coordX>
     <coordY>400</coordY>
     <creationDate>2026-02-25T04:36:03.11668877+03:00[Europe/Moscow]</creationDate>

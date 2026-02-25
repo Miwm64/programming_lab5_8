@@ -28,7 +28,7 @@ public class XMLParser {
                     Movie movie = parseSingleMovie(movieXml);
                     movies.add(movie);
                 } catch (Exception e) {
-                    throw new InvalidValueException("Failed to parse movie: " + e.getMessage());
+                    //throw new InvalidValueException("Failed to parse movie: " + e.getMessage());
                 }
             }
         } catch (Exception e) {

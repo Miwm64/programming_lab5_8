@@ -30,7 +30,7 @@ public class BufferedFileReader implements Reader {
     public String read() throws IOException {
         int i;
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        while((i = inputStream.read())!= -1){
+        while((i = inputStream.read())!= -1) {
             if ((char) i == '\n'){
                break;
             }
