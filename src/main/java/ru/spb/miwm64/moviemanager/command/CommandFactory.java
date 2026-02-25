@@ -30,6 +30,8 @@ public final class CommandFactory {
                 new CountByGoldenPalmCountCommand(collectionManager));
         register("filter_greater_than_operator", () ->
                 new FilterGreaterThanOperatorCommand(collectionManager));
+        register("print_field_ascending_golden_palm_count",
+                () -> new PrintFieldAscendingGoldenPalmCountCommand(collectionManager));
         register("add", () -> new AddCommand(collectionManager));
         register("add_if_min", () -> new AddIfMinCommand(collectionManager));
         register("update_id", () -> new UpdateByIDCommand(collectionManager));

@@ -1,0 +1,60 @@
+package ru.spb.miwm64.moviemanager.commands;
+
+import ru.spb.miwm64.moviemanager.collectionmanager.CollectionManager;
+import ru.spb.miwm64.moviemanager.command.*;
+import ru.spb.miwm64.moviemanager.entities.Movie;
+
+import java.util.Comparator;
+import java.util.List;
+
+public final class PrintFieldAscendingGoldenPalmCountCommand extends AbstractCommand {
+    private CollectionManager collectionManager;
+
+    public PrintFieldAscendingGoldenPalmCountCommand(CollectionManager collectionManager) {
+        this.collectionManager = collectionManager;
+        this.name = "print_field_ascending_golden_palm_count";
+        this.help = "print_field_ascending_golden_palm_count - displays all goldenPalmCount values in ascending order";
+
+        var countParam = new Parameter<Long>(
+                "goldenPalmCount",
+                "Enter golden palm count",
+                Long::parseLong,
+                l -> l > 0,
+                true
+        );
+    }
+
+    @Override
+    public CommandResult execute() {
+        try {
+            checkParams();
+
+            List<Movie> movies = collectionManager.getAll();
+
+            if (movies.isEmpty()) {
+                return new CommandResultSuccess(
+                        List.of(),
+                        "Collection is empty"
+                );
+            }
+
+            List<Movie> sortedMovies = movies.stream()
+                    .sorted(Comparator.comparingLong(Movie::getGoldenPalmCount))
+                    .toList();
+
+            StringBuilder message = new StringBuilder();
+            message.append("Golden palm counts (ascending):\n");
+
+            for (Movie movie : sortedMovies) {
+                message.append(String.format("  ID: %-4d | Golden palms: %d\n",
+                        movie.getId(),
+                        movie.getGoldenPalmCount()));
+            }
+
+            return new CommandResultSuccess(sortedMovies, message.toString());
+
+        } catch (Exception e) {
+            return new CommandResultFailure("Failed: " + e.getMessage());
+        }
+    }
+}
