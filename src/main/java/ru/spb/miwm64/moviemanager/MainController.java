@@ -72,29 +72,9 @@ public final class MainController {
         try {
             writer.writeln("Enter command:");
             String input = readers.get(0).readNextLine();
-            Command cmd;
 
             ArrayList<String> inputs = new ArrayList<>(Arrays.asList(input.trim().split(" ")));
-            switch (inputs.get(0)){
-                case "help": {
-                    cmd = new HelpCommand(commandFactory);
-                    break;
-                }
-                case "show": {
-                    cmd = new ShowCommand(collectionManager);
-                    break;
-                }
-                case "add": {
-                    cmd = new AddCommand(collectionManager);
-                    break;
-                }
-                case "exit": {
-                    return true;
-                }
-                case null, default: {
-                    throw new NonExistentCommand("Command \"" + inputs.get(0) + "\" does not exist");
-                }
-            }
+            Command cmd = commandFactory.newCommand(inputs.get(0).trim());
 
             var params = cmd.getParams();
 
@@ -151,27 +131,7 @@ public final class MainController {
                     Arrays.asList(input.trim().split(" ", 2))
             );
 
-            Command cmd;
-            switch (inputs.get(0)){
-                case "help": {
-                    cmd = new HelpCommand(commandFactory);
-                    break;
-                }
-                case "show": {
-                    cmd = new ShowCommand(collectionManager);
-                    break;
-                }
-                case "add": {
-                    cmd = new AddCommand(collectionManager);
-                    break;
-                }
-                case "exit": {
-                    return true;
-                }
-                case null, default: {
-                    throw new NonExistentCommand("Command \"" + inputs.get(0) + "\" does not exist");
-                }
-            }
+            Command cmd = commandFactory.newCommand(inputs.get(0).trim());
 
             var params = cmd.getParams();
             if (!params.isEmpty()) {
@@ -194,7 +154,7 @@ public final class MainController {
             writer = defaultWriter;
         }
         catch (InvalidValueException e){
-            System.out.println(e.getMessage());
+            System.out.println(e.getMessage()); // TODO
         }
         catch (Exception e) {
             throw new RuntimeException(e);

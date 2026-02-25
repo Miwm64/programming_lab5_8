@@ -26,6 +26,7 @@ public final class CommandFactory {
 
         register("show", () -> new ShowCommand(collectionManager));
         register("add", () -> new AddCommand(collectionManager));
+        register("info", () -> new InfoCommand(collectionManager));
 
         register("load", () -> new LoadCommand(collectionManager, xmlParser));
         register("save", () -> new SaveCommand(collectionManager, xmlParser));

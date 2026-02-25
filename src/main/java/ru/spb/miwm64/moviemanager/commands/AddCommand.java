@@ -141,7 +141,10 @@ public class AddCommand extends AbstractCommand {
             );
 
             Person operator = null;
-            if (params.get("operatorName").isSet()) {
+            if (params.get("operatorName").isSet() &&
+                params.get("operatorWeight").isSet() &&
+                params.get("hairColor").isSet() &&
+                params.get("nationality").isSet() ) {
                 operator = new Person(
                         getValue("operatorName"),
                         getValue("operatorWeight"),
@@ -168,7 +171,6 @@ public class AddCommand extends AbstractCommand {
                     "Movie added successfully with ID: " + movie.getId()
             );
         } catch (Exception e) {
-            System.out.println(e.getMessage());
             return new CommandResultFailure(e.getMessage());
         }
     }
