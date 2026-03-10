@@ -16,6 +16,7 @@ public final class HelpCommand extends AbstractCommand  {
     @Override
     public CommandResult execute() {
         StringBuilder msg = new StringBuilder();
+        msg.append("\n=== Available commands ===\n");
         for (var p : commandFactory.getAllCommands()){
             msg.append(p.getHelp()).append("\n");
         }

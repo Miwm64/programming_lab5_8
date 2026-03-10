@@ -101,13 +101,8 @@ public final class FilterGreaterThanOperatorCommand extends AbstractCommand {
             message.append("Found movies:\n");
 
             for (Movie movie : filteredMovies) {
-                Person op = movie.getOperator();
-                message.append(String.format("  Movie: %s, Operator: %s (Weight: %.1f, Hair: %s, Nationality: %s)\n",
-                        movie.getName(),
-                        op.getName(),
-                        op.getWeight(),
-                        op.getHairColor(),
-                        op.getNationality()));
+                message.append(movie);
+                message.append("\n");
             }
 
             return new CommandResultSuccess(filteredMovies, message.toString());
