@@ -43,9 +43,7 @@ public final class MainController {
         try {
             loadCollection();
         }
-        catch (Exception e) {
-
-        }
+        catch (Exception e) {}
         try {
             while (true) {
                 boolean result;
@@ -63,14 +61,12 @@ public final class MainController {
         catch (Exception e) {
             return;
         }
-//        saveCollection();
     }
 
     private boolean consoleRun() throws IOException {
         try {
             writer.writeln("Enter command:");
             String input = readers.get(0).readNextLine();
-
             ArrayList<String> inputs = new ArrayList<>(Arrays.asList(input.trim().split(" ")));
 
             if (Objects.equals(inputs.get(0), "exit")){
@@ -86,13 +82,13 @@ public final class MainController {
             }
 
             Command cmd = commandFactory.newCommand(inputs.get(0).trim());
-
             var params = cmd.getParams();
-
             if (!params.isEmpty() && inputs.size() >= 2) {
                 params.get(0).fromString(inputs.get(1));
                 cmd.setParam(params.get(0));
             }
+
+
             {
                 int i = 0;
                 while (i != params.size()) {
@@ -102,12 +98,15 @@ public final class MainController {
                             ++i;
                             continue;
                         }
+
                         writer.writeln(param.getPrompt() + ":");
                         input = readers.get(0).readNextLine();
+
                         if (Objects.equals(input.trim(), "abort")){
                             return false;
                         }
                         param.fromString(input);
+
                         cmd.setParam(param);
                         ++i;
                         if (Objects.equals(param.getName(), "operatorName") && !param.isSet()){
@@ -119,10 +118,12 @@ public final class MainController {
                     }
                 }
             }
+
+
             CommandResult res = cmd.execute();
             writer.writeln(res.getMessage());
-
         }
+
         catch (RuntimeException e){
             writer.writeln("error: " + e.getMessage());
         }
@@ -132,17 +133,14 @@ public final class MainController {
             writer = defaultWriter;
         }
 
-
         return false;
     }
 
     private boolean fileRun() throws IOException {
-        if (!readers.get(0).hasNextLine()) {
-            FullBufferedFileReader reader = (FullBufferedFileReader) readers.get(0);
-            openedFilesSet.remove(reader.getFilepath());
-            readers.remove(0);
+        if (!checkReader()){
             return false;
         }
+
         try {
             String input = readers.get(0).readNextLine();
             ArrayList<String> inputs = new ArrayList<>(
@@ -152,6 +150,15 @@ public final class MainController {
             if (Objects.equals(inputs.get(0), "exit")){
                 return true;
             }
+            if (Objects.equals(inputs.get(0), "save") && inputs.size() == 1){
+                saveCollection();
+                return false;
+            }
+            if (Objects.equals(inputs.get(0), "load") && inputs.size() == 1){
+                loadCollection();
+                return false;
+            }
+
             Command cmd = commandFactory.newCommand(inputs.get(0).trim());
 
             var params = cmd.getParams();
@@ -173,9 +180,6 @@ public final class MainController {
             readers.clear();
             readers.add(defaultReader);
             writer = defaultWriter;
-        }
-        catch (InvalidValueException e){
-            writer.writeln("error: " + e.getMessage());
         }
         catch (RuntimeException e){
             writer.writeln("error: " + e.getMessage());
@@ -211,5 +215,16 @@ public final class MainController {
         catch (Exception e){
             return;
         }
+    }
+
+    private boolean checkReader() {
+        if (!readers.get(0).hasNextLine()) {
+            FullBufferedFileReader reader = (FullBufferedFileReader) readers.get(0);
+            openedFilesSet.remove(reader.getFilepath());
+            readers.remove(0);
+            return false;
+        }
+
+        return true;
     }
 }
