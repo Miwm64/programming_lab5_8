@@ -57,14 +57,14 @@ public class XMLParser {
             Coordinates coords = new Coordinates(coordX, coordY);
             MovieGenre genre = null;
             if (genreStr != null && !genreStr.isEmpty()) {
-                genre = MovieGenre.valueOf(genreStr);
+                genre = MovieGenre.fromString(genreStr.toUpperCase());
             }
-            MpaaRating mpaaRating = MpaaRating.valueOf(mpaaStr);
+            MpaaRating mpaaRating = MpaaRating.fromString(mpaaStr.toUpperCase());
             Person operator = null;
             if (operatorName != null && !operatorName.isEmpty()) {
                 Float weight = operatorWeightStr != null ? Float.parseFloat(operatorWeightStr) : null;
-                Color hairColor = hairColorStr != null ? Color.valueOf(hairColorStr) : null;
-                Country nationality = nationalityStr != null ? Country.valueOf(nationalityStr) : null;
+                Color hairColor = hairColorStr != null ? Color.fromString(hairColorStr.toUpperCase()) : null;
+                Country nationality = nationalityStr != null ? Country.fromString(nationalityStr.toUpperCase()) : null;
                 operator = new Person(operatorName, weight, hairColor, nationality);
             }
             return new Movie(id, name, coords, creationDate, oscarsCount, goldenPalmCount, genre, mpaaRating, operator);
