@@ -64,7 +64,7 @@ public final class AddCommand extends AbstractCommand {
         Parameter<MovieGenre> genreParam = new Parameter<>(
                 "genre",
                 "Enter genre (DRAMA/MUSICAL/TRAGEDY/THRILLER) or leave empty",
-                s -> MovieGenre.valueOf(s.toUpperCase()),
+                s -> MovieGenre.fromString(s.toUpperCase()),
                 genre -> true,
                 false
         );
@@ -73,7 +73,7 @@ public final class AddCommand extends AbstractCommand {
         Parameter<MpaaRating> mpaaParam = new Parameter<>(
                 "mpaaRating",
                 "Enter mpaa rating (PG_13/R/NC_17)",
-                s -> MpaaRating.valueOf(s.toUpperCase().replace("-", "")),
+                s -> MpaaRating.fromString(s.toUpperCase()),
                 rating -> true,
                 true
         );
@@ -100,7 +100,7 @@ public final class AddCommand extends AbstractCommand {
         Parameter<Color> hairColorParam = new Parameter<>(
                 "hairColor",
                 "Enter hair color (GREEN/RED/YELLOW/ORANGE/BROWN)",
-                s -> Color.valueOf(s.toUpperCase()),
+                s -> Color.fromString(s.toUpperCase()),
                 color -> true,
                 false
         );
@@ -109,7 +109,7 @@ public final class AddCommand extends AbstractCommand {
         Parameter<Country> nationalityParam = new Parameter<>(
                 "nationality",
                 "Enter nationality (UNITED_KINGDOM/CHINA/INDIA/ITALY/THAILAND)",
-                s -> Country.valueOf(s.toUpperCase()),
+                s -> Country.fromString(s.toUpperCase()),
                 country -> true,
                 false
         );

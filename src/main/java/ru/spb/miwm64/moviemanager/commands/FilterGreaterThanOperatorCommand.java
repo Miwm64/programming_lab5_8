@@ -38,18 +38,18 @@ public final class FilterGreaterThanOperatorCommand extends AbstractCommand {
         Parameter<Color> hairColorParam = new Parameter<>(
                 "hairColor",
                 "Enter hair color (GREEN/RED/YELLOW/ORANGE/BROWN)",
-                s -> Color.valueOf(s.toUpperCase()),
+                s -> Color.fromString(s.toUpperCase()),
                 color -> true,
-                true
+                false
         );
 
         // operator.nationality - Country enum, cannot be null
         Parameter<Country> nationalityParam = new Parameter<>(
                 "nationality",
                 "Enter nationality (UNITED_KINGDOM/CHINA/INDIA/ITALY/THAILAND)",
-                s -> Country.valueOf(s.toUpperCase()),
+                s -> Country.fromString(s.toUpperCase()),
                 country -> true,
-                true
+                false
         );
 
         addParam(operatorNameParam);
