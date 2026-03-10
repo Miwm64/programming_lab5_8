@@ -1,0 +1,9 @@
+javac -d out/production/programming_lab5_8       -sourcepath src/main/java       src/main/java/ru/spb/miwm64/moviemanager/*.java       src/main/java/ru/spb/miwm64/moviemanager/collectionmanager/*.java       src/main/java/ru/spb/miwm64/moviemanager/command/*.java       src/main/java/ru/spb/miwm64/moviemanager/commands/*.java       src/main/java/ru/spb/miwm64/moviemanager/entities/*.java       src/main/java/ru/spb/miwm64/moviemanager/exceptions/*.java       src/main/java/ru/spb/miwm64/moviemanager/io/*.java
+
+ java -cp out/production/programming_lab5_8 ru.spb.miwm64.moviemanager.Main
+
+jar cvf moviemanager.jar -C out/production/programming_lab5_8 .
+java -cp moviemanager.jar ru.spb.miwm64.moviemanager.Main
+
+
+scp -r -P 2222 src s398893@se.ifmo.ru:/home/studs/s398893/programming

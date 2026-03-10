@@ -5,12 +5,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-public class BufferedFileReader implements Reader {
+public class FullBufferedFileReader implements Reader {
     private final String filepath;
     private final java.io.BufferedInputStream inputStream;
     private String cachedLine;
 
-    public BufferedFileReader(String filepath) throws IOException {
+    public FullBufferedFileReader(String filepath) throws IOException {
         this.filepath = filepath;
         inputStream = new java.io.BufferedInputStream(new FileInputStream(this.filepath));
         cachedLine = read();
@@ -30,7 +30,7 @@ public class BufferedFileReader implements Reader {
     public String read() throws IOException {
         int i;
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        while((i = inputStream.read())!= -1){
+        while((i = inputStream.read())!= -1) {
             if ((char) i == '\n'){
                break;
             }
@@ -48,7 +48,7 @@ public class BufferedFileReader implements Reader {
     }
 
     @Override
-    public boolean hasNextLine() throws IOException {
+    public boolean hasNextLine() {
         return cachedLine != null;
     }
 
