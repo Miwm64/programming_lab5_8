@@ -1,7 +1,7 @@
 package ru.spb.miwm64.moviemanager.commands;
 
 import ru.spb.miwm64.moviemanager.command.*;
-import ru.spb.miwm64.moviemanager.io.BufferedFileReader;
+import ru.spb.miwm64.moviemanager.io.FullBufferedFileReader;
 import ru.spb.miwm64.moviemanager.io.Reader;
 
 import java.io.IOException;
@@ -45,7 +45,7 @@ public class ExecuteScriptCommand extends AbstractCommand {
             openedFilesSet.add(filepath);
 
             try {
-                Reader scriptReader = new BufferedFileReader(filepath);
+                Reader scriptReader = new FullBufferedFileReader(filepath);
                 readers.add(0, scriptReader);
 
                 return new CommandResultSuccess(

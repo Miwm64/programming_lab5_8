@@ -5,13 +5,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-public class FullFileReader implements Reader {
+public class FullStreamFileReader implements Reader {
     private final String filepath;
     private final java.io.BufferedInputStream inputStream;
-    private String fullContent;
+    private final String fullContent;
     private boolean consumed = false;
 
-    public FullFileReader(String filepath) throws IOException {
+    public FullStreamFileReader(String filepath) throws IOException {
         this.filepath = filepath;
         this.inputStream = new java.io.BufferedInputStream(new FileInputStream(this.filepath));
         this.fullContent = readFullFile();

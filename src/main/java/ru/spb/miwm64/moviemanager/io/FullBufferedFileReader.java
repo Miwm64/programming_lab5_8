@@ -5,12 +5,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-public class BufferedFileReader implements Reader {
+public class FullBufferedFileReader implements Reader {
     private final String filepath;
     private final java.io.BufferedInputStream inputStream;
     private String cachedLine;
 
-    public BufferedFileReader(String filepath) throws IOException {
+    public FullBufferedFileReader(String filepath) throws IOException {
         this.filepath = filepath;
         inputStream = new java.io.BufferedInputStream(new FileInputStream(this.filepath));
         cachedLine = read();
