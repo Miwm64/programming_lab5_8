@@ -168,13 +168,13 @@ public final class AddIfMinCommand extends AbstractCommand {
             boolean res = collectionManager.addIfMin(movie);
             if (res) {
                 return new CommandResultSuccess(
-                        res,
+                        true,
                         "Movie added successfully with ID: " + movie.getId()
                 );
             }
             return new CommandResultSuccess(
                 res,
-                "Movie was not added"
+                "Movie was not added, goldenPalmCount or oscarCount is less"
             );
         } catch (Exception e) {
             return new CommandResultFailure(e.getMessage());
