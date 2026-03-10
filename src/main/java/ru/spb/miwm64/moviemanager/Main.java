@@ -4,6 +4,7 @@ import ru.spb.miwm64.moviemanager.collectionmanager.CollectionManager;
 import ru.spb.miwm64.moviemanager.collectionmanager.SortedCollectionManager;
 import ru.spb.miwm64.moviemanager.io.*;
 
+
 public class Main {
     public static void main(String[] args) {
         XMLParser xmlParser = new XMLParser();
@@ -12,6 +13,8 @@ public class Main {
         Writer writer = new ConsoleWriter();
         var mainController = new MainController(collectionManager, reader, writer, xmlParser);
         mainController.run();
+
         return;
+
     }
 }

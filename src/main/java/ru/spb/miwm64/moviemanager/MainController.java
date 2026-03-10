@@ -6,7 +6,7 @@ import ru.spb.miwm64.moviemanager.command.CommandFactory;
 import ru.spb.miwm64.moviemanager.command.CommandResult;
 import ru.spb.miwm64.moviemanager.commands.*;
 import ru.spb.miwm64.moviemanager.exceptions.InvalidValueException;
-import ru.spb.miwm64.moviemanager.io.BufferedFileReader;
+import ru.spb.miwm64.moviemanager.io.FullBufferedFileReader;
 import ru.spb.miwm64.moviemanager.io.Reader;
 import ru.spb.miwm64.moviemanager.io.Writer;
 import ru.spb.miwm64.moviemanager.io.XMLParser;
@@ -49,7 +49,7 @@ public final class MainController {
         try {
             while (true) {
                 boolean result;
-                if (readers.get(0) instanceof BufferedFileReader) {
+                if (readers.get(0) instanceof FullBufferedFileReader) {
                     result = fileRun();
                 } else {
                     result = consoleRun();
@@ -138,7 +138,7 @@ public final class MainController {
 
     private boolean fileRun() throws IOException {
         if (!readers.get(0).hasNextLine()) {
-            BufferedFileReader reader = (BufferedFileReader) readers.get(0);
+            FullBufferedFileReader reader = (FullBufferedFileReader) readers.get(0);
             openedFilesSet.remove(reader.getFilepath());
             readers.remove(0);
             return false;
@@ -181,6 +181,7 @@ public final class MainController {
             writer.writeln("error: " + e.getMessage());
         }
         catch (Exception e) {
+            writer.writeln("error: " + e.getMessage());
             throw new RuntimeException(e);
         }
         return false;
