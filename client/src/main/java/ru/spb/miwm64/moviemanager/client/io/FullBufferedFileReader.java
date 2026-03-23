@@ -1,0 +1,62 @@
+package ru.spb.miwm64.moviemanager.client.io;
+
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
+public class FullBufferedFileReader implements Reader {
+    private final String filepath;
+    private final java.io.BufferedInputStream inputStream;
+    private String cachedLine;
+
+    public FullBufferedFileReader(String filepath) throws IOException {
+        this.filepath = filepath;
+        inputStream = new java.io.BufferedInputStream(new FileInputStream(this.filepath));
+        cachedLine = read();
+    }
+
+
+    @Override
+    public String readNextLine() throws IOException {
+        String current = cachedLine;
+        if (cachedLine != null) {
+            cachedLine = read();
+        }
+        return current;
+    }
+
+
+    public String read() throws IOException {
+        int i;
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        while((i = inputStream.read())!= -1) {
+            if ((char) i == '\n'){
+               break;
+            }
+            if ((char) i == '\r'){
+                continue;
+            }
+            buffer.write(i);
+        }
+
+        if (buffer.size() == 0 && i == -1) {
+            return null;
+        }
+
+        return buffer.toString(StandardCharsets.UTF_8);
+    }
+
+    @Override
+    public boolean hasNextLine() {
+        return cachedLine != null;
+    }
+
+    public void close() throws IOException {
+        inputStream.close();
+    }
+
+    public String getFilepath() {
+        return filepath;
+    }
+}
