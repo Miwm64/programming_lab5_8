@@ -47,8 +47,6 @@ public final class CommandFactory {
         register("clear", () -> new ClearCommand(collectionManager));
 
         register("execute_script", () -> new ExecuteScriptCommand(readers, openedFilesSet));
-        register("load", () -> new LoadCommand(collectionManager, xmlParser));
-        register("save", () -> new SaveCommand(collectionManager, xmlParser));
     }
 
     public void register(String commandName, Supplier<Command> creator) {

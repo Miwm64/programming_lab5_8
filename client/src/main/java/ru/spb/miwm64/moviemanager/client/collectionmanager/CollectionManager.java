@@ -21,4 +21,9 @@ public interface CollectionManager {
     void removeByIndex(int index);
     void removeGreater(Movie movie);
     void removeAll();
+    void clear();
+
+    long countByGoldenPalmCount(long count);
+    ArrayList<Movie> filterGreaterThanOperatorCommand(Person p);
+    ArrayList<Movie> printFieldAscendingGoldenPalmCountCommand();
 }

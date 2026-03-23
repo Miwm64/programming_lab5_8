@@ -27,9 +27,7 @@ public final class CountByGoldenPalmCountCommand extends AbstractCommand {
             checkParams();
             Long targetCount = getValue("goldenPalmCount");
 
-            long count = collectionManager.getAll().stream()
-                    .filter(movie -> movie.getGoldenPalmCount() == targetCount)
-                    .count();
+            long count = collectionManager.countByGoldenPalmCount(targetCount);
 
             String message = String.format(
                     "Movies with golden palm count = %d: %d",

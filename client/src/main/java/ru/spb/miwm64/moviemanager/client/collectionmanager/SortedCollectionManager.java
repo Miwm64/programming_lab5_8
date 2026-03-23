@@ -187,4 +187,30 @@ public class SortedCollectionManager implements CollectionManager {
         this.lastAssignedId = 1L;
     }
 
+    @Override
+    public void clear() {
+        removeAll();
+    }
+
+    @Override
+    public long countByGoldenPalmCount(long count) {
+        return this.getAll().stream()
+                .filter(movie -> movie.getGoldenPalmCount() == count)
+                .count();
+    }
+
+    @Override
+    public ArrayList<Movie> filterGreaterThanOperatorCommand(Person p) {
+        return new ArrayList<>(getAll().stream()
+                .filter(movie -> movie.getOperator() != null)
+                .filter(movie -> movie.getOperator().compareTo(p) > 0)
+                .toList());
+    }
+
+    @Override
+    public ArrayList<Movie> printFieldAscendingGoldenPalmCountCommand() {
+        return new ArrayList<>(movies.stream()
+                .sorted(Comparator.comparingLong(Movie::getGoldenPalmCount))
+                .toList());
+    }
 }

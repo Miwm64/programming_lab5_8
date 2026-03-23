@@ -76,10 +76,7 @@ public final class FilterGreaterThanOperatorCommand extends AbstractCommand {
                     targetNationality
             );
 
-            var filteredMovies = collectionManager.getAll().stream()
-                    .filter(movie -> movie.getOperator() != null)
-                    .filter(movie -> movie.getOperator().compareTo(referencePerson) > 0)
-                    .toList();
+            var filteredMovies = collectionManager.filterGreaterThanOperatorCommand(referencePerson);
 
             if (filteredMovies.isEmpty()) {
                 return new CommandResultSuccess(
