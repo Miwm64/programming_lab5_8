@@ -24,4 +24,5 @@ public interface CollectionManager {
 
     long countByGoldenPalmCount(long count);
     ArrayList<Movie> filterGreaterThanOperatorCommand(Person p);
+    ArrayList<Movie> printFieldAscendingGoldenPalmCountCommand();
 }

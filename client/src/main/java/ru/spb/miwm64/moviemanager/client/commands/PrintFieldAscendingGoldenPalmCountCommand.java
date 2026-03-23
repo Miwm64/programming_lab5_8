@@ -38,9 +38,7 @@ public final class PrintFieldAscendingGoldenPalmCountCommand extends AbstractCom
                 );
             }
 
-            List<Movie> sortedMovies = movies.stream()
-                    .sorted(Comparator.comparingLong(Movie::getGoldenPalmCount))
-                    .toList();
+            List<Movie> sortedMovies = collectionManager.printFieldAscendingGoldenPalmCountCommand();
 
             StringBuilder message = new StringBuilder();
             message.append("Golden palm counts (ascending):\n");

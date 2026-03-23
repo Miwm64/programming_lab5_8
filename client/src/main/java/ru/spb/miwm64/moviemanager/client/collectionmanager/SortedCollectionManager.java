@@ -201,4 +201,11 @@ public class SortedCollectionManager implements CollectionManager {
                 .filter(movie -> movie.getOperator().compareTo(p) > 0)
                 .toList());
     }
+
+    @Override
+    public ArrayList<Movie> printFieldAscendingGoldenPalmCountCommand() {
+        return new ArrayList<>(movies.stream()
+                .sorted(Comparator.comparingLong(Movie::getGoldenPalmCount))
+                .toList());
+    }
 }
