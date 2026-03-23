@@ -194,4 +194,11 @@ public class SortedCollectionManager implements CollectionManager {
                 .count();
     }
 
+    @Override
+    public ArrayList<Movie> filterGreaterThanOperatorCommand(Person p) {
+        return new ArrayList<>(getAll().stream()
+                .filter(movie -> movie.getOperator() != null)
+                .filter(movie -> movie.getOperator().compareTo(p) > 0)
+                .toList());
+    }
 }
