@@ -1,0 +1,18 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>moviemanager-common</artifactId>
+    <version>1.0.0</version>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+    </properties>
+    <parent>
+        <groupId>ru.spb.miwm64</groupId>
+        <artifactId>moviemanager</artifactId>
+        <version>1.0.0</version>
+    </parent>
+    <build>
+        <directory>${project.basedir}/../build/${project.artifactId}</directory>
+    </build>
+</project>
