@@ -188,6 +188,11 @@ public class SortedCollectionManager implements CollectionManager {
     }
 
     @Override
+    public void clear() {
+        removeAll();
+    }
+
+    @Override
     public long countByGoldenPalmCount(long count) {
         return this.getAll().stream()
                 .filter(movie -> movie.getGoldenPalmCount() == count)
