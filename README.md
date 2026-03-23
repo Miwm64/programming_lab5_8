@@ -2,7 +2,7 @@
 
 Build all projects:
 ```bash
-mvn clean package
+mvn clean install
 ```
 
 Run server
