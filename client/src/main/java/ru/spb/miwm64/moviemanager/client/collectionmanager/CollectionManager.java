@@ -21,4 +21,6 @@ public interface CollectionManager {
     void removeByIndex(int index);
     void removeGreater(Movie movie);
     void removeAll();
+
+    long countByGoldenPalmCount(long count);
 }

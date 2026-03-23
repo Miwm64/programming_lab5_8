@@ -187,4 +187,11 @@ public class SortedCollectionManager implements CollectionManager {
         this.lastAssignedId = 1L;
     }
 
+    @Override
+    public long countByGoldenPalmCount(long count) {
+        return this.getAll().stream()
+                .filter(movie -> movie.getGoldenPalmCount() == count)
+                .count();
+    }
+
 }
