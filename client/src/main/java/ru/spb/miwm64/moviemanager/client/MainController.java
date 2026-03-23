@@ -14,8 +14,6 @@ import java.io.IOException;
 import java.util.*;
 
 public final class MainController {
-    final String ENV_VARIABLE = "XML_LOAD";
-
     private CollectionManager collectionManager;
     private List<Reader> readers;
     private Set<String> openedFilesSet;
@@ -39,10 +37,6 @@ public final class MainController {
     }
 
     public void run() {
-        try {
-            loadCollection();
-        }
-        catch (Exception e) {}
         try {
             while (true) {
                 boolean result;
@@ -70,14 +64,6 @@ public final class MainController {
 
             if (Objects.equals(inputs.get(0), "exit")){
                 return true;
-            }
-            if (Objects.equals(inputs.get(0), "save") && inputs.size() == 1){
-                saveCollection();
-                return false;
-            }
-            if (Objects.equals(inputs.get(0), "load") && inputs.size() == 1){
-                loadCollection();
-                return false;
             }
 
             Command cmd = commandFactory.newCommand(inputs.get(0).trim());
@@ -149,14 +135,6 @@ public final class MainController {
             if (Objects.equals(inputs.get(0), "exit")){
                 return true;
             }
-            if (Objects.equals(inputs.get(0), "save") && inputs.size() == 1){
-                saveCollection();
-                return false;
-            }
-            if (Objects.equals(inputs.get(0), "load") && inputs.size() == 1){
-                loadCollection();
-                return false;
-            }
 
             Command cmd = commandFactory.newCommand(inputs.get(0).trim());
 
@@ -188,32 +166,6 @@ public final class MainController {
             throw new RuntimeException(e);
         }
         return false;
-    }
-
-    private void loadCollection() {
-        Command cmd = new LoadCommand(collectionManager, xmlParser);
-        var filepathParam = cmd.getParams().get(0);
-        filepathParam.fromString(System.getenv(ENV_VARIABLE));
-        cmd.setParams(new ArrayList<>(List.of(filepathParam)));
-        try {
-            writer.writeln(cmd.execute().getMessage());
-        }
-        catch (Exception e){
-            return;
-        }
-    }
-
-    private void saveCollection() {
-        Command cmd = new SaveCommand(collectionManager, xmlParser);
-        var filepathParam = cmd.getParams().get(0);
-        filepathParam.fromString(System.getenv(ENV_VARIABLE));
-        cmd.setParams(new ArrayList<>(List.of(filepathParam)));
-        try {
-            writer.writeln(cmd.execute().getMessage());
-        }
-        catch (Exception e){
-            return;
-        }
     }
 
     private boolean checkReader() {
