@@ -2,7 +2,7 @@ package ru.spb.miwm64.moviemanager.client.collectionmanager;
 
 import ru.spb.miwm64.moviemanager.client.entities.Movie;
 import ru.spb.miwm64.moviemanager.client.entities.Person;
-import ru.spb.miwm64.moviemanager.client.exceptions.InvalidValueException;
+import ru.spb.miwm64.moviemanager.common.exceptions.InvalidValueException;
 
 import java.util.*;
 
@@ -20,7 +20,7 @@ public class SortedCollectionManager implements CollectionManager {
     }
 
     @Override
-    public void append(Movie movie) {
+    public int add(Movie movie) {
         Objects.requireNonNull(movie);
         if (!Objects.isNull(movie.getId())) {
             for (Movie mv : movies) {
@@ -44,6 +44,7 @@ public class SortedCollectionManager implements CollectionManager {
         }
 
         movies.add(index, movie);
+        return movie.getId().intValue();
     }
 
     private void updateId(Long oldId, Long newId) {
@@ -69,18 +70,17 @@ public class SortedCollectionManager implements CollectionManager {
     @Override
     public boolean addIfMin(Movie movie) {
         if (movies.isEmpty()) {
-            append(movie);
+            add(movie);
             return true;
         }
 
         if (movie.compareTo(movies.get(0)) < 0) {
-            append(movie);
+            add(movie);
             return true;
         }
         return false;
     }
 
-    @Override
     public void setCollection(ArrayList<Movie> movies) {
         removeAll();
         this.movies = new ArrayList<>(movies);
