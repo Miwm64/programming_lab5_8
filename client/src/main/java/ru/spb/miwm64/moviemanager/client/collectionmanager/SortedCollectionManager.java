@@ -20,7 +20,7 @@ public class SortedCollectionManager implements CollectionManager {
     }
 
     @Override
-    public int append(Movie movie) {
+    public int add(Movie movie) {
         Objects.requireNonNull(movie);
         if (!Objects.isNull(movie.getId())) {
             for (Movie mv : movies) {
@@ -70,18 +70,17 @@ public class SortedCollectionManager implements CollectionManager {
     @Override
     public boolean addIfMin(Movie movie) {
         if (movies.isEmpty()) {
-            append(movie);
+            add(movie);
             return true;
         }
 
         if (movie.compareTo(movies.get(0)) < 0) {
-            append(movie);
+            add(movie);
             return true;
         }
         return false;
     }
 
-    @Override
     public void setCollection(ArrayList<Movie> movies) {
         removeAll();
         this.movies = new ArrayList<>(movies);

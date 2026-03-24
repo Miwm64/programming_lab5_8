@@ -42,7 +42,6 @@ public class JsonRpcClient {
             if (response.error != null) {
                 throw new RuntimeException(response.error.message);
             }
-
             if (response.result == null) {
                 return null;
             }

@@ -164,7 +164,7 @@ public final class AddCommand extends AbstractCommand {
                     operator
             );
 
-            int createdMovieId = collectionManager.append(movie);
+            int createdMovieId = collectionManager.add(movie);
 
             return new CommandResultSuccess(
                     movie,

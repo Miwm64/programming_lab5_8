@@ -6,10 +6,9 @@ import ru.spb.miwm64.moviemanager.client.entities.Person;
 import java.util.ArrayList;
 
 public interface CollectionManager {
-    int append(Movie movie);
+    int add(Movie movie);
     boolean addIfMin(Movie movie);
 
-    void setCollection(ArrayList<Movie> movies);
     void setById(Long id, Movie movie);
 
     Movie getById(Long id);
