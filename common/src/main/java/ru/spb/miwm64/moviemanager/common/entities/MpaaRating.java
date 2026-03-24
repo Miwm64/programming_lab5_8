@@ -1,4 +1,4 @@
-package ru.spb.miwm64.moviemanager.client.entities;
+package ru.spb.miwm64.moviemanager.common.entities;
 
 import java.util.Map;
 import java.util.HashMap;

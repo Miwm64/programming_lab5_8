@@ -37,9 +37,9 @@ public class JsonRpcClient {
 
             JsonRpcResponse response = objectMapper.readValue(responseJson, JsonRpcResponse.class);
 
-            if (!Objects.equals(request.id, response.id)){
-                throw new WrongPacketException();
-            }
+//            if (!Objects.equals(request.id, response.id)){
+//                throw new WrongPacketException();
+//            }
             if (response.error != null) {
                 throw mapToCollectionException(response.error);
             }

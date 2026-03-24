@@ -1,24 +1,12 @@
 package ru.spb.miwm64.moviemanager.client.collectionmanager;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import ru.spb.miwm64.moviemanager.client.entities.Movie;
-import ru.spb.miwm64.moviemanager.client.entities.Person;
-import ru.spb.miwm64.moviemanager.client.exceptions.SerializationException;
-import ru.spb.miwm64.moviemanager.client.exceptions.WrongPacketException;
-import ru.spb.miwm64.moviemanager.client.net.ConnectionClient;
+import ru.spb.miwm64.moviemanager.common.entities.Movie;
+import ru.spb.miwm64.moviemanager.common.entities.Person;
 import ru.spb.miwm64.moviemanager.client.net.JsonRpcClient;
-import ru.spb.miwm64.moviemanager.common.net.JsonRpcRequest;
-import ru.spb.miwm64.moviemanager.common.net.JsonRpcResponse;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 // TODO Check if resp.id == req.id
 

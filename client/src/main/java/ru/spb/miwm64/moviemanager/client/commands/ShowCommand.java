@@ -2,7 +2,7 @@ package ru.spb.miwm64.moviemanager.client.commands;
 
 import ru.spb.miwm64.moviemanager.client.collectionmanager.CollectionManager;
 import ru.spb.miwm64.moviemanager.client.command.*;
-import ru.spb.miwm64.moviemanager.client.entities.Movie;
+import ru.spb.miwm64.moviemanager.common.entities.Movie;
 
 import java.util.ArrayList;
 

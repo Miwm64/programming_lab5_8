@@ -1,4 +1,4 @@
-package ru.spb.miwm64.moviemanager.client.entities;
+package ru.spb.miwm64.moviemanager.common.entities;
 
 import ru.spb.miwm64.moviemanager.common.exceptions.InvalidValueException;
 
