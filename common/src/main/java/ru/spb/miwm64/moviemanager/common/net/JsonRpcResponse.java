@@ -4,18 +4,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class JsonRpcRequest {
+public class JsonRpcResponse<T> {
     @JsonProperty("jsonrpc")
     public String version = "2.0";
+    public T result;
+    public JsonRpcError error;
     public Integer id;
-    public String method;
-    public Object params;
-
-    public JsonRpcRequest(){}
-
-    public JsonRpcRequest(String method, Integer id, Object params) {
-        this.method = method;
-        this.id = id;
-        this.params = params;
-    }
 }
