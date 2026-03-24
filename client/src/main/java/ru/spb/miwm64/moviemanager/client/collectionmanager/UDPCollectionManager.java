@@ -2,10 +2,17 @@ package ru.spb.miwm64.moviemanager.client.collectionmanager;
 
 import ru.spb.miwm64.moviemanager.client.entities.Movie;
 import ru.spb.miwm64.moviemanager.client.entities.Person;
+import ru.spb.miwm64.moviemanager.client.net.UDPClient;
 
 import java.util.ArrayList;
 
 public class UDPCollectionManager implements CollectionManager {
+    private UDPClient udpClient;
+
+    public UDPCollectionManager() {
+
+    }
+
     @Override
     public void append(Movie movie) {
 

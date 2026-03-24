@@ -1,7 +1,7 @@
 package ru.spb.miwm64.moviemanager.client.exceptions;
 
 public class ResponseTimeoutException extends NetException {
-    public ResponseTimeoutException(String message) {
+    public ResponseTimeoutException() {
         super("No response within timeout timing");
     }
 }
