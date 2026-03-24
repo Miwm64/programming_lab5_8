@@ -1,10 +1,10 @@
 package ru.spb.miwm64.moviemanager.client.exceptions;
 
-public class NetError extends RuntimeException {
-    public NetError(String message) {
+public class NetException extends RuntimeException {
+    public NetException(String message) {
         super(message);
     }
-    public NetError(String message, Throwable cause) {
+    public NetException(String message, Throwable cause) {
         super(message, cause);
     }
 }
