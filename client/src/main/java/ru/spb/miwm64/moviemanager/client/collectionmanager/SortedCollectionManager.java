@@ -20,7 +20,7 @@ public class SortedCollectionManager implements CollectionManager {
     }
 
     @Override
-    public void append(Movie movie) {
+    public int append(Movie movie) {
         Objects.requireNonNull(movie);
         if (!Objects.isNull(movie.getId())) {
             for (Movie mv : movies) {
@@ -44,6 +44,7 @@ public class SortedCollectionManager implements CollectionManager {
         }
 
         movies.add(index, movie);
+        return movie.getId().intValue();
     }
 
     private void updateId(Long oldId, Long newId) {

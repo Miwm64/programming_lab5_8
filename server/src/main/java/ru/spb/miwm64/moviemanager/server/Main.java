@@ -24,8 +24,8 @@ public class Main {
 
                 // Print message
                 System.out.println("Received: " + received);
-                socket.send(new DatagramPacket(buffer, buffer.length, packet.getAddress(), packet.getPort()));
-                System.out.println("Send: " + received);
+                String resp = "{\"jsonrpc\": \"2.0\",\"result\": 32,\"id\": 1}";
+                socket.send(new DatagramPacket(resp.getBytes(), resp.getBytes().length, packet.getAddress(), packet.getPort()));
             }
 
         } catch (Exception e) {
@@ -33,3 +33,6 @@ public class Main {
         }
     }
 }
+/*
+{"jsonrpc": "2.0","result": 1,"id": 1}
+ */

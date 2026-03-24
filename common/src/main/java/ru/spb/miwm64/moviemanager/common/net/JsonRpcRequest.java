@@ -13,7 +13,7 @@ public class JsonRpcRequest {
 
     public JsonRpcRequest(){}
 
-    public JsonRpcRequest(String method, Integer id, Object params) {
+    public JsonRpcRequest(Integer id, String method, Object params) {
         this.method = method;
         this.id = id;
         this.params = params;
