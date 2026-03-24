@@ -11,6 +11,7 @@ import ru.spb.miwm64.moviemanager.client.entities.Person;
 import ru.spb.miwm64.moviemanager.client.exceptions.SerializationException;
 import ru.spb.miwm64.moviemanager.client.exceptions.WrongPacketException;
 import ru.spb.miwm64.moviemanager.client.net.ConnectionClient;
+import ru.spb.miwm64.moviemanager.client.net.JsonRpcClient;
 import ru.spb.miwm64.moviemanager.common.net.JsonRpcRequest;
 import ru.spb.miwm64.moviemanager.common.net.JsonRpcResponse;
 
@@ -20,41 +21,15 @@ import java.util.Objects;
 // TODO Check if resp.id == req.id
 
 public class RemoteCollectionManager implements CollectionManager {
-    private final static ObjectMapper objectMapper = new ObjectMapper()
-            .registerModule(new JavaTimeModule())  // ← YOU HAVE THIS
-            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-            .setSerializationInclusion(JsonInclude.Include.NON_NULL);;
-    private final ConnectionClient connectionClient;
-    private Integer id = 1;
+    private final JsonRpcClient jsonRpcClient;
 
-    public RemoteCollectionManager(ConnectionClient connectionClient) {
-        this.connectionClient = connectionClient;
+    public RemoteCollectionManager(JsonRpcClient jsonRpcClient) {
+        this.jsonRpcClient = jsonRpcClient;
     }
 
     @Override
     public int append(Movie movie) {
-        try {
-            var jsonRpcRequest = new JsonRpcRequest(getIncrementId(), "add", movie);
-            String request = objectMapper.writeValueAsString(jsonRpcRequest);
-
-            String response = connectionClient.exchangeString(request);
-            var jsonRpcResponse = objectMapper.readValue(response, JsonRpcResponse.class);
-
-            if (!Objects.equals(jsonRpcRequest.id, jsonRpcResponse.id)){
-                throw new WrongPacketException();
-            }
-            if (jsonRpcResponse.result == null){
-                throw new RuntimeException("Couldn't add movie");
-            }
-            if (jsonRpcResponse.result instanceof Integer id){
-                return id;
-            }
-            throw new RuntimeException("Unexpected server output");
-        }
-        catch (JsonProcessingException e){
-            e.printStackTrace();
-            throw new SerializationException(e);
-        }
+        return jsonRpcClient.call("add", movie, Integer.class);
     }
 
     @Override
@@ -130,9 +105,5 @@ public class RemoteCollectionManager implements CollectionManager {
     @Override
     public ArrayList<Movie> printFieldAscendingGoldenPalmCountCommand() {
         return null;
-    }
-
-    private Integer getIncrementId(){
-        return id++;
     }
 }

@@ -4,6 +4,7 @@ import ru.spb.miwm64.moviemanager.client.collectionmanager.CollectionManager;
 import ru.spb.miwm64.moviemanager.client.collectionmanager.RemoteCollectionManager;
 import ru.spb.miwm64.moviemanager.client.collectionmanager.SortedCollectionManager;
 import ru.spb.miwm64.moviemanager.client.io.*;
+import ru.spb.miwm64.moviemanager.client.net.JsonRpcClient;
 import ru.spb.miwm64.moviemanager.client.net.UDPClient;
 
 import java.net.InetSocketAddress;
@@ -27,9 +28,11 @@ public class Main {
         */
 
 
-        XMLParser xmlParser = new XMLParser();
         UDPClient udpClient = new UDPClient(new InetSocketAddress("localhost", 9999));
-        CollectionManager collectionManager = new RemoteCollectionManager(udpClient);
+        JsonRpcClient jsonRpcClient = new JsonRpcClient(udpClient);
+        CollectionManager collectionManager = new RemoteCollectionManager(jsonRpcClient);
+
+        XMLParser xmlParser = new XMLParser();
         Reader reader = new ConsoleReader();
         Writer writer = new ConsoleWriter();
         var mainController = new MainController(collectionManager, reader, writer, xmlParser);
