@@ -7,6 +7,7 @@ public class JsonRpcError {
     public String message;
     public Object data;
 
+    public JsonRpcError(){}
     public JsonRpcError(Integer code, String message, Object data){
         this.code = code;
         this.message = message;

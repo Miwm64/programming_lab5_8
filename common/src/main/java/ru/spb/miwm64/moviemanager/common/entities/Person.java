@@ -10,6 +10,7 @@ public class Person implements Comparable<Person> {
     private Color hairColor; //Поле не может быть null
     private Country nationality; //Поле не может быть null
 
+    public Person(){}
     public Person(String name, float weight, Color hairColor, Country nationality) {
         setName(name);
         setWeight(weight);

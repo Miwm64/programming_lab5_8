@@ -7,7 +7,9 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
 import ru.spb.miwm64.moviemanager.common.io.Reader;
+import ru.spb.miwm64.moviemanager.common.net.JsonRpcError;
 import ru.spb.miwm64.moviemanager.common.net.JsonRpcRequest;
+import ru.spb.miwm64.moviemanager.common.net.JsonRpcResponse;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -16,6 +18,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 
 
@@ -85,19 +88,28 @@ public class UDPServer {
     }
 
     private void handleSinglePacket(){
+        SocketAddress remoteAdd = null;
+        Integer id = 0;
         try {
             // Get msg
             ByteBuffer buffer = ByteBuffer.allocate(1024);
-            SocketAddress remoteAdd = datagramChannel.receive(buffer);
+            remoteAdd = datagramChannel.receive(buffer);
 
             // Create request
             String request = extractString(buffer);
             JsonRpcRequest jsonRpcRequest = objectMapper.readValue(request, JsonRpcRequest.class);
+            id = jsonRpcRequest.id;
             System.out.println("Client at #" + remoteAdd + "  sent: " + request);
 
             Object res = requestRouter.route(jsonRpcRequest.method, (JsonNode) jsonRpcRequest.params);
+            sendSuccessResponse(remoteAdd, res, jsonRpcRequest.id);
         }
-        catch (Exception e){}
+        catch (Exception e){
+            e.printStackTrace();
+            if (!(remoteAdd == null)) {
+                sendErrorResponse(remoteAdd, JsonRpcError.INTERNAL_ERROR, "Internal error", id);
+            }
+        }
     }
 
     private static String extractString(ByteBuffer buffer) {
@@ -108,7 +120,38 @@ public class UDPServer {
 
         return msg;
     }
+    private void sendSuccessResponse(SocketAddress client, Object result, int id) {
+        try {
+            JsonRpcResponse<Object> response = new JsonRpcResponse<>();
+            response.id = id;
+            response.result = result;
+            response.error = null;
 
+            String json = objectMapper.writeValueAsString(response);
+            byte[] data = json.getBytes(StandardCharsets.UTF_8);
+            ByteBuffer buffer = ByteBuffer.wrap(data);
+            datagramChannel.send(buffer, client);
+        } catch (IOException e) {
+            System.err.println("Failed to send response: " + e.getMessage());
+        }
+    }
+
+    private void sendErrorResponse(SocketAddress client, int code, String message, Integer id) {
+        try {
+            JsonRpcResponse<Void> response = new JsonRpcResponse<>();
+            response.id = id;
+            response.result = null;
+            response.error = new JsonRpcError(code, message, null);
+
+            String json = objectMapper.writeValueAsString(response);
+            byte[] data = json.getBytes(StandardCharsets.UTF_8);
+            ByteBuffer buffer = ByteBuffer.wrap(data);
+            datagramChannel.send(buffer, client);
+        } catch (IOException e) {
+            System.err.println("Failed to send error: " + e.getMessage());
+        }
+    }
+}
 /*
     public void run() {}
     public void stop() {}
@@ -117,4 +160,3 @@ public class UDPServer {
     private void sendSuccessResponse(){}
     private void sendErrorResponse(){}
  */
-}

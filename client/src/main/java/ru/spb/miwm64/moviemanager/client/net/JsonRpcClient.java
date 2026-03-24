@@ -31,7 +31,7 @@ public class JsonRpcClient {
         Integer id = nextId++;
 
         try {
-            JsonRpcRequest request = new JsonRpcRequest(id, method, params);
+            JsonRpcRequest request = new JsonRpcRequest(id, method, objectMapper.valueToTree(params));
             String requestJson = objectMapper.writeValueAsString(request);
             String responseJson = connection.exchangeString(requestJson);
 

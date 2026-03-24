@@ -16,6 +16,7 @@ public class Movie implements Comparable<Movie> {
     private MpaaRating mpaaRating; //Поле не может быть null
     private Person operator; //Поле может быть null
 
+    public Movie(){}
     public Movie(Long id, String name, Coordinates coordinates, ZonedDateTime creationDate, int oscarsCount,
                  long goldenPalmCount, MovieGenre genre, MpaaRating mpaaRating,  Person operator ) {
         setCoordinates(coordinates);
