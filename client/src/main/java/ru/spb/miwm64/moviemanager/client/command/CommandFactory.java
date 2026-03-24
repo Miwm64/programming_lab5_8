@@ -4,7 +4,7 @@ import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
 import ru.spb.miwm64.moviemanager.client.commands.*;
 import ru.spb.miwm64.moviemanager.common.exceptions.NonExistentCommand;
 import ru.spb.miwm64.moviemanager.client.io.XMLParser;
-import ru.spb.miwm64.moviemanager.client.io.Reader;
+import ru.spb.miwm64.moviemanager.common.io.Reader;
 
 import java.util.*;
 import java.util.function.Supplier;

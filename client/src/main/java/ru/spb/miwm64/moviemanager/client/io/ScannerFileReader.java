@@ -1,10 +1,12 @@
 package ru.spb.miwm64.moviemanager.client.io;
 
+import ru.spb.miwm64.moviemanager.common.io.Reader;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
-public class ScannerFileReader implements Reader{
+public class ScannerFileReader implements Reader {
     Scanner scanner;
 
     public ScannerFileReader(String fileName) throws FileNotFoundException {

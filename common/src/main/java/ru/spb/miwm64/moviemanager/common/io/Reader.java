@@ -1,4 +1,4 @@
-package ru.spb.miwm64.moviemanager.client.io;
+package ru.spb.miwm64.moviemanager.common.io;
 
 import java.io.IOException;
 

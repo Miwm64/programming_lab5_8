@@ -5,6 +5,8 @@ import ru.spb.miwm64.moviemanager.client.collectionmanager.RemoteCollectionManag
 import ru.spb.miwm64.moviemanager.client.io.*;
 import ru.spb.miwm64.moviemanager.client.net.JsonRpcClient;
 import ru.spb.miwm64.moviemanager.client.net.UDPClient;
+import ru.spb.miwm64.moviemanager.client.io.ConsoleReader;
+import ru.spb.miwm64.moviemanager.common.io.Reader;
 
 import java.net.InetSocketAddress;
 
