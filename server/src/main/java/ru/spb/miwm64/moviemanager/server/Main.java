@@ -9,7 +9,7 @@ public class Main {
     public static void main(String[] args) {
         UDPServer udpServer;
         try {
-            udpServer = new UDPServer(9999, new SortedCollectionManager());
+            udpServer = new UDPServer(7878, new SortedCollectionManager());
             udpServer.run();
         }
         catch (Exception e){}

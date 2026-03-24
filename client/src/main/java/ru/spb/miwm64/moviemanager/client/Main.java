@@ -27,7 +27,7 @@ public class Main {
         */
 
 
-        UDPClient udpClient = new UDPClient(new InetSocketAddress("localhost", 9999));
+        UDPClient udpClient = new UDPClient(new InetSocketAddress("localhost", 7878));
         JsonRpcClient jsonRpcClient = new JsonRpcClient(udpClient);
         CollectionManager collectionManager = new RemoteCollectionManager(jsonRpcClient);
 
