@@ -1,6 +1,6 @@
 package ru.spb.miwm64.moviemanager.client.entities;
 
-import ru.spb.miwm64.moviemanager.client.exceptions.InvalidValueException;
+import ru.spb.miwm64.moviemanager.common.exceptions.InvalidValueException;
 
 import java.util.Objects;
 

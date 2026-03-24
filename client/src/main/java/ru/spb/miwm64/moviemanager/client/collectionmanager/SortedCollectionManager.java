@@ -2,7 +2,7 @@ package ru.spb.miwm64.moviemanager.client.collectionmanager;
 
 import ru.spb.miwm64.moviemanager.client.entities.Movie;
 import ru.spb.miwm64.moviemanager.client.entities.Person;
-import ru.spb.miwm64.moviemanager.client.exceptions.InvalidValueException;
+import ru.spb.miwm64.moviemanager.common.exceptions.InvalidValueException;
 
 import java.util.*;
 

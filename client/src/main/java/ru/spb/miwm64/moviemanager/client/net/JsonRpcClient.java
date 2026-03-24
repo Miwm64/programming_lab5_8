@@ -1,17 +1,16 @@
 package ru.spb.miwm64.moviemanager.client.net;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import ru.spb.miwm64.moviemanager.client.exceptions.*;
+import ru.spb.miwm64.moviemanager.common.exceptions.InvalidValueException;
+import ru.spb.miwm64.moviemanager.common.net.JsonRpcError;
 import ru.spb.miwm64.moviemanager.common.net.JsonRpcRequest;
 import ru.spb.miwm64.moviemanager.common.net.JsonRpcResponse;
 
+import java.util.NoSuchElementException;
 import java.util.Objects;
 
 public class JsonRpcClient {
@@ -27,7 +26,7 @@ public class JsonRpcClient {
     }
 
     public <T> T call(String method, Object params, Class<T> resultType)
-            throws NetException, RuntimeException { // TODO business exception
+        throws NetException, RuntimeException {
 
         Integer id = nextId++;
 
@@ -42,7 +41,7 @@ public class JsonRpcClient {
                 throw new WrongPacketException();
             }
             if (response.error != null) {
-                throw new RuntimeException(response.error.message);
+                throw mapToCollectionException(response.error);
             }
             if (response.result == null) {
                 return null;
@@ -57,5 +56,13 @@ public class JsonRpcClient {
         catch (Exception e) {
             throw new NetException("JSON-RPC error: " + e.getMessage(), e);
         }
+    }
+
+    private RuntimeException mapToCollectionException(JsonRpcError error) {
+        return switch (error.code) {
+            case JsonRpcError.INVALID_VALUE -> new InvalidValueException(error.message);
+            case JsonRpcError.NOT_FOUND -> new NoSuchElementException(error.message);
+            default -> new RuntimeException(error.message);
+        };
     }
 }
