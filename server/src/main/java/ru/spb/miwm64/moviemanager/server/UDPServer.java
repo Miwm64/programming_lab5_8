@@ -101,7 +101,7 @@ public class UDPServer {
             id = jsonRpcRequest.id;
             System.out.println("Client at #" + remoteAdd + "  sent: " + request);
 
-            Object res = requestRouter.route(jsonRpcRequest.method, (JsonNode) jsonRpcRequest.params);
+            Object res = requestRouter.route(jsonRpcRequest.method, jsonRpcRequest.params);
             sendSuccessResponse(remoteAdd, res, jsonRpcRequest.id);
         }
         catch (Exception e){

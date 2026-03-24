@@ -1,23 +1,26 @@
 package ru.spb.miwm64.moviemanager.client.net;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import ru.spb.miwm64.moviemanager.client.exceptions.*;
-import ru.spb.miwm64.moviemanager.common.exceptions.InvalidValueException;
 import ru.spb.miwm64.moviemanager.common.net.JsonRpcError;
 import ru.spb.miwm64.moviemanager.common.net.JsonRpcRequest;
 import ru.spb.miwm64.moviemanager.common.net.JsonRpcResponse;
+import ru.spb.miwm64.moviemanager.common.exceptions.InvalidValueException;
 
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
 public class JsonRpcClient {
     private final static ObjectMapper objectMapper = new ObjectMapper()
-            .registerModule(new JavaTimeModule())  // ← YOU HAVE THIS
+            .registerModule(new JavaTimeModule())
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
             .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+
     private final ConnectionClient connection;
     private Integer nextId = 1;
 
@@ -25,8 +28,8 @@ public class JsonRpcClient {
         this.connection = connection;
     }
 
-    public <T> T call(String method, Object params, Class<T> resultType)
-        throws NetException, RuntimeException {
+    public <T> T call(String method, Object params, TypeReference<T> resultType)
+            throws NetException, InvalidValueException, NoSuchElementException {
 
         Integer id = nextId++;
 
@@ -34,20 +37,22 @@ public class JsonRpcClient {
             JsonRpcRequest request = new JsonRpcRequest(id, method, objectMapper.valueToTree(params));
             String requestJson = objectMapper.writeValueAsString(request);
             String responseJson = connection.exchangeString(requestJson);
+            System.out.println(responseJson);
 
-            JsonRpcResponse response = objectMapper.readValue(responseJson, JsonRpcResponse.class);
+            JavaType type = objectMapper.getTypeFactory()
+                    .constructParametricType(JsonRpcResponse.class,
+                            objectMapper.getTypeFactory().constructType(resultType));
 
-//            if (!Objects.equals(request.id, response.id)){
+            JsonRpcResponse<T> response = objectMapper.readValue(responseJson, type);
+
+//            if (!Objects.equals(request.id, response.id)) {
 //                throw new WrongPacketException();
-//            }
+//            } TODO check
+
             if (response.error != null) {
                 throw mapToCollectionException(response.error);
             }
-            if (response.result == null) {
-                return null;
-            }
-
-            return objectMapper.convertValue(response.result, resultType);
+            return response.result;
         } catch (NetException e) {
             throw e;
         } catch (IllegalArgumentException e) {

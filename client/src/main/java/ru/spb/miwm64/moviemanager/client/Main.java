@@ -13,20 +13,6 @@ import java.net.InetSocketAddress;
 
 public class Main {
     public static void main(String[] args) {
-        /*
-        UDPClient cl = new UDPClient(new InetSocketAddress("localhost", 9999));
-        Scanner sc = new Scanner(System.in);
-        String input;
-        while (true){
-            input = sc.nextLine();
-            if (Objects.equals(input, "/exit")){
-                break;
-            }
-            System.out.println(cl.exchangeString(input));
-        }
-        */
-
-
         UDPClient udpClient = new UDPClient(new InetSocketAddress("localhost", 7878));
         JsonRpcClient jsonRpcClient = new JsonRpcClient(udpClient);
         CollectionManager collectionManager = new RemoteCollectionManager(jsonRpcClient);
