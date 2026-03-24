@@ -1,15 +1,12 @@
 package ru.spb.miwm64.moviemanager.client;
 
-import ru.spb.miwm64.moviemanager.client.collectionmanager.CollectionManager;
+import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
 import ru.spb.miwm64.moviemanager.client.collectionmanager.RemoteCollectionManager;
-import ru.spb.miwm64.moviemanager.client.collectionmanager.SortedCollectionManager;
 import ru.spb.miwm64.moviemanager.client.io.*;
 import ru.spb.miwm64.moviemanager.client.net.JsonRpcClient;
 import ru.spb.miwm64.moviemanager.client.net.UDPClient;
 
 import java.net.InetSocketAddress;
-import java.util.Objects;
-import java.util.Scanner;
 
 
 public class Main {

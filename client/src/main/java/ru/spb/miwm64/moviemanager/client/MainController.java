@@ -1,10 +1,9 @@
 package ru.spb.miwm64.moviemanager.client;
 
-import ru.spb.miwm64.moviemanager.client.collectionmanager.CollectionManager;
+import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
 import ru.spb.miwm64.moviemanager.client.command.Command;
 import ru.spb.miwm64.moviemanager.client.command.CommandFactory;
 import ru.spb.miwm64.moviemanager.client.command.CommandResult;
-import ru.spb.miwm64.moviemanager.client.commands.*;
 import ru.spb.miwm64.moviemanager.client.io.FullBufferedFileReader;
 import ru.spb.miwm64.moviemanager.client.io.Reader;
 import ru.spb.miwm64.moviemanager.client.io.Writer;
