@@ -9,8 +9,8 @@ public final class RemoveByIDCommand extends AbstractCommand {
     public RemoveByIDCommand(CollectionManager collectionManager) {
         this.collectionManager = collectionManager;
 
-        this.name = "remove_at";
-        this.help = "remove_at <id> - remove movie with specified id";
+        this.name = "remove_by_id";
+        this.help = "remove_by_id <id> - remove movie with specified id";
 
         // id, can not be null, >0
         Parameter<Long> idParam = new Parameter<>(
