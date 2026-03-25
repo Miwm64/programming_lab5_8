@@ -64,7 +64,7 @@ public class UDPClient implements ConnectionClient {
 
         } catch (SocketTimeoutException e) {
             LOG.error("Response timeout from {}", socketAddress, e);
-            throw new ResponseTimeoutException();
+            throw new ResponseTimeoutException(responseTimeout);
         } catch (IOException e) {
             LOG.error("Failed to receive/send packet from/to {}", socketAddress, e);
             throw new NetException("I/O error during UDP exchange", e);
