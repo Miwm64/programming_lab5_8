@@ -7,6 +7,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ru.spb.miwm64.moviemanager.common.exceptions.NonExistentCommand;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,13 +18,19 @@ public class RequestRouter {
     private final CollectionManager collectionManager;
     private final ObjectMapper mapper;
 
+    private static final Logger LOG = LoggerFactory.getLogger(RequestRouter.class);
+
     public RequestRouter(CollectionManager collectionManager, ObjectMapper mapper) {
         this.collectionManager = collectionManager;
         this.mapper = mapper;
+        LOG.debug("Initializing RequestRouter");
         registerHandlers();
+        LOG.info("RequestRouter initialized with {} handlers", handlers.size());
     }
 
     private void registerHandlers() {
+        LOG.debug("Registering handlers");
+
         handlers.put("add", params -> collectionManager.add(mapper.treeToValue(params, Movie.class)));
         handlers.put("addIfMin", params -> collectionManager.addIfMin(mapper.treeToValue(params, Movie.class)));
         handlers.put("setById", params -> {
@@ -60,14 +69,27 @@ public class RequestRouter {
                 collectionManager.filterGreaterThanOperatorCommand(mapper.treeToValue(params, Person.class)));
         handlers.put("printFieldAscendingGoldenPalmCount", params ->
                 collectionManager.printFieldAscendingGoldenPalmCountCommand());
+
+        LOG.debug("Handlers registered: {}", handlers.keySet());
     }
 
     public Object route(String method, JsonNode params) throws Exception {
+        LOG.debug("Routing request: method={}", method);
+
         Handler handler = handlers.get(method);
         if (handler == null) {
+            LOG.error("Unknown method requested: {}", method);
             throw new NonExistentCommand("Unknown method: " + method);
         }
-        return handler.handle(params);
+
+        try {
+            Object result = handler.handle(params);
+            LOG.debug("Method executed successfully: {}", method);
+            return result;
+        } catch (Exception e) {
+            LOG.error("Error while executing method: {}", method, e);
+            throw e;
+        }
     }
 
     @FunctionalInterface

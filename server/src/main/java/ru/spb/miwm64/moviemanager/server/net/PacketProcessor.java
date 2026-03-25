@@ -1,7 +1,10 @@
 package ru.spb.miwm64.moviemanager.server.net;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.spb.miwm64.moviemanager.common.net.JsonRpcError;
 import ru.spb.miwm64.moviemanager.common.net.JsonRpcRequest;
+import ru.spb.miwm64.moviemanager.server.Main;
 
 import java.io.IOException;
 import java.net.SocketAddress;
@@ -13,6 +16,9 @@ public class PacketProcessor {
     private final UDPTransport transport;
     private final JsonRpc jsonRpc;
     private final RequestHandler handler;
+    private Logger log = LoggerFactory.getLogger(Main.class);
+
+    private static final Logger LOG = LoggerFactory.getLogger(PacketProcessor.class);
 
     public PacketProcessor(UDPTransport transport,
                            JsonRpc codec,
@@ -20,6 +26,7 @@ public class PacketProcessor {
         this.transport = transport;
         this.jsonRpc = codec;
         this.handler = handler;
+        LOG.debug("PacketProcessor initialized");
     }
 
     public void process() {
@@ -27,22 +34,38 @@ public class PacketProcessor {
         Integer id = null;
 
         try {
+            LOG.debug("Receiving packet");
+
             ByteBuffer buffer = ByteBuffer.allocate(65536);
             client = transport.receive(buffer);
 
-            if (client == null) return;
+            if (client == null) {
+                LOG.debug("No packet received");
+                return;
+            }
+
+            LOG.info("Packet received from {}", client);
 
             String json = extract(buffer);
+            LOG.debug("Raw JSON received: {}", json);
 
             JsonRpcRequest request = jsonRpc.decodeRequest(json);
             id = request.id;
 
+            LOG.info("Processing request id={} method={}", id, request.method);
+
             Object result = handler.handle(request);
+
+            LOG.debug("Handler executed successfully for id={}", id);
 
             byte[] response = jsonRpc.encodeSuccess(result, id);
             transport.send(client, response);
 
+            LOG.info("Response sent for id={} to {}", id, client);
+
         } catch (Exception e) {
+            LOG.error("Error during packet processing (id={})", id, e);
+
             if (client != null) {
                 try {
                     byte[] err = jsonRpc.encodeError(
@@ -51,7 +74,10 @@ public class PacketProcessor {
                             id
                     );
                     transport.send(client, err);
-                } catch (IOException ignored) {}
+                    LOG.info("Error response sent to {} for id={}", client, id);
+                } catch (IOException ignored) {
+                    LOG.error("Failed to send error response", ignored);
+                }
             }
         }
     }
@@ -60,6 +86,8 @@ public class PacketProcessor {
         buffer.flip();
         byte[] bytes = new byte[buffer.remaining()];
         buffer.get(bytes);
-        return new String(bytes, StandardCharsets.UTF_8);
+        String result = new String(bytes, StandardCharsets.UTF_8);
+        LOG.debug("Extracted {} bytes from buffer", bytes.length);
+        return result;
     }
 }
