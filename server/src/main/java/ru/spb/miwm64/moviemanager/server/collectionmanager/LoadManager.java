@@ -31,6 +31,7 @@ public class LoadManager {
 
         xmlParser.parseFromXMLCollection(xml)
                 .forEach(collectionManager::add);
+        System.out.println("Loaded collection successfully");
     }
 
     private String readFile() {
@@ -44,6 +45,7 @@ public class LoadManager {
     public void saveCollection() {
         String xml = xmlParser.parseCollectionIntoXML(collectionManager.getAll());
         writeFile(xml);
+        System.out.println("Saved collection successfully");
     }
 
     private void writeFile(String content) {
