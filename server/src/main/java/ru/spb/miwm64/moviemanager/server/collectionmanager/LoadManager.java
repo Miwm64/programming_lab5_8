@@ -13,7 +13,6 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 public class LoadManager {
-
     private static final String ENV_VARIABLE = "XML_LOAD";
 
     private final CollectionManager collectionManager;
@@ -24,8 +23,6 @@ public class LoadManager {
         this.collectionManager = Objects.requireNonNull(collectionManager);
         this.xmlParser = Objects.requireNonNull(xmlParser);
     }
-
-    // -------- LOAD --------
 
     public void loadCollection() {
         String xml = readFile();
@@ -43,8 +40,6 @@ public class LoadManager {
             throw new RuntimeException("Failed to read XML file", e);
         }
     }
-
-    // -------- SAVE --------
 
     public void saveCollection() {
         String xml = xmlParser.parseCollectionIntoXML(collectionManager.getAll());
@@ -64,8 +59,6 @@ public class LoadManager {
             throw new RuntimeException("Failed to write XML file", e);
         }
     }
-
-    // -------- HELPERS --------
 
     private String getPath() {
         String path = System.getenv(ENV_VARIABLE);

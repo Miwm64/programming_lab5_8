@@ -18,6 +18,10 @@ public class Main {
             udpServer = new UDPServer(7878, collectionManager, xmlParser);
             udpServer.run();
         }
+        catch (IllegalStateException e) {
+            System.out.println("Set XML_LOAD environment variable");
+            log.error("Error: {}", e.getMessage());
+        }
         catch (Exception e){
             log.error("Error: {}", e.getMessage());
         }
