@@ -7,7 +7,6 @@ import ru.spb.miwm64.moviemanager.common.entities.Person;
 import ru.spb.miwm64.moviemanager.client.net.JsonRpcClient;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class RemoteCollectionManager implements CollectionManager {
@@ -29,28 +28,32 @@ public class RemoteCollectionManager implements CollectionManager {
 
     @Override
     public void setById(Long id, Movie movie) {
-        jsonRpcClient.call("setById", Map.of("id", id, "movie", movie), new TypeReference<Void>() {});
+        jsonRpcClient.call("setById", Map.of("id", id, "movie", movie),
+                new TypeReference<Void>() {});
     }
 
     @Override
     public Movie getById(Long id) {
-        return jsonRpcClient.call("getById", Map.of("id", id), new TypeReference<Movie>() {});
+        return jsonRpcClient.call("getById", Map.of("id", id),
+                new TypeReference<Movie>() {});
     }
 
     @Override
     public Movie getByIndex(int index) {
-        return jsonRpcClient.call("getByIndex", Map.of("index", index), new TypeReference<Movie>() {});
+        return jsonRpcClient.call("getByIndex", Map.of("index", index),
+                new TypeReference<Movie>() {});
     }
 
     @Override
     public ArrayList<Movie> getGreater(Person person) {
-        ArrayList<Movie> list = jsonRpcClient.call("getGreater", person, new TypeReference<ArrayList<Movie>>() {});
-        return list;
+        return jsonRpcClient.call("getGreater", person,
+                new TypeReference<ArrayList<Movie>>() {});
     }
 
     @Override
     public ArrayList<Movie> getAll() {
-        return jsonRpcClient.call("getAll", null, new TypeReference<ArrayList<Movie>>() {});
+        return jsonRpcClient.call("getAll", null,
+                new TypeReference<ArrayList<Movie>>() {});
     }
 
     @Override
@@ -60,7 +63,8 @@ public class RemoteCollectionManager implements CollectionManager {
 
     @Override
     public void removeByIndex(int index) {
-        jsonRpcClient.call("removeByIndex", Map.of("index", index), new TypeReference<Void>() {});
+        jsonRpcClient.call("removeByIndex", Map.of("index", index),
+                new TypeReference<Void>() {});
     }
 
     @Override
@@ -80,16 +84,19 @@ public class RemoteCollectionManager implements CollectionManager {
 
     @Override
     public long countByGoldenPalmCount(long count) {
-        return jsonRpcClient.call("countByGoldenPalmCount", Map.of("count", count), new TypeReference<Long>() {});
+        return jsonRpcClient.call("countByGoldenPalmCount", Map.of("count", count),
+                new TypeReference<Long>() {});
     }
 
     @Override
     public ArrayList<Movie> filterGreaterThanOperatorCommand(Person p) {
-        return jsonRpcClient.call("filterGreaterThanOperator", p, new TypeReference<ArrayList<Movie>>() {});
+        return jsonRpcClient.call("filterGreaterThanOperator", p,
+                new TypeReference<ArrayList<Movie>>() {});
     }
 
     @Override
     public ArrayList<Movie> printFieldAscendingGoldenPalmCountCommand() {
-        return jsonRpcClient.call("printFieldAscendingGoldenPalmCount", null, new TypeReference<ArrayList<Movie>>() {});
+        return jsonRpcClient.call("printFieldAscendingGoldenPalmCount", null,
+                new TypeReference<ArrayList<Movie>>() {});
     }
 }

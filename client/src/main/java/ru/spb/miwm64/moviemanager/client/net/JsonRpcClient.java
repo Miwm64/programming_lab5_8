@@ -69,5 +69,6 @@ public class JsonRpcClient {
             case JsonRpcError.NOT_FOUND -> new NoSuchElementException(error.message);
             default -> new RuntimeException(error.message);
         };
+        // TODO check codes
     }
 }
