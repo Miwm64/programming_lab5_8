@@ -8,95 +8,111 @@ import ru.spb.miwm64.moviemanager.client.net.JsonRpcClient;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 public class RemoteCollectionManager implements CollectionManager {
+    private static final Logger LOG = LoggerFactory.getLogger(RemoteCollectionManager.class);
+
     private final JsonRpcClient jsonRpcClient;
 
     public RemoteCollectionManager(JsonRpcClient jsonRpcClient) {
         this.jsonRpcClient = jsonRpcClient;
+        LOG.info("RemoteCollectionManager initialized");
     }
 
     @Override
     public int add(Movie movie) {
-        return jsonRpcClient.call("add", movie, new TypeReference<Integer>() {});
+        return callRpc("add", movie, new TypeReference<Integer>() {});
     }
 
     @Override
     public boolean addIfMin(Movie movie) {
-        return jsonRpcClient.call("addIfMin", movie, new TypeReference<Boolean>() {});
+        return callRpc("addIfMin", movie, new TypeReference<Boolean>() {});
     }
 
     @Override
     public void setById(Long id, Movie movie) {
-        jsonRpcClient.call("setById", Map.of("id", id, "movie", movie),
-                new TypeReference<Void>() {});
+        callRpc("setById", Map.of("id", id, "movie", movie), new TypeReference<Void>() {});
     }
 
     @Override
     public Movie getById(Long id) {
-        return jsonRpcClient.call("getById", Map.of("id", id),
-                new TypeReference<Movie>() {});
+        return callRpc("getById", Map.of("id", id), new TypeReference<Movie>() {});
     }
 
     @Override
     public Movie getByIndex(int index) {
-        return jsonRpcClient.call("getByIndex", Map.of("index", index),
-                new TypeReference<Movie>() {});
+        return callRpc("getByIndex", Map.of("index", index), new TypeReference<Movie>() {});
     }
 
     @Override
     public ArrayList<Movie> getGreater(Person person) {
-        return jsonRpcClient.call("getGreater", person,
-                new TypeReference<ArrayList<Movie>>() {});
+        return callRpc("getGreater", person, new TypeReference<ArrayList<Movie>>() {});
     }
 
     @Override
     public ArrayList<Movie> getAll() {
-        return jsonRpcClient.call("getAll", null,
-                new TypeReference<ArrayList<Movie>>() {});
+        return callRpc("getAll", null, new TypeReference<ArrayList<Movie>>() {});
     }
 
     @Override
     public void removeById(Long id) {
-        jsonRpcClient.call("removeById", Map.of("id", id), new TypeReference<Void>() {});
+        callRpc("removeById", Map.of("id", id), new TypeReference<Void>() {});
     }
 
     @Override
     public void removeByIndex(int index) {
-        jsonRpcClient.call("removeByIndex", Map.of("index", index),
-                new TypeReference<Void>() {});
+        callRpc("removeByIndex", Map.of("index", index), new TypeReference<Void>() {});
     }
 
     @Override
     public void removeGreater(Movie movie) {
-        jsonRpcClient.call("removeGreater", movie, new TypeReference<Void>() {});
+        callRpc("removeGreater", movie, new TypeReference<Void>() {});
     }
 
     @Override
     public void removeAll() {
-        jsonRpcClient.call("removeAll", null, new TypeReference<Void>() {});
+        callRpc("removeAll", null, new TypeReference<Void>() {});
     }
 
     @Override
     public void clear() {
-        jsonRpcClient.call("clear", null, new TypeReference<Void>() {});
+        callRpc("clear", null, new TypeReference<Void>() {});
     }
 
     @Override
     public long countByGoldenPalmCount(long count) {
-        return jsonRpcClient.call("countByGoldenPalmCount", Map.of("count", count),
-                new TypeReference<Long>() {});
+        return callRpc("countByGoldenPalmCount", Map.of("count", count), new TypeReference<Long>() {});
     }
 
     @Override
     public ArrayList<Movie> filterGreaterThanOperatorCommand(Person p) {
-        return jsonRpcClient.call("filterGreaterThanOperator", p,
-                new TypeReference<ArrayList<Movie>>() {});
+        return callRpc("filterGreaterThanOperator", p, new TypeReference<ArrayList<Movie>>() {});
     }
 
     @Override
     public ArrayList<Movie> printFieldAscendingGoldenPalmCountCommand() {
-        return jsonRpcClient.call("printFieldAscendingGoldenPalmCount", null,
-                new TypeReference<ArrayList<Movie>>() {});
+        return callRpc("printFieldAscendingGoldenPalmCount", null, new TypeReference<ArrayList<Movie>>() {});
+    }
+
+    // --- Logging wrapper with MDC ---
+    private <T> T callRpc(String method, Object params, TypeReference<T> type) {
+        String requestId = UUID.randomUUID().toString();
+        MDC.put("requestId", requestId);
+        try {
+            LOG.info("Calling RPC method '{}' with params={}", method, params);
+            T result = jsonRpcClient.call(method, params, type);
+            LOG.info("RPC method '{}' completed successfully", method);
+            return result;
+        } catch (Exception e) {
+            LOG.error("RPC method '{}' failed", method, e);
+            throw e;
+        } finally {
+            MDC.remove("requestId");
+        }
     }
 }

@@ -9,7 +9,13 @@ import ru.spb.miwm64.moviemanager.common.io.Reader;
 import java.util.*;
 import java.util.function.Supplier;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+
 public final class CommandFactory {
+    private static final Logger LOG = LoggerFactory.getLogger(CommandFactory.class);
+
     private final Map<String, Supplier<Command>> commandsRegistry = new LinkedHashMap<>();
     private CollectionManager collectionManager;
     private XMLParser xmlParser;
@@ -23,11 +29,13 @@ public final class CommandFactory {
         this.readers = readers;
         this.openedFilesSet = openedFilesSet;
 
-        // Register all commands
+        LOG.info("Initializing CommandFactory");
         registerCommands();
     }
 
     private void registerCommands() {
+        LOG.debug("Registering commands");
+
         register("help", () -> (new HelpCommand(this)));
 
         register("show", () -> new ShowCommand(collectionManager));
@@ -47,18 +55,30 @@ public final class CommandFactory {
         register("clear", () -> new ClearCommand(collectionManager));
 
         register("execute_script", () -> new ExecuteScriptCommand(readers, openedFilesSet));
+
+        LOG.info("Commands registered: {}", commandsRegistry.keySet());
     }
 
     public void register(String commandName, Supplier<Command> creator) {
         commandsRegistry.put(commandName, creator);
+        LOG.debug("Registered command: {}", commandName);
     }
 
     public Command newCommand(String commandName) {
         Supplier<Command> creator = commandsRegistry.get(commandName);
         if (Objects.isNull(creator)) {
+            LOG.error("Attempted to create unknown command '{}'", commandName);
             throw new NonExistentCommand("Command '" + commandName + "' does not exist");
         }
-        return creator.get();
+
+        MDC.put("requestId", UUID.randomUUID().toString());
+        try {
+            Command cmd = creator.get();
+            LOG.info("Created command instance: {}", cmd.getClass().getSimpleName());
+            return cmd;
+        } finally {
+            MDC.remove("requestId");
+        }
     }
 
     public ArrayList<Command> getAllCommands(){
@@ -66,6 +86,7 @@ public final class CommandFactory {
         for (var creator : commandsRegistry.values()) {
             res.add(creator.get());
         }
+        LOG.debug("Retrieved all command instances, count={}", res.size());
         return res;
     }
 }
