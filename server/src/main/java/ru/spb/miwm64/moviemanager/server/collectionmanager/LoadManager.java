@@ -15,22 +15,19 @@ import java.util.Objects;
 public class LoadManager {
     private static final String ENV_VARIABLE = "XML_LOAD";
 
-    private final CollectionManager collectionManager;
+    private final StreamCollectionManager collectionManager;
     private final XMLParser xmlParser;
     private Logger log = LoggerFactory.getLogger(Main.class);
 
     public LoadManager(CollectionManager collectionManager, XMLParser xmlParser) {
-        this.collectionManager = Objects.requireNonNull(collectionManager);
+        this.collectionManager = (StreamCollectionManager) Objects.requireNonNull(collectionManager);
         this.xmlParser = Objects.requireNonNull(xmlParser);
     }
 
     public void loadCollection() {
         String xml = readFile();
 
-        collectionManager.clear();
-
-        xmlParser.parseFromXMLCollection(xml)
-                .forEach(collectionManager::add);
+        collectionManager.setCollection(xmlParser.parseFromXMLCollection(xml));
         System.out.println("Loaded collection successfully");
     }
 
