@@ -17,6 +17,7 @@ import ru.spb.miwm64.moviemanager.server.io.NonBlockingConsoleReader;
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.UUID;
 
