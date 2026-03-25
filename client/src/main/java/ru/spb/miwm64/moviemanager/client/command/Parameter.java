@@ -6,7 +6,13 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public class Parameter<T> implements Cloneable{
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+
+public class Parameter<T> implements Cloneable {
+    private static final Logger LOG = LoggerFactory.getLogger(Parameter.class);
+
     private final String name;
     private final String prompt;
     private final Function<String, T> parser;
@@ -16,37 +22,52 @@ public class Parameter<T> implements Cloneable{
     private boolean isSet = false;
 
     public Parameter(String name, String prompt, Function<String, T> parser,
-                 Predicate<T> validator, boolean required) {
+                     Predicate<T> validator, boolean required) {
         this.name = name;
         this.prompt = prompt;
         this.parser = parser;
         this.validator = validator;
         this.required = required;
+        LOG.debug("Parameter created: {} (required={})", name, required);
     }
 
     public void fromString(String input) {
-        if (Objects.isNull(input) || input.trim().isEmpty()) {
-            if (!required){
-                return;
-            }
-            isSet = false;
-            throw new InvalidValueException(name + " can't be empty");
-        }
-        T val;
+        MDC.put("requestId", java.util.UUID.randomUUID().toString());
         try {
-            val = parser.apply(input);
-        }
-        catch (Exception e){
-            isSet = false;
-            throw new InvalidValueException(name + " couldn't be parsed, input = " + input);
-        }
+            LOG.debug("Parsing input for parameter '{}': {}", name, input);
 
-        if (!validator.test(val)){
-            isSet = false;
-            throw new InvalidValueException(name + " couldn't be validated, input = " + input);
+            if (Objects.isNull(input) || input.trim().isEmpty()) {
+                if (!required) {
+                    LOG.debug("Optional parameter '{}' left empty", name);
+                    return;
+                }
+                isSet = false;
+                LOG.error("Required parameter '{}' is empty", name);
+                throw new InvalidValueException(name + " can't be empty");
+            }
+
+            T val;
+            try {
+                val = parser.apply(input);
+            } catch (Exception e) {
+                isSet = false;
+                LOG.error("Parameter '{}' parsing failed, input={}", name, input, e);
+                throw new InvalidValueException(name + " couldn't be parsed, input = " + input);
+            }
+
+            if (!validator.test(val)) {
+                isSet = false;
+                LOG.error("Parameter '{}' validation failed, input={}", name, input);
+                throw new InvalidValueException(name + " couldn't be validated, input = " + input);
+            }
+
+            this.isSet = true;
+            this.value = val;
+            LOG.debug("Parameter '{}' successfully set to {}", name, value);
+
+        } finally {
+            MDC.remove("requestId");
         }
-        this.isSet = true;
-        this.value = val;
     }
 
     public String getName() {
@@ -69,14 +90,15 @@ public class Parameter<T> implements Cloneable{
         return isSet;
     }
 
-
     @Override
     public Parameter<T> clone() {
         try {
-            Parameter clone = (Parameter) super.clone();
+            Parameter<T> clone = (Parameter<T>) super.clone();
             clone.value = this.value;
+            LOG.debug("Cloned parameter '{}', value={}", name, value);
             return clone;
         } catch (CloneNotSupportedException e) {
+            LOG.error("Cloning failed for parameter '{}'", name, e);
             throw new AssertionError();
         }
     }

@@ -1,3 +1,3 @@
 #!/bin/bash
 mvn clean install
-java -jar build/moviemanager-client.jar
+java -DLOG_FILE=client.log -jar build/moviemanager-client.jar

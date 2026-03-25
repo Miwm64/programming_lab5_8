@@ -27,3 +27,10 @@ Exchange format(JSON-RPC):
   }
 }
 ```
+
+
+Logger
+-DLOG_LEVEL=DEBUG 
+-DLOG_TO_FILE=true 
+-DLOG_DIR=/path/to/logs 
+-DLOG_FILE=server.log

@@ -14,8 +14,15 @@ import ru.spb.miwm64.moviemanager.common.exceptions.InvalidValueException;
 
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 public class JsonRpcClient {
+    private static final Logger LOG = LoggerFactory.getLogger(JsonRpcClient.class);
+
     private final static ObjectMapper objectMapper = new ObjectMapper()
             .registerModule(new JavaTimeModule())
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
@@ -26,14 +33,19 @@ public class JsonRpcClient {
 
     public JsonRpcClient(ConnectionClient connection) {
         this.connection = connection;
+        LOG.info("JsonRpcClient initialized");
     }
 
     public <T> T call(String method, Object params, TypeReference<T> resultType)
             throws NetException, InvalidValueException, NoSuchElementException {
 
         Integer id = nextId++;
+        String requestId = UUID.randomUUID().toString();
+        MDC.put("requestId", requestId);
 
         try {
+            LOG.info("Sending JSON-RPC request '{}' id={} params={}", method, id, params);
+
             JsonRpcRequest request = new JsonRpcRequest(id, method, objectMapper.valueToTree(params));
             String requestJson = objectMapper.writeValueAsString(request);
             String responseJson = connection.exchangeString(requestJson);
@@ -44,21 +56,30 @@ public class JsonRpcClient {
 
             JsonRpcResponse<T> response = objectMapper.readValue(responseJson, type);
 
+            // TODO check id match
 //            if (!Objects.equals(request.id, response.id)) {
 //                throw new WrongPacketException();
-//            } TODO check
+//            }
 
             if (response.error != null) {
+                LOG.error("JSON-RPC call '{}' failed with error: {}", method, response.error.message);
                 throw mapToCollectionException(response.error);
             }
+
+            LOG.info("JSON-RPC call '{}' id={} succeeded", method, id);
             return response.result;
+
         } catch (NetException e) {
+            LOG.error("Network error during JSON-RPC call '{}'", method, e);
             throw e;
         } catch (IllegalArgumentException e) {
+            LOG.error("Serialization error during JSON-RPC call '{}'", method, e);
             throw new SerializationException(e);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
+            LOG.error("Unexpected error during JSON-RPC call '{}'", method, e);
             throw new NetException("JSON-RPC error: " + e.getMessage(), e);
+        } finally {
+            MDC.remove("requestId");
         }
     }
 
@@ -68,6 +89,5 @@ public class JsonRpcClient {
             case JsonRpcError.NOT_FOUND -> new NoSuchElementException(error.message);
             default -> new RuntimeException(error.message);
         };
-        // TODO check codes
     }
 }
