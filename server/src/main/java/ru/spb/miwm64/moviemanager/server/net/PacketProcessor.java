@@ -1,4 +1,4 @@
-package ru.spb.miwm64.moviemanager.server;
+package ru.spb.miwm64.moviemanager.server.net;
 
 import ru.spb.miwm64.moviemanager.common.net.JsonRpcError;
 import ru.spb.miwm64.moviemanager.common.net.JsonRpcRequest;

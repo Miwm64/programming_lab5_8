@@ -1,4 +1,4 @@
-package ru.spb.miwm64.moviemanager.server;
+package ru.spb.miwm64.moviemanager.server.net;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
