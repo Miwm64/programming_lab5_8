@@ -1,4 +1,4 @@
-package ru.spb.miwm64.moviemanager.server;
+package ru.spb.miwm64.moviemanager.server.net;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;

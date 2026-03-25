@@ -1,24 +1,16 @@
-package ru.spb.miwm64.moviemanager.server;
+package ru.spb.miwm64.moviemanager.server.net;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
 import ru.spb.miwm64.moviemanager.common.io.Reader;
-import ru.spb.miwm64.moviemanager.common.net.JsonRpcError;
-import ru.spb.miwm64.moviemanager.common.net.JsonRpcRequest;
-import ru.spb.miwm64.moviemanager.common.net.JsonRpcResponse;
+import ru.spb.miwm64.moviemanager.server.io.NonBlockingConsoleReader;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 
 public class UDPServer {
