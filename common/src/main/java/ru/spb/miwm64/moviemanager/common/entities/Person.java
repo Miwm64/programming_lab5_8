@@ -1,4 +1,4 @@
-package ru.spb.miwm64.moviemanager.client.entities;
+package ru.spb.miwm64.moviemanager.common.entities;
 
 import ru.spb.miwm64.moviemanager.common.exceptions.InvalidValueException;
 
@@ -10,6 +10,7 @@ public class Person implements Comparable<Person> {
     private Color hairColor; //Поле не может быть null
     private Country nationality; //Поле не может быть null
 
+    public Person(){}
     public Person(String name, float weight, Color hairColor, Country nationality) {
         setName(name);
         setWeight(weight);

@@ -1,4 +1,4 @@
-package ru.spb.miwm64.moviemanager.client.entities;
+package ru.spb.miwm64.moviemanager.common.entities;
 
 import ru.spb.miwm64.moviemanager.common.exceptions.InvalidValueException;
 
@@ -8,6 +8,7 @@ public class Coordinates {
     private float x; //Максимальное значение поля: 274
     private Long y; //Значение поля должно быть больше -559, Поле не может быть null
 
+    public Coordinates(){}
     public Coordinates(float x, Long y) {
         setX(x);
         setY(y);

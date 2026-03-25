@@ -1,6 +1,6 @@
 package ru.spb.miwm64.moviemanager.client.commands;
 
-import ru.spb.miwm64.moviemanager.client.collectionmanager.CollectionManager;
+import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
 import ru.spb.miwm64.moviemanager.client.collectionmanager.SortedCollectionManager;
 import ru.spb.miwm64.moviemanager.client.command.AbstractCommand;
 import ru.spb.miwm64.moviemanager.client.command.CommandResult;
@@ -33,7 +33,7 @@ public final class InfoCommand extends AbstractCommand {
                 info.append(String.format("Sorting: sorted\n"));
             }
             else {
-                info.append("Sorting: unsorted\n");
+                info.append("Sorting: sorted\n");
             }
 
             return new CommandResultSuccess(info.toString(), info.toString());

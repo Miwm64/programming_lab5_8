@@ -1,4 +1,4 @@
-package ru.spb.miwm64.moviemanager.client.collectionmanager;
+package ru.spb.miwm64.moviemanager.server;
 
 import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
 import ru.spb.miwm64.moviemanager.common.entities.Movie;

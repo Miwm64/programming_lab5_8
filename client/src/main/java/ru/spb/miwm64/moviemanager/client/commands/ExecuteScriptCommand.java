@@ -2,7 +2,7 @@ package ru.spb.miwm64.moviemanager.client.commands;
 
 import ru.spb.miwm64.moviemanager.client.command.*;
 import ru.spb.miwm64.moviemanager.client.io.FullBufferedFileReader;
-import ru.spb.miwm64.moviemanager.client.io.Reader;
+import ru.spb.miwm64.moviemanager.common.io.Reader;
 
 import java.io.IOException;
 import java.util.List;

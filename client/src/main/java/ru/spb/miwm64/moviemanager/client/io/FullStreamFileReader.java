@@ -1,5 +1,7 @@
 package ru.spb.miwm64.moviemanager.client.io;
 
+import ru.spb.miwm64.moviemanager.common.io.Reader;
+
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;

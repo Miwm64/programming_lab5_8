@@ -1,7 +1,7 @@
-package ru.spb.miwm64.moviemanager.client.collectionmanager;
+package ru.spb.miwm64.moviemanager.common.collection;
 
-import ru.spb.miwm64.moviemanager.client.entities.Movie;
-import ru.spb.miwm64.moviemanager.client.entities.Person;
+import ru.spb.miwm64.moviemanager.common.entities.Movie;
+import ru.spb.miwm64.moviemanager.common.entities.Person;
 
 import java.util.ArrayList;
 

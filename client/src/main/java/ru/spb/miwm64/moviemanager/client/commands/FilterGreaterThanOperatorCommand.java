@@ -1,11 +1,11 @@
 package ru.spb.miwm64.moviemanager.client.commands;
 
-import ru.spb.miwm64.moviemanager.client.collectionmanager.CollectionManager;
+import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
 import ru.spb.miwm64.moviemanager.client.command.*;
-import ru.spb.miwm64.moviemanager.client.entities.Color;
-import ru.spb.miwm64.moviemanager.client.entities.Country;
-import ru.spb.miwm64.moviemanager.client.entities.Movie;
-import ru.spb.miwm64.moviemanager.client.entities.Person;
+import ru.spb.miwm64.moviemanager.common.entities.Color;
+import ru.spb.miwm64.moviemanager.common.entities.Country;
+import ru.spb.miwm64.moviemanager.common.entities.Movie;
+import ru.spb.miwm64.moviemanager.common.entities.Person;
 
 public final class FilterGreaterThanOperatorCommand extends AbstractCommand {
     private CollectionManager collectionManager;

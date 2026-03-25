@@ -1,7 +1,7 @@
 package ru.spb.miwm64.moviemanager.client.io;
 
 import org.w3c.dom.*;
-import ru.spb.miwm64.moviemanager.client.entities.*;
+import ru.spb.miwm64.moviemanager.common.entities.*;
 import ru.spb.miwm64.moviemanager.common.exceptions.InvalidValueException;
 
 import javax.xml.parsers.DocumentBuilder;
