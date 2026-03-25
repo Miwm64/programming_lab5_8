@@ -1,0 +1,73 @@
+package ru.spb.miwm64.moviemanager.server.collectionmanager;
+
+import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
+import ru.spb.miwm64.moviemanager.common.entities.Movie;
+import ru.spb.miwm64.moviemanager.common.io.XMLParser;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Objects;
+
+public class LoadManager {
+
+    private static final String ENV_VARIABLE = "XML_LOAD";
+
+    private final CollectionManager collectionManager;
+    private final XMLParser xmlParser;
+
+    public LoadManager(CollectionManager collectionManager, XMLParser xmlParser) {
+        this.collectionManager = Objects.requireNonNull(collectionManager);
+        this.xmlParser = Objects.requireNonNull(xmlParser);
+    }
+
+    // -------- LOAD --------
+
+    public void loadCollection() {
+        String xml = readFile();
+
+        collectionManager.clear();
+
+        xmlParser.parseFromXMLCollection(xml)
+                .forEach(collectionManager::add);
+    }
+
+    private String readFile() {
+        try {
+            return Files.readString(Path.of(getPath()));
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read XML file", e);
+        }
+    }
+
+    // -------- SAVE --------
+
+    public void saveCollection() {
+        String xml = xmlParser.parseCollectionIntoXML(collectionManager.getAll());
+        writeFile(xml);
+    }
+
+    private void writeFile(String content) {
+        Path path = Path.of(getPath());
+        Path temp = Path.of(path + ".tmp");
+
+        try {
+            Files.writeString(temp, content); // overwrite temp
+            Files.move(temp, path,
+                    java.nio.file.StandardCopyOption.REPLACE_EXISTING,
+                    java.nio.file.StandardCopyOption.ATOMIC_MOVE);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to write XML file", e);
+        }
+    }
+
+    // -------- HELPERS --------
+
+    private String getPath() {
+        String path = System.getenv(ENV_VARIABLE);
+        if (path == null || path.isBlank()) {
+            throw new IllegalStateException("Environment variable " + ENV_VARIABLE + " is not set");
+        }
+        return path;
+    }
+}

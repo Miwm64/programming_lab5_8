@@ -1,9 +1,11 @@
 package ru.spb.miwm64.moviemanager.client.io;
 
+import ru.spb.miwm64.moviemanager.common.io.Writer;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 
-public class ConsoleWriter implements  Writer {
+public class ConsoleWriter implements Writer {
     java.io.PrintWriter printWriter = new PrintWriter(System.out, true);
 
     @Override
