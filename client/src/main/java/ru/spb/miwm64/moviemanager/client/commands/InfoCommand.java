@@ -33,7 +33,7 @@ public final class InfoCommand extends AbstractCommand {
                 info.append(String.format("Sorting: sorted\n"));
             }
             else {
-                info.append("Sorting: unsorted\n");
+                info.append("Sorting: sorted\n");
             }
 
             return new CommandResultSuccess(info.toString(), info.toString());

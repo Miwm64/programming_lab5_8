@@ -10,7 +10,7 @@ public class RequestHandler {
         this.router = router;
     }
 
-    public Object handle(JsonRpcRequest request) {
+    public Object handle(JsonRpcRequest request) throws Exception {
         return router.route(request.method, request.params);
     }
 }

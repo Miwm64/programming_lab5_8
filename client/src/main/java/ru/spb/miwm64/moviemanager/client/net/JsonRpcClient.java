@@ -37,7 +37,6 @@ public class JsonRpcClient {
             JsonRpcRequest request = new JsonRpcRequest(id, method, objectMapper.valueToTree(params));
             String requestJson = objectMapper.writeValueAsString(request);
             String responseJson = connection.exchangeString(requestJson);
-            System.out.println(responseJson);
 
             JavaType type = objectMapper.getTypeFactory()
                     .constructParametricType(JsonRpcResponse.class,
