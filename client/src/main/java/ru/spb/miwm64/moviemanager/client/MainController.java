@@ -87,8 +87,14 @@ public final class MainController {
             }
 
             int i = 0;
+            int skip = 0;
             while (i != params.size()) {
                 try {
+                    if (skip > 0){
+                        skip++;
+                        i++;
+                        continue;
+                    }
                     var param = params.get(i);
                     if (param.isSet()) {
                         ++i;
@@ -107,8 +113,8 @@ public final class MainController {
                     param.fromString(input);
                     cmd.setParam(param);
                     ++i;
-                    if (Objects.equals(param.getName(), "operatorName") && !param.isSet()) {
-                        break;
+                    if (param.isComposite() && !param.isSet()){
+                        skip = param.compositeSize()-1;
                     }
                 } catch (Exception e) {
                     LOG.error("Error parsing param input", e);
