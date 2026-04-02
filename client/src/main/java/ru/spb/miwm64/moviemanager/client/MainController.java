@@ -129,6 +129,17 @@ public final class MainController {
         return cmd;
     }
 
+    private void executeCommand(Command cmd) throws IOException {
+        MDC.put("requestId", UUID.randomUUID().toString());
+        try {
+            CommandResult res = cmd.execute();
+            LOG.info("Command executed: {} → {}", cmd.getClass().getSimpleName(), res.getMessage());
+            writer.writeln(res.getMessage());
+        } finally {
+            MDC.remove("requestId");
+        }
+    }
+
     private boolean consoleRun() throws IOException {
         try {
             Command cmd = inputCommand();
@@ -142,14 +153,7 @@ public final class MainController {
                 return false;
             }
 
-            MDC.put("requestId", UUID.randomUUID().toString());
-            try {
-                CommandResult res = cmd.execute();
-                LOG.info("Command executed: {} → {}", cmd.getClass().getSimpleName(), res.getMessage());
-                writer.writeln(res.getMessage());
-            } finally {
-                MDC.remove("requestId");
-            }
+            executeCommand(cmd);
 
         } catch (RuntimeException e) {
             LOG.error("Runtime exception during consoleRun", e);
