@@ -1,5 +1,8 @@
 package ru.spb.miwm64.moviemanager.client;
 
+import ru.spb.miwm64.moviemanager.client.command.Parameter;
+import ru.spb.miwm64.moviemanager.client.commands.AbortCommand;
+import ru.spb.miwm64.moviemanager.client.commands.ExitCommand;
 import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
 import ru.spb.miwm64.moviemanager.client.command.Command;
 import ru.spb.miwm64.moviemanager.client.command.CommandFactory;
@@ -19,7 +22,6 @@ import org.slf4j.MDC;
 public final class MainController {
     private static final Logger LOG = LoggerFactory.getLogger(MainController.class);
 
-    private CollectionManager collectionManager;
     private List<Reader> readers;
     private Set<String> openedFilesSet;
     private Reader defaultReader;
@@ -30,7 +32,6 @@ public final class MainController {
 
     public MainController(CollectionManager collectionManager, Reader defaultReader,
                           Writer defaultWriter, XMLParser xmlParser) {
-        this.collectionManager = collectionManager;
         this.readers = new LinkedList<>();
         readers.add(defaultReader);
         this.writer = defaultWriter;
@@ -64,62 +65,81 @@ public final class MainController {
         }
     }
 
+    private Command inputCommand() throws IOException {
+        writer.writeln("Enter command:");
+        String input = readers.get(0).readNextLine();
+        LOG.info("Console input: {}", input);
+
+        ArrayList<String> inputs = new ArrayList<>(Arrays.asList(input.trim().split(" ")));
+
+        if (Objects.equals(inputs.get(0), "exit")) {
+            LOG.info("Exit command received");
+            return new ExitCommand();
+        }
+
+        Command cmd = commandFactory.newCommand(inputs.get(0).trim());
+        LOG.info("Created command: {}", cmd.getClass().getSimpleName());
+        var params = cmd.getParams();
+        if (!params.isEmpty() && inputs.size() >= 2) {
+            params.get(0).fromString(inputs.get(1));
+            cmd.setParam(params.get(0));
+        }
+        return cmd;
+    }
+
+    private Command inputParams(Command cmd) throws IOException {
+        var params = cmd.getParams();
+        String input;
+
+        int i = 0;
+        int skip = 0;
+        while (i != params.size()) {
+            try {
+                if (skip > 0){
+                    skip++;
+                    i++;
+                    continue;
+                }
+                var param = params.get(i);
+                if (param.isSet()) {
+                    ++i;
+                    continue;
+                }
+
+                LOG.debug("Prompting for param: {} ({})", param.getName(), param.getPrompt());
+                writer.writeln(param.getPrompt() + ":");
+                input = readers.get(0).readNextLine();
+
+                if (Objects.equals(input.trim(), "abort")) {
+                    LOG.info("User aborted param input");
+                    return new AbortCommand();
+                }
+
+                param.fromString(input);
+                cmd.setParam(param);
+                ++i;
+                if (param.isComposite() && !param.isSet()){
+                    skip = param.compositeSize()-1;
+                }
+            } catch (Exception e) {
+                LOG.error("Error parsing param input", e);
+                writer.writeln("error: " + e.getMessage());
+            }
+        }
+        return cmd;
+    }
+
     private boolean consoleRun() throws IOException {
         try {
-            writer.writeln("Enter command:");
-            String input = readers.get(0).readNextLine();
-            LOG.info("User input: {}", input);
-
-            ArrayList<String> inputs = new ArrayList<>(Arrays.asList(input.trim().split(" ")));
-
-            if (Objects.equals(inputs.get(0), "exit")) {
-                LOG.info("Exit command received");
+            Command cmd = inputCommand();
+            if (cmd instanceof ExitCommand){
                 return true;
             }
 
-            Command cmd = commandFactory.newCommand(inputs.get(0).trim());
-            LOG.info("Created command: {}", cmd.getClass().getSimpleName());
+            cmd = inputParams(cmd);
 
-            var params = cmd.getParams();
-            if (!params.isEmpty() && inputs.size() >= 2) {
-                params.get(0).fromString(inputs.get(1));
-                cmd.setParam(params.get(0));
-            }
-
-            int i = 0;
-            int skip = 0;
-            while (i != params.size()) {
-                try {
-                    if (skip > 0){
-                        skip++;
-                        i++;
-                        continue;
-                    }
-                    var param = params.get(i);
-                    if (param.isSet()) {
-                        ++i;
-                        continue;
-                    }
-
-                    LOG.debug("Prompting for param: {} ({})", param.getName(), param.getPrompt());
-                    writer.writeln(param.getPrompt() + ":");
-                    input = readers.get(0).readNextLine();
-
-                    if (Objects.equals(input.trim(), "abort")) {
-                        LOG.info("User aborted param input");
-                        return false;
-                    }
-
-                    param.fromString(input);
-                    cmd.setParam(param);
-                    ++i;
-                    if (param.isComposite() && !param.isSet()){
-                        skip = param.compositeSize()-1;
-                    }
-                } catch (Exception e) {
-                    LOG.error("Error parsing param input", e);
-                    writer.writeln("error: " + e.getMessage());
-                }
+            if (cmd instanceof AbortCommand){
+                return false;
             }
 
             MDC.put("requestId", UUID.randomUUID().toString());
