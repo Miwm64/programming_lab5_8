@@ -94,7 +94,9 @@ public final class UpdateByIDCommand extends AbstractCommand {
                 "Enter operator name",
                 s -> s,
                 s -> s != null && !s.trim().isEmpty(),
-                false
+                false,
+                true,
+                4
         );
 
         // operator.weight - float, > 0
@@ -103,7 +105,7 @@ public final class UpdateByIDCommand extends AbstractCommand {
                 "Enter operator weight (float > 0)",
                 Float::parseFloat,
                 w -> w > 0,
-                false
+                true
         );
 
         // operator.hairColor - Color enum, cannot be null
@@ -112,7 +114,7 @@ public final class UpdateByIDCommand extends AbstractCommand {
                 "Enter hair color (GREEN/RED/YELLOW/ORANGE/BROWN)",
                 s -> Color.fromString(s.toUpperCase()),
                 color -> true,
-                false
+                true
         );
 
         // operator.nationality - Country enum, cannot be null
@@ -121,7 +123,7 @@ public final class UpdateByIDCommand extends AbstractCommand {
                 "Enter nationality (UNITED_KINGDOM/CHINA/INDIA/ITALY/THAILAND)",
                 s -> Country.fromString(s.toUpperCase()),
                 country -> true,
-                false
+                true
         );
 
         // Movie fields

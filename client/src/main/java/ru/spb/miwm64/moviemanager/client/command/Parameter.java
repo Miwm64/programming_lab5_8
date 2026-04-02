@@ -21,6 +21,9 @@ public class Parameter<T> implements Cloneable {
     private T value;
     private boolean isSet = false;
 
+    private boolean isComposite = false;
+    private int size = 0;
+
     public Parameter(String name, String prompt, Function<String, T> parser,
                      Predicate<T> validator, boolean required) {
         this.name = name;
@@ -28,6 +31,18 @@ public class Parameter<T> implements Cloneable {
         this.parser = parser;
         this.validator = validator;
         this.required = required;
+        LOG.debug("Parameter created: {} (required={})", name, required);
+    }
+
+    public Parameter(String name, String prompt, Function<String, T> parser,
+                     Predicate<T> validator, boolean required, boolean isComposite, int size) {
+        this.name = name;
+        this.prompt = prompt;
+        this.parser = parser;
+        this.validator = validator;
+        this.required = required;
+        this.isComposite = isComposite;
+        this.size = size;
         LOG.debug("Parameter created: {} (required={})", name, required);
     }
 
@@ -88,6 +103,14 @@ public class Parameter<T> implements Cloneable {
 
     public boolean isSet() {
         return isSet;
+    }
+
+    public boolean isComposite() {
+        return isComposite;
+    }
+
+    public int compositeSize() {
+        return size;
     }
 
     @Override
