@@ -1,6 +1,5 @@
 package ru.spb.miwm64.moviemanager.client;
 
-import ru.spb.miwm64.moviemanager.client.command.Parameter;
 import ru.spb.miwm64.moviemanager.client.commands.AbortCommand;
 import ru.spb.miwm64.moviemanager.client.commands.ExitCommand;
 import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
@@ -154,7 +153,6 @@ public final class MainController {
             }
 
             executeCommand(cmd);
-
         } catch (RuntimeException e) {
             LOG.error("Runtime exception during consoleRun", e);
             writer.writeln("error: " + e.getMessage());
@@ -168,6 +166,32 @@ public final class MainController {
         return false;
     }
 
+    private Command parseParams(ArrayList<String> inputs){
+        if (Objects.equals(inputs.get(0), "exit")) {
+            LOG.info("Exit command received from file");
+            return new ExitCommand();
+        }
+
+        Command cmd = commandFactory.newCommand(inputs.get(0).trim());
+        LOG.info("Created command from file: {}", cmd.getClass().getSimpleName());
+
+        var params = cmd.getParams();
+        if (!params.isEmpty() && inputs.size() >= 2) {
+            var givenParams = xmlParser.parse(inputs.get(1));
+            for (var param : params) {
+                if (givenParams.containsKey(param.getName())) {
+                    param.fromString(givenParams.get(param.getName()));
+                    LOG.debug("Set param {} = {}", param.getName(), givenParams.get(param.getName()));
+                }
+                if (Objects.equals(param.getName(), "operatorName") && !param.isSet()) {
+                    break;
+                }
+            }
+        }
+        cmd.setParams(params);
+        return cmd;
+    }
+
     private boolean fileRun() throws IOException {
         if (!checkReader()) {
             return false;
@@ -176,41 +200,14 @@ public final class MainController {
         try {
             String input = readers.get(0).readNextLine();
             LOG.info("File input: {}", input);
-
             ArrayList<String> inputs = new ArrayList<>(Arrays.asList(input.trim().split(" ", 2)));
 
-            if (Objects.equals(inputs.get(0), "exit")) {
-                LOG.info("Exit command received from file");
+            Command cmd = parseParams(inputs);
+            if (cmd instanceof ExitCommand){
                 return true;
             }
 
-            Command cmd = commandFactory.newCommand(inputs.get(0).trim());
-            LOG.info("Created command from file: {}", cmd.getClass().getSimpleName());
-
-            var params = cmd.getParams();
-            if (!params.isEmpty() && inputs.size() >= 2) {
-                var givenParams = xmlParser.parse(inputs.get(1));
-                for (var param : params) {
-                    if (givenParams.containsKey(param.getName())) {
-                        param.fromString(givenParams.get(param.getName()));
-                        LOG.debug("Set param {} = {}", param.getName(), givenParams.get(param.getName()));
-                    }
-                    if (Objects.equals(param.getName(), "operatorName") && !param.isSet()) {
-                        break;
-                    }
-                }
-            }
-            cmd.setParams(params);
-
-            MDC.put("requestId", UUID.randomUUID().toString());
-            try {
-                CommandResult res = cmd.execute();
-                LOG.info("Command executed: {} → {}", cmd.getClass().getSimpleName(), res.getMessage());
-                writer.writeln(res.getMessage());
-            } finally {
-                MDC.remove("requestId");
-            }
-
+            executeCommand(cmd);
         } catch (IOException e) {
             LOG.error("IOException, resetting readers/writer", e);
             readers.clear();
