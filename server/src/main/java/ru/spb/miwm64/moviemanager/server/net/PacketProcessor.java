@@ -85,7 +85,7 @@ public class PacketProcessor {
                 this.id = id;
                 this.result = result;
             }});
-            LOG.info("Added response with id={}, ip:port={}:{}", id, ip, port);
+            LOG.info("Added response to cache with id={}, ip:port={}:{}", id, ip, port);
         } catch (Exception e) {
             LOG.error("Error during packet processing (id={})", id, e);
 
