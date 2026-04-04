@@ -33,7 +33,7 @@ public final class RemoveByIndexCommand extends AbstractCommand {
             return new CommandResultSuccess(true, "Successfully remove movie with index: " + getValue("index"));
 
         } catch (Exception e) {
-            return new CommandResultFailure("Failed to get collection info: " + e.getMessage());
+            return new CommandResultFailure("Failed to remove movie: " + e.getMessage());
         }
     }
 }

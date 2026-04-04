@@ -184,7 +184,7 @@ public final class UpdateByIDCommand extends AbstractCommand {
             );
 
         } catch (Exception e) {
-            return new CommandResultFailure("Failed to get collection info: " + e.getMessage());
+            return new CommandResultFailure("Failed to update by id: " + e.getMessage());
         }
     }
 }
