@@ -50,7 +50,7 @@ public class UDPServer {
         RequestRouter router = new RequestRouter(collectionManager, new ObjectMapper()
                 .registerModule(new JavaTimeModule())
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .setSerializationInclusion(JsonInclude.Include.NON_NULL));;
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL));
         LOG.debug("Request pipeline initialized");
 
         this.processor = new PacketProcessor(transport, jsonrpc, router);
@@ -136,9 +136,8 @@ public class UDPServer {
             selector.close();
             transport.close();
             LOG.info("Resources closed");
-        } catch (IOException ignored) {
-            mainLOG.error("");
-            LOG.error("Error during shutdown", ignored);
+        } catch (IOException e) {
+            LOG.error("Error during shutdown", e);
         }
     }
 }
