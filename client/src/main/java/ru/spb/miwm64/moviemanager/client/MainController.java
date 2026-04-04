@@ -77,7 +77,6 @@ public final class MainController {
         }
 
         Command cmd = commandFactory.newCommand(inputs.get(0).trim());
-        LOG.info("Created command: {}", cmd.getClass().getSimpleName());
         var params = cmd.getParams();
         if (!params.isEmpty() && inputs.size() >= 2) {
             params.get(0).fromString(inputs.get(1));
