@@ -17,7 +17,7 @@ public class LoadManager {
 
     private final StreamCollectionManager collectionManager;
     private final XMLParser xmlParser;
-    private Logger log = LoggerFactory.getLogger(Main.class);
+    private Logger log = LoggerFactory.getLogger(LoadManager.class);
 
     public LoadManager(CollectionManager collectionManager, XMLParser xmlParser) {
         this.collectionManager = (StreamCollectionManager) Objects.requireNonNull(collectionManager);
@@ -25,10 +25,15 @@ public class LoadManager {
     }
 
     public void loadCollection() {
-        String xml = readFile();
+        try {
+            String xml = readFile();
 
-        collectionManager.setCollection(xmlParser.parseFromXMLCollection(xml));
-        System.out.println("Loaded collection successfully");
+            collectionManager.setCollection(xmlParser.parseFromXMLCollection(xml));
+            System.out.println("Loaded collection successfully");
+        }
+        catch (Exception e){
+            log.error(e.getMessage());
+        }
     }
 
     private String readFile() {

@@ -113,7 +113,6 @@ public class UDPServer {
         }
 
         LOG.debug("Console input received: {}", input);
-        mainLOG.debug("Console input: {}", input);
 
         if ("exit".equalsIgnoreCase(input)) {
             LOG.info("Exit command received");
