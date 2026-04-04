@@ -17,7 +17,6 @@ import ru.spb.miwm64.moviemanager.server.io.NonBlockingConsoleReader;
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.UUID;
 
@@ -28,8 +27,8 @@ public class UDPServer {
     private final PacketProcessor processor;
     private final LoadManager loadManager;
     private final Reader reader;
-    private Logger log = LoggerFactory.getLogger(Main.class);
 
+    private static final Logger mainLOG = LoggerFactory.getLogger(Main.class);
     private static final Logger LOG = LoggerFactory.getLogger(UDPServer.class);
 
     private boolean running = true;
@@ -52,17 +51,16 @@ public class UDPServer {
                 .registerModule(new JavaTimeModule())
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .setSerializationInclusion(JsonInclude.Include.NON_NULL));
-        RequestHandler handler = new RequestHandler(router);
         LOG.debug("Request pipeline initialized");
 
-        this.processor = new PacketProcessor(transport, jsonrpc, handler);
+        this.processor = new PacketProcessor(transport, jsonrpc, router);
         this.loadManager = new LoadManager(collectionManager, xmlParser);
         this.reader = new NonBlockingConsoleReader();
 
         LOG.debug("Loading collection");
         loadManager.loadCollection();
 
-        log.info("Server started");
+        mainLOG.info("Server started");
         LOG.info("Server fully initialized");
     }
 
@@ -98,7 +96,7 @@ public class UDPServer {
                 handleConsole();
 
             } catch (Exception e) {
-                log.error("Error: {}", e.getMessage());
+                mainLOG.error("Error: {}", e.getMessage());
                 LOG.error("Unhandled exception in main loop", e);
             }
         }
@@ -115,7 +113,7 @@ public class UDPServer {
         }
 
         LOG.debug("Console input received: {}", input);
-        log.debug("Console input: {}", input);
+        mainLOG.debug("Console input: {}", input);
 
         if ("exit".equalsIgnoreCase(input)) {
             LOG.info("Exit command received");
@@ -138,9 +136,8 @@ public class UDPServer {
             selector.close();
             transport.close();
             LOG.info("Resources closed");
-        } catch (IOException ignored) {
-            log.error("");
-            LOG.error("Error during shutdown", ignored);
+        } catch (IOException e) {
+            LOG.error("Error during shutdown", e);
         }
     }
 }

@@ -33,7 +33,7 @@ public final class RemoveByIDCommand extends AbstractCommand {
             return new CommandResultSuccess(true, "Successfully remove movie with id: " + getValue("id"));
 
         } catch (Exception e) {
-            return new CommandResultFailure("Failed to get collection info: " + e.getMessage());
+            return new CommandResultFailure("Failed to remove movie: " + e.getMessage());
         }
     }
 }

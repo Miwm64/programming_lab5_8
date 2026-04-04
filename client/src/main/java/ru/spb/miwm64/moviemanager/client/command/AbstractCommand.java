@@ -76,8 +76,20 @@ abstract public class AbstractCommand implements  Command {
     }
 
     protected void checkParams() {
+        int skip = 0;
         for (var param : params.values()){
-            if (param.isRequired() && ! param.isSet()){
+            if (skip > 0){
+                skip--;
+                continue;
+            }
+            if (!param.isSet()){
+                if (param.isComposite()){
+                    skip = param.compositeSize()-1;
+                    continue;
+                }
+                if (!param.isRequired()){
+                    continue;
+                }
                 throw new NotEnoughParameters("Too few parameters were specified for " + name + " command");
             }
         }

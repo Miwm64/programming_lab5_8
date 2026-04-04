@@ -14,10 +14,11 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 public class PacketProcessor {
+    private static final int MAX_PACKET_SIZE = 65536;
 
     private final UDPTransport transport;
     private final JsonRpc jsonRpc;
-    private final RequestHandler handler;
+    private final RequestRouter handler;
 
     private CacheManager cache = new CacheManager();
 
@@ -25,7 +26,7 @@ public class PacketProcessor {
 
     public PacketProcessor(UDPTransport transport,
                            JsonRpc codec,
-                           RequestHandler handler) {
+                           RequestRouter handler) {
         this.transport = transport;
         this.jsonRpc = codec;
         this.handler = handler;
@@ -39,7 +40,7 @@ public class PacketProcessor {
         try {
             LOG.debug("Receiving packet");
 
-            ByteBuffer buffer = ByteBuffer.allocate(65536);
+            ByteBuffer buffer = ByteBuffer.allocate(MAX_PACKET_SIZE);
             client = transport.receive(buffer);
 
             if (client == null) {
@@ -74,7 +75,7 @@ public class PacketProcessor {
             }
 
             LOG.info("Processing request id={} method={}", id, request.method);
-            Object result = handler.handle(request);
+            Object result = handler.route(request.method, request.params);
 
             LOG.debug("Handler executed successfully for id={}", id);
 
