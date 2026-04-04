@@ -12,8 +12,6 @@ import java.nio.channels.DatagramChannel;
 
 public class UDPTransport {
     private final DatagramChannel channel;
-    private Logger log = LoggerFactory.getLogger(Main.class);
-
     private static final Logger LOG = LoggerFactory.getLogger(UDPTransport.class);
 
     public UDPTransport(int port) throws IOException {

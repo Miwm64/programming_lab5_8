@@ -14,6 +14,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 public class PacketProcessor {
+    private static final int MAX_PACKET_SIZE = 65536;
 
     private final UDPTransport transport;
     private final JsonRpc jsonRpc;
@@ -39,7 +40,7 @@ public class PacketProcessor {
         try {
             LOG.debug("Receiving packet");
 
-            ByteBuffer buffer = ByteBuffer.allocate(65536);
+            ByteBuffer buffer = ByteBuffer.allocate(MAX_PACKET_SIZE);
             client = transport.receive(buffer);
 
             if (client == null) {
