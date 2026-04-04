@@ -37,3 +37,9 @@ Logger
 -DLOG_FILE=server.log
 -DLOG_STDOUT=true
 ```
+
+
+docker build -t moviemanager-server .
+docker stop moviemanager-server
+docker rm moviemanager-server
+docker run -d -p 7878:8080/udp --name moviemanager-server moviemanager-server

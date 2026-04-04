@@ -36,7 +36,10 @@ public class LoadManager {
         }
     }
 
-    private String readFile() {
+    private String readFile() throws IOException {
+        if (System.getenv(ENV_VARIABLE) != null && Files.exists(Path.of(System.getenv(ENV_VARIABLE)))) {
+            Files.createFile(Path.of(System.getenv(ENV_VARIABLE)));
+        }
         try {
             return Files.readString(Path.of(getPath()));
         } catch (IOException e) {
