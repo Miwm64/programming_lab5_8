@@ -74,8 +74,6 @@ public class RequestRouter {
     }
 
     public Object route(String method, JsonNode params) throws Exception {
-        LOG.debug("Routing request: method={}", method);
-
         Handler handler = handlers.get(method);
         if (handler == null) {
             LOG.error("Unknown method requested: {}", method);

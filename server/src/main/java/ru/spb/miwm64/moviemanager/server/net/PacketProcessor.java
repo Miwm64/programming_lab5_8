@@ -20,7 +20,7 @@ public class PacketProcessor {
     private final JsonRpc jsonRpc;
     private final RequestRouter handler;
 
-    private CacheManager cache = new CacheManager();
+    private final CacheManager cache = new CacheManager();
 
     private static final Logger LOG = LoggerFactory.getLogger(PacketProcessor.class);
 
@@ -48,8 +48,6 @@ public class PacketProcessor {
                 return;
             }
 
-            LOG.info("Packet received from {}", client);
-
             String json = extract(buffer);
             LOG.debug("Raw JSON received: {}", json);
 
@@ -67,6 +65,7 @@ public class PacketProcessor {
             RequestKey key = new RequestKey(id, ip, port);
 
             // Check cache for duplicates
+            LOG.info("Checking packet for duplication id={} to {}:{}", id, ip, port);
             JsonRpcResponse<?> cached = cache.lookUp(key);
             if (cached != null) {
                 LOG.info("Duplicate request detected, sending cached response for id={} to {}:{}", id, ip, port);
@@ -77,8 +76,6 @@ public class PacketProcessor {
             LOG.info("Processing request id={} method={}", id, request.method);
             Object result = handler.route(request.method, request.params);
 
-            LOG.debug("Handler executed successfully for id={}", id);
-
             // Encode and send response
             byte[] response = jsonRpc.encodeSuccess(result, id);
             transport.send(client, response);
@@ -88,9 +85,7 @@ public class PacketProcessor {
                 this.id = id;
                 this.result = result;
             }});
-
-            LOG.info("Response sent for id={} to {}:{}", id, ip, port);
-
+            LOG.info("Added response with id={}, ip:port={}:{}", id, ip, port);
         } catch (Exception e) {
             LOG.error("Error during packet processing (id={})", id, e);
 
@@ -103,8 +98,8 @@ public class PacketProcessor {
                     );
                     transport.send(client, err);
                     LOG.info("Error response sent to {} for id={}", client, id);
-                } catch (IOException ignored) {
-                    LOG.error("Failed to send error response", ignored);
+                } catch (IOException err) {
+                    LOG.error("Failed to send error response", err);
                 }
             }
         }

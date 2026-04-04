@@ -30,7 +30,6 @@ public class JsonRpc {
     }
 
     public JsonRpcRequest decodeRequest(String json) throws IOException {
-        LOG.debug("Decoding JSON-RPC request");
         try {
             JsonRpcRequest request = objectMapper.readValue(json, JsonRpcRequest.class);
             LOG.debug("Decoded request: id={}, method={}", request.id, request.method);
@@ -42,7 +41,6 @@ public class JsonRpc {
     }
 
     public byte[] encodeSuccess(Object result, int id) throws IOException {
-        LOG.debug("Encoding success response for id={}", id);
         try {
             JsonRpcResponse<Object> res = new JsonRpcResponse<>();
             res.id = id;

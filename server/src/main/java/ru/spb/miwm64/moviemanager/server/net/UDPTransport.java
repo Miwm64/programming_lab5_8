@@ -28,7 +28,6 @@ public class UDPTransport {
     }
 
     public SocketAddress receive(ByteBuffer buffer) throws IOException {
-        LOG.debug("Receiving packet");
         SocketAddress address = channel.receive(buffer);
 
         if (address != null) {

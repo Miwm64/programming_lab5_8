@@ -104,7 +104,7 @@ public class RemoteCollectionManager implements CollectionManager {
         String requestId = UUID.randomUUID().toString();
         MDC.put("requestId", requestId);
         try {
-            LOG.info("Calling RPC method '{}' with params={}", method, params);
+            LOG.info("Calling RPC method '{}'", method);
             T result = jsonRpcClient.call(method, params, type);
             LOG.info("RPC method '{}' completed successfully", method);
             return result;

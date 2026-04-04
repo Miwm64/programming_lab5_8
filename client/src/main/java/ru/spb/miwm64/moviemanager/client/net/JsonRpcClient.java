@@ -65,9 +65,7 @@ public class JsonRpcClient {
                 throw mapToCollectionException(response.error);
             }
 
-            LOG.info("JSON-RPC call '{}' id={} succeeded", method, id);
             return response.result;
-
         } catch (NetException e) {
             LOG.error("Network error during JSON-RPC call '{}'", method, e);
             throw e;
