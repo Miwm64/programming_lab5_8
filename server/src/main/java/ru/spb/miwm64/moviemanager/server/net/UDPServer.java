@@ -51,11 +51,10 @@ public class UDPServer {
         RequestRouter router = new RequestRouter(collectionManager, new ObjectMapper()
                 .registerModule(new JavaTimeModule())
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .setSerializationInclusion(JsonInclude.Include.NON_NULL));
-        RequestHandler handler = new RequestHandler(router);
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL));;
         LOG.debug("Request pipeline initialized");
 
-        this.processor = new PacketProcessor(transport, jsonrpc, handler);
+        this.processor = new PacketProcessor(transport, jsonrpc, router);
         this.loadManager = new LoadManager(collectionManager, xmlParser);
         this.reader = new NonBlockingConsoleReader();
 
