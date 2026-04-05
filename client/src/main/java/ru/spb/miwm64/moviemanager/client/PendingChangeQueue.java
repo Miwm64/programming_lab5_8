@@ -3,9 +3,8 @@ package ru.spb.miwm64.moviemanager.client;
 import ru.spb.miwm64.moviemanager.common.entities.Movie;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class PendingChangeQueue {
@@ -76,12 +75,13 @@ public class PendingChangeQueue {
     public void addUpdate(VersionedObject<Movie> movie) {
         mutex.lock();
         try {
+            Long movieId = movie.data.getId();
+            updates.removeIf(existing -> Objects.equals(existing.data.getId(), movieId));
             updates.add(movie);
         } finally {
             mutex.unlock();
         }
     }
-
     public void addCreate(VersionedObject<Movie> movie) {
         mutex.lock();
         try {
