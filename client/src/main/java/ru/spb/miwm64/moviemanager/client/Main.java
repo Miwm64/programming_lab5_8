@@ -24,13 +24,13 @@ public class Main {
         JsonRpcClient jsonRpcClient = new JsonRpcClient(udpClient);
 
         PendingChangeQueue queue = new PendingChangeQueue();
-        CollectionManager collectionManager = new BatchRemoteCollectionManager(queue);
+        BatchRemoteCollectionManager collectionManager = new BatchRemoteCollectionManager(queue);
 
         XMLParser xmlParser = new XMLParser();
         Reader reader = new ConsoleReader();
         Writer writer = new ConsoleWriter();
 
-        SynchronizationThread thread = new SynchronizationThread(jsonRpcClient, queue, writer);
+        SynchronizationThread thread = new SynchronizationThread(jsonRpcClient, queue, collectionManager, writer);
         thread.start();
 
         var mainController = new MainController(collectionManager, reader, writer, xmlParser);

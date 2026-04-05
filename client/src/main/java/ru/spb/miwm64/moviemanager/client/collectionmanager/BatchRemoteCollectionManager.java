@@ -1,7 +1,8 @@
 package ru.spb.miwm64.moviemanager.client.collectionmanager;
 
+import ru.spb.miwm64.moviemanager.common.net.Batch;
 import ru.spb.miwm64.moviemanager.client.PendingChangeQueue;
-import ru.spb.miwm64.moviemanager.client.VersionedObject;
+import ru.spb.miwm64.moviemanager.common.net.VersionedObject;
 import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
 import ru.spb.miwm64.moviemanager.common.entities.Movie;
 import ru.spb.miwm64.moviemanager.common.entities.Person;
@@ -41,7 +42,7 @@ public class BatchRemoteCollectionManager implements CollectionManager {
             while (currentIDs.containsKey(lastAssignedId)) {
                 lastAssignedId++;
             }
-            movie.setId(lastAssignedId);
+            movie.setId(-lastAssignedId);
             currentIDs.put(lastAssignedId, true);
         }
         VersionedObject<Movie> versionedMovie = new VersionedObject<>(1, movie);
@@ -196,5 +197,43 @@ public class BatchRemoteCollectionManager implements CollectionManager {
                 .findFirst()
                 .orElseThrow(() ->
                         new NoSuchElementException("Movie with id " + id + " not found"));
+    }
+
+    public void applyRemoteBatch(Batch batch) {
+        if (batch == null) return;
+
+        for (Long id : batch.deletes) {
+            try {
+                removeById(id);
+            } catch (Exception ignored){}
+        }
+
+        for (VersionedObject<Movie> vm : batch.updates) {
+            try {
+                updateFromServer(vm);
+            } catch (Exception ignored){}
+        }
+
+        for (VersionedObject<Movie> vm : batch.creates) {
+            try {
+                addFromServer(vm);
+            } catch (Exception ignored){}
+
+        }
+
+        movies.removeIf(vm -> vm.data.getId() < 0);
+        currentIDs.keySet().removeIf(id -> id < 0);
+    }
+
+    private void updateFromServer(VersionedObject<Movie> serverMovie) {
+        int index = findIndexById(serverMovie.data.getId());
+        movies.set(index, serverMovie);
+    }
+
+    private void addFromServer(VersionedObject<Movie> serverMovie) {
+        int index = Collections.binarySearch(movies, serverMovie);
+        if (index < 0) index = -index - 1;
+        movies.add(index, serverMovie);
+        currentIDs.put(serverMovie.data.getId(), true);
     }
 }

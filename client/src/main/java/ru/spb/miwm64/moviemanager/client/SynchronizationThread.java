@@ -4,8 +4,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import ru.spb.miwm64.moviemanager.client.collectionmanager.BatchRemoteCollectionManager;
 import ru.spb.miwm64.moviemanager.client.net.JsonRpcClient;
 import ru.spb.miwm64.moviemanager.common.io.Writer;
+import ru.spb.miwm64.moviemanager.common.net.Batch;
+
 import java.util.UUID;
 
 public class SynchronizationThread extends Thread {
@@ -18,12 +21,14 @@ public class SynchronizationThread extends Thread {
     private final JsonRpcClient jsonRpcClient;
     private final PendingChangeQueue pendingChangeQueue;
     private final Writer writer;
+    private final BatchRemoteCollectionManager collectionManager;
 
     public SynchronizationThread(JsonRpcClient jsonRpcClient, PendingChangeQueue pendingChangeQueue,
-                                 Writer writer) {
+                                 BatchRemoteCollectionManager collectionManager, Writer writer) {
         this.jsonRpcClient = jsonRpcClient;
         this.pendingChangeQueue = pendingChangeQueue;
         this.writer = writer;
+        this.collectionManager = collectionManager;
     }
 
     @Override
@@ -52,16 +57,26 @@ public class SynchronizationThread extends Thread {
         try {
             Batch serverBatch = callRpc("sync", localBatch, new TypeReference<Batch>() {});
             writer.writeln("Successful synchronization");
+            LOG.info("Synchronization successful");
+
             if (localBatch != null) {
                 pendingChangeQueue.removeFirstBatch();
             }
+
+            if (serverBatch.messages != null && !serverBatch.messages.isEmpty()){
+                writer.writeln("Server refused some local actions:");
+                for (var msg : serverBatch.messages){
+                    writer.writeln(msg);
+                }
+            }
+
+            collectionManager.applyRemoteBatch(serverBatch);
             return true;
         } catch (Exception e) {
             LOG.error("Synchronization failed", e);
             try {
                 writer.writeln("Synchronization failed: " + e.getMessage());
-            } catch (Exception ignored) {
-            }
+            } catch (Exception ignored) {}
             return false;
         }
     }

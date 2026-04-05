@@ -1,6 +1,8 @@
 package ru.spb.miwm64.moviemanager.client;
 
 import ru.spb.miwm64.moviemanager.common.entities.Movie;
+import ru.spb.miwm64.moviemanager.common.net.Batch;
+import ru.spb.miwm64.moviemanager.common.net.VersionedObject;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
