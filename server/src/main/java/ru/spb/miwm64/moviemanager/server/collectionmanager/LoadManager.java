@@ -3,9 +3,7 @@ package ru.spb.miwm64.moviemanager.server.collectionmanager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
-import ru.spb.miwm64.moviemanager.common.entities.Movie;
 import ru.spb.miwm64.moviemanager.common.io.XMLParser;
-import ru.spb.miwm64.moviemanager.server.Main;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -27,17 +25,16 @@ public class LoadManager {
     public void loadCollection() {
         try {
             String xml = readFile();
-
             collectionManager.setCollection(xmlParser.parseFromXMLCollection(xml));
             System.out.println("Loaded collection successfully");
         }
         catch (Exception e){
-            log.error(e.getMessage());
+            log.error("Couldn't load collection: " + e.getMessage());
         }
     }
 
     private String readFile() throws IOException {
-        if (System.getenv(ENV_VARIABLE) != null && Files.exists(Path.of(System.getenv(ENV_VARIABLE)))) {
+        if (System.getenv(ENV_VARIABLE) != null && !Files.exists(Path.of(System.getenv(ENV_VARIABLE)))) {
             Files.createFile(Path.of(System.getenv(ENV_VARIABLE)));
         }
         try {
