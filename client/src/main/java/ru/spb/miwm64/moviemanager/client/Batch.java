@@ -7,11 +7,11 @@ import java.util.ArrayList;
 public class Batch {
     public final ArrayList<VersionedObject<Movie>> updates;
     public final ArrayList<VersionedObject<Movie>> creates;
-    public final ArrayList<Integer> deletes;
+    public final ArrayList<Long> deletes;
 
     public Batch(ArrayList<VersionedObject<Movie>> updates,
                  ArrayList<VersionedObject<Movie>> creates,
-                 ArrayList<Integer> deletes) {
+                 ArrayList<Long> deletes) {
         this.updates = updates;
         this.creates = creates;
         this.deletes = deletes;

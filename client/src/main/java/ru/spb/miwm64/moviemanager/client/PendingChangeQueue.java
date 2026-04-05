@@ -10,7 +10,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class PendingChangeQueue {
     private final ArrayList<VersionedObject<Movie>> updates = new ArrayList<>();
     private final ArrayList<VersionedObject<Movie>> creates = new ArrayList<>();
-    private final ArrayList<Integer> deletes = new ArrayList<>();
+    private final ArrayList<Long> deletes = new ArrayList<>();
     private final LinkedList<Batch> batchArray = new LinkedList<>();
 
     private final ReentrantLock mutex = new ReentrantLock();
@@ -91,7 +91,7 @@ public class PendingChangeQueue {
         }
     }
 
-    public void addDelete(int movieId) {
+    public void addDelete(Long movieId) {
         mutex.lock();
         try {
             deletes.add(movieId);

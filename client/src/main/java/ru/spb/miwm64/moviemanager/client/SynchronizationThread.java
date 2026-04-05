@@ -12,7 +12,7 @@ public class SynchronizationThread extends Thread{
         while (isRunning) {
             try {
                 sync();
-                Thread.sleep(5000);
+                Thread.sleep(15_000);
             }
             catch (InterruptedException e){
                 LOG.info("sync thread interrupted");
