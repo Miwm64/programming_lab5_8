@@ -17,6 +17,9 @@ import java.net.InetSocketAddress;
 
 public class Main {
     public static void main(String[] args) {
+        SynchronizationThread thread = new SynchronizationThread();
+        thread.start();
+
         Logger log = LoggerFactory.getLogger(Main.class);
         log.info("Application started");
         UDPClient udpClient = new UDPClient(new InetSocketAddress("localhost", 7878));
@@ -29,6 +32,7 @@ public class Main {
         var mainController = new MainController(collectionManager, reader, writer, xmlParser);
         mainController.run();
 
+        thread.gracefulShutdown();
         return;
     }
 }
