@@ -35,3 +35,4 @@ build/
 **/*.jar
 logs/
 file.xml
+docker
