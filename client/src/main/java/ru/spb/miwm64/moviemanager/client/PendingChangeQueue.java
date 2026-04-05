@@ -77,6 +77,10 @@ public class PendingChangeQueue {
         try {
             Long movieId = movie.data.getId();
             updates.removeIf(existing -> Objects.equals(existing.data.getId(), movieId));
+            if (creates.removeIf(existing -> Objects.equals(existing.data.getId(), movieId))){
+                creates.add(movie);
+                return;
+            }
             updates.add(movie);
         } finally {
             mutex.unlock();
@@ -94,6 +98,12 @@ public class PendingChangeQueue {
     public void addDelete(Long movieId) {
         mutex.lock();
         try {
+            if (creates.removeIf(vm -> Objects.equals(vm.data.getId(), movieId))){
+                return;
+            }
+            if (updates.removeIf(vm -> Objects.equals(vm.data.getId(), movieId))){
+                return;
+            }
             deletes.add(movieId);
         } finally {
             mutex.unlock();
