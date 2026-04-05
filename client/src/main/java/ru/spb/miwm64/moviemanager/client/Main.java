@@ -18,19 +18,21 @@ import java.net.InetSocketAddress;
 
 public class Main {
     public static void main(String[] args) {
-        SynchronizationThread thread = new SynchronizationThread();
-        thread.start();
-        PendingChangeQueue queue = new PendingChangeQueue();
-
         Logger log = LoggerFactory.getLogger(Main.class);
         log.info("Application started");
         UDPClient udpClient = new UDPClient(new InetSocketAddress("localhost", 7878));
         JsonRpcClient jsonRpcClient = new JsonRpcClient(udpClient);
+
+        PendingChangeQueue queue = new PendingChangeQueue();
         CollectionManager collectionManager = new BatchRemoteCollectionManager(queue);
 
         XMLParser xmlParser = new XMLParser();
         Reader reader = new ConsoleReader();
         Writer writer = new ConsoleWriter();
+
+        SynchronizationThread thread = new SynchronizationThread(jsonRpcClient, queue, writer);
+        thread.start();
+
         var mainController = new MainController(collectionManager, reader, writer, xmlParser);
         mainController.run();
 
