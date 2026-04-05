@@ -49,6 +49,7 @@ public class UDPClient implements ConnectionClient {
         }
 
         try {
+            System.out.println(msg);
             LOG.info("Sending packet to {}", socketAddress);
             byte[] outBuffer = msg.getBytes(StandardCharsets.UTF_8);
             DatagramPacket outPacket = new DatagramPacket(outBuffer, outBuffer.length, socketAddress);
