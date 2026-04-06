@@ -143,7 +143,6 @@ public class BatchRemoteCollectionManager implements CollectionManager {
     @Override
     public void removeGreater(Movie movie) {
         Objects.requireNonNull(movie);
-        // Fix: collect IDs first to avoid concurrent modification
         List<Long> toRemove = movies.stream()
                 .filter(vm -> vm.data.compareTo(movie) > 0)
                 .map(vm -> vm.data.getId())
