@@ -1,7 +1,6 @@
 package ru.spb.miwm64.moviemanager.server.collectionmanager;
 
 import ru.spb.miwm64.moviemanager.common.entities.Movie;
-import ru.spb.miwm64.moviemanager.common.entities.Person;
 import ru.spb.miwm64.moviemanager.common.exceptions.InvalidValueException;
 import ru.spb.miwm64.moviemanager.common.net.Batch;
 import ru.spb.miwm64.moviemanager.common.net.VersionedObject;
@@ -100,55 +99,68 @@ public class BatchStreamCollectionManager {
     }
 
 
-    public Batch applyBatch(Batch clientBatch) {
+    public Batch applyBatch(Batch pendingBatch, Map<Long, Integer> clientVersions) {
         ArrayList<String> messages = new ArrayList<>();
-        ArrayList<VersionedObject<Movie>> resultCreates = new ArrayList<>();
-        ArrayList<VersionedObject<Movie>> resultUpdates = new ArrayList<>();
-        ArrayList<Long> resultDeletes = new ArrayList<>();
 
-        if (clientBatch == null) {
-            return new Batch(resultCreates, resultUpdates, resultDeletes, messages);
-        }
-
-        for (VersionedObject<Movie> vm : clientBatch.creates) {
-            try {
-                VersionedObject<Movie> created = add(vm);
-                resultCreates.add(created);
-            } catch (Exception e) {
-                messages.add("Failed to create movie: " + e.getMessage());
-            }
-        }
-        for (VersionedObject<Movie> vm : clientBatch.updates) {
-            Long id = vm.data.getId();
-            try {
-                VersionedObject<Movie> current = getById(id);
-
-                // Check version
-                if (vm.version != current.version) {
-                    messages.add("Update rejected for movie " + id +
-                            ": client version " + vm.version +
-                            " does not match server version " + current.version);
-                    continue;
+        if (pendingBatch != null) {
+            // Creates
+            for (VersionedObject<Movie> vm : pendingBatch.creates) {
+                try {
+                    add(vm);
+                } catch (Exception e) {
+                    messages.add("Failed to create movie: " + e.getMessage());
                 }
-                int newVersion = current.version + 1;
-                VersionedObject<Movie> updated = new VersionedObject<>(newVersion, vm.data);
-                setById(id, updated);
-                resultUpdates.add(updated);
-            } catch (NoSuchElementException e) {
-                messages.add("Update failed: movie " + id + " not found");
+            }
+            // Updates
+            for (VersionedObject<Movie> vm : pendingBatch.updates) {
+                Long id = vm.data.getId();
+                try {
+                    VersionedObject<Movie> current = getById(id);
+                    if (vm.version != current.version) {
+                        messages.add("Update rejected for movie " + id +
+                                ": client version " + vm.version +
+                                " vs server " + current.version);
+                        continue;
+                    }
+                    int newVersion = current.version + 1;
+                    VersionedObject<Movie> updated = new VersionedObject<>(newVersion, vm.data);
+                    setById(id, updated);
+                } catch (NoSuchElementException e) {
+                    messages.add("Update failed: movie " + id + " not found");
+                }
+            }
+            // Deletes
+            for (Long id : pendingBatch.deletes) {
+                try {
+                    removeById(id);
+                } catch (NoSuchElementException e) {
+                    messages.add("Delete failed: movie " + id + " not found");
+                }
             }
         }
 
-        for (Long id : clientBatch.deletes) {
-            try {
-                removeById(id);
-                resultDeletes.add(id);
-                messages.add("Deleted movie " + id);
-            } catch (NoSuchElementException e) {
-                messages.add("Delete failed: movie " + id + " not found");
+        // delta
+        ArrayList<VersionedObject<Movie>> deltaCreates = new ArrayList<>();
+        ArrayList<VersionedObject<Movie>> deltaUpdates = new ArrayList<>();
+        ArrayList<Long> deltaDeletes = new ArrayList<>();
+
+
+        if (clientVersions == null || clientVersions.isEmpty()) {
+            deltaCreates = getAll();
+            messages.add("Client had no version map – full sync");
+        } else {
+            for (VersionedObject<Movie> serverMovie : getAll()) {
+                Long id = serverMovie.data.getId();
+                int serverVersion = serverMovie.version;
+                Integer clientVersion = clientVersions.get(id);
+                if (clientVersion == null || clientVersion < 0) {
+                    deltaCreates.add(serverMovie);
+                } else if (serverVersion > clientVersion) {
+                    deltaUpdates.add(serverMovie);
+                }
             }
         }
 
-        return new Batch(resultCreates, resultUpdates, resultDeletes, messages);
+        return new Batch(deltaCreates, deltaUpdates, deltaDeletes, messages);
     }
 }

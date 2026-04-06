@@ -48,8 +48,8 @@ public class PendingChangeQueue {
             }
 
             Batch batch = new Batch(
-                    new ArrayList<>(updates),
                     new ArrayList<>(creates),
+                    new ArrayList<>(updates),
                     new ArrayList<>(deletes)
             );
             batchArray.add(batch);

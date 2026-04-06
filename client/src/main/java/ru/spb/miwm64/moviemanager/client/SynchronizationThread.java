@@ -9,6 +9,8 @@ import ru.spb.miwm64.moviemanager.client.net.JsonRpcClient;
 import ru.spb.miwm64.moviemanager.common.io.Writer;
 import ru.spb.miwm64.moviemanager.common.net.Batch;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class SynchronizationThread extends Thread {
@@ -55,7 +57,11 @@ public class SynchronizationThread extends Thread {
         LOG.info("Synchronization started");
         Batch localBatch = pendingChangeQueue.getBatch();
         try {
-            Batch serverBatch = callRpc("sync", localBatch, new TypeReference<Batch>() {});
+            Map<String, Object> syncRequest = new HashMap<>();
+            syncRequest.put("pendingBatch", localBatch);
+            syncRequest.put("clientVersions", collectionManager.getVersionMap());
+            Batch serverBatch = callRpc("sync", syncRequest, new TypeReference<Batch>() {});
+
             writer.writeln("Successful synchronization");
             LOG.info("Synchronization successful");
 

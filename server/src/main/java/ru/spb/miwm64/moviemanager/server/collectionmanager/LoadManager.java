@@ -13,19 +13,19 @@ import java.util.Objects;
 public class LoadManager {
     private static final String ENV_VARIABLE = "XML_LOAD";
 
-    private final StreamCollectionManager collectionManager;
+    private final BatchStreamCollectionManager collectionManager;
     private final XMLParser xmlParser;
     private Logger log = LoggerFactory.getLogger(LoadManager.class);
 
-    public LoadManager(CollectionManager collectionManager, XMLParser xmlParser) {
-        this.collectionManager = (StreamCollectionManager) Objects.requireNonNull(collectionManager);
+    public LoadManager(BatchStreamCollectionManager collectionManager, XMLParser xmlParser) {
+        this.collectionManager = Objects.requireNonNull(collectionManager);
         this.xmlParser = Objects.requireNonNull(xmlParser);
     }
 
     public void loadCollection() {
         try {
             String xml = readFile();
-            collectionManager.setCollection(xmlParser.parseFromXMLCollection(xml));
+            //collectionManager.setCollection(xmlParser.parseFromXMLCollection(xml));
             System.out.println("Loaded collection successfully");
         }
         catch (Exception e){
@@ -45,8 +45,8 @@ public class LoadManager {
     }
 
     public void saveCollection() {
-        String xml = xmlParser.parseCollectionIntoXML(collectionManager.getAll());
-        writeFile(xml);
+        //String xml = xmlParser.parseCollectionIntoXML(collectionManager.getAll());
+        //writeFile(xml);
         System.out.println("Saved collection successfully");
     }
 

@@ -34,8 +34,21 @@ public class RequestRouter {
     private void registerHandlers() {
         LOG.debug("Registering handlers");
         handlers.put("sync", params -> {
-            Batch batch = mapper.treeToValue(params, Batch.class);
-            return collectionManager.applyBatch(batch);
+            JsonNode pendingNode = params.get("pendingBatch");
+            Batch pendingBatch = (pendingNode == null || pendingNode.isNull())
+                    ? null
+                    : mapper.treeToValue(pendingNode, Batch.class);
+
+            JsonNode versionsNode = params.get("clientVersions");
+            Map<Long, Integer> clientVersions = new HashMap<>();
+            if (versionsNode != null && !versionsNode.isNull()) {
+                Iterator<Map.Entry<String, JsonNode>> fields = versionsNode.fields();
+                while (fields.hasNext()) {
+                    Map.Entry<String, JsonNode> entry = fields.next();
+                    clientVersions.put(Long.parseLong(entry.getKey()), entry.getValue().asInt());
+                }
+            }
+            return collectionManager.applyBatch(pendingBatch, clientVersions);
         });
 
         LOG.debug("Handlers registered: {}", handlers.keySet());

@@ -76,7 +76,7 @@ public class BatchRemoteCollectionManager implements CollectionManager {
     @Override
     public void setById(Long id, Movie movie) {
         int index = findIndexById(id);
-        VersionedObject<Movie> versionedMovie = new VersionedObject<>(movies.get(index).version + 1, movie);
+        VersionedObject<Movie> versionedMovie = new VersionedObject<>(movies.get(index).version, movie);
         movies.set(index, versionedMovie);
         queue.addUpdate(versionedMovie);
     }
@@ -235,5 +235,13 @@ public class BatchRemoteCollectionManager implements CollectionManager {
         if (index < 0) index = -index - 1;
         movies.add(index, serverMovie);
         currentIDs.put(serverMovie.data.getId(), true);
+    }
+
+    public Map<Long, Integer> getVersionMap() {
+        Map<Long, Integer> map = new HashMap<>();
+        for (VersionedObject<Movie> vm : movies) {
+            map.put(vm.data.getId(), vm.version);
+        }
+        return map;
     }
 }

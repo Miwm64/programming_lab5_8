@@ -60,6 +60,7 @@ public class UDPClient implements ConnectionClient {
 
             socket.receive(inPacket);
             String response = new String(inPacket.getData(), 0, inPacket.getLength(), StandardCharsets.UTF_8);
+            System.out.println(response);
             LOG.info("Packet received from {}", socketAddress);
             return response;
 
