@@ -146,8 +146,8 @@ public class BatchStreamCollectionManager {
 
         if (clientVersions == null || clientVersions.isEmpty()) {
             deltaCreates = getAll();
-            messages.add("Client had no version map – full sync");
         } else {
+            // handle creates and updates
             for (VersionedObject<Movie> serverMovie : getAll()) {
                 Long id = serverMovie.data.getId();
                 int serverVersion = serverMovie.version;
@@ -158,6 +158,7 @@ public class BatchStreamCollectionManager {
                     deltaUpdates.add(serverMovie);
                 }
             }
+            // check for movies that exist on client and don't on server
             for (Long id : clientVersions.keySet()) {
                 try {
                     getById(id);
