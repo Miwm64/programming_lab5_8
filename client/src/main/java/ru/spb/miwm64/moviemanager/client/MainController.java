@@ -28,9 +28,12 @@ public final class MainController {
     private Writer writer;
     private XMLParser xmlParser;
     private CommandFactory commandFactory;
+    private volatile List<String> messages;
+    private volatile boolean isInParamInput = false;
+    private final Object messageLock = new Object();
 
     public MainController(CollectionManager collectionManager, Reader defaultReader,
-                          Writer defaultWriter, XMLParser xmlParser) {
+                          Writer defaultWriter, XMLParser xmlParser, List<String> messages) {
         this.readers = new LinkedList<>();
         readers.add(defaultReader);
         this.writer = defaultWriter;
@@ -39,10 +42,12 @@ public final class MainController {
         this.xmlParser = xmlParser;
         this.openedFilesSet = new HashSet<>();
         this.commandFactory = new CommandFactory(collectionManager, xmlParser, readers, openedFilesSet);
+        this.messages = messages;
         LOG.info("MainController initialized");
     }
 
     public void run() {
+        initSyncPrinter();
         try {
             LOG.info("Client main loop started");
             while (true) {
@@ -91,6 +96,8 @@ public final class MainController {
 
         int i = 0;
         int skip = 0;
+        isInParamInput = true;
+        try {
         while (i != params.size()) {
             try {
                 if (skip > 0){
@@ -123,6 +130,10 @@ public final class MainController {
                 LOG.error("Error parsing param input", e);
                 writer.writeln("error: " + e.getMessage());
             }
+        }
+        }
+        finally {
+            isInParamInput = false;
         }
         return cmd;
     }
@@ -233,5 +244,36 @@ public final class MainController {
             return false;
         }
         return true;
+    }
+
+    private void initSyncPrinter() {
+        Thread messagePrinter = new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    break;
+                }
+                if (!isInParamInput) {
+                    synchronized (messages) {
+                        if (!messages.isEmpty()) {
+                            try {
+                                writer.writeln("");
+                                for (String msg : messages) {
+                                    writer.writeln(msg);
+                                }
+                                messages.clear();
+                                writer.writeln("Enter command: ");
+                            }
+                            catch (Exception e){
+                                LOG.error("Sync printing error: " + e.getMessage());
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        messagePrinter.setDaemon(true);
+        messagePrinter.start();
     }
 }

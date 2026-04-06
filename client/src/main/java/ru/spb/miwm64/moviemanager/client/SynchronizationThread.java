@@ -10,6 +10,7 @@ import ru.spb.miwm64.moviemanager.common.io.Writer;
 import ru.spb.miwm64.moviemanager.common.net.Batch;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -22,14 +23,14 @@ public class SynchronizationThread extends Thread {
     private volatile boolean isRunning = true;
     private final JsonRpcClient jsonRpcClient;
     private final PendingChangeQueue pendingChangeQueue;
-    private final Writer writer;
+    private final List<String> messages;
     private final BatchRemoteCollectionManager collectionManager;
 
     public SynchronizationThread(JsonRpcClient jsonRpcClient, PendingChangeQueue pendingChangeQueue,
-                                 BatchRemoteCollectionManager collectionManager, Writer writer) {
+                                 BatchRemoteCollectionManager collectionManager, List<String> messages) {
         this.jsonRpcClient = jsonRpcClient;
         this.pendingChangeQueue = pendingChangeQueue;
-        this.writer = writer;
+        this.messages = messages;
         this.collectionManager = collectionManager;
     }
 
@@ -39,6 +40,9 @@ public class SynchronizationThread extends Thread {
         while (isRunning) {
             try {
                 if (sync()) {
+                    if (retryDelay != BASE_RETRY_MS){
+                        messages.add("Connection restored");
+                    }
                     retryDelay = BASE_RETRY_MS;
                     Thread.sleep(NORMAL_SYNC_INTERVAL_MS);
                 } else {
@@ -62,7 +66,6 @@ public class SynchronizationThread extends Thread {
             syncRequest.put("clientVersions", collectionManager.getVersionMap());
             Batch serverBatch = callRpc("sync", syncRequest, new TypeReference<Batch>() {});
 
-            writer.writeln("Successful synchronization");
             LOG.info("Synchronization successful");
 
             if (localBatch != null) {
@@ -70,10 +73,11 @@ public class SynchronizationThread extends Thread {
             }
 
             if (serverBatch.messages != null && !serverBatch.messages.isEmpty()){
-                writer.writeln("Server refused some local actions:");
+                StringBuilder message = new StringBuilder("Server refused some local actions:\n");
                 for (var msg : serverBatch.messages){
-                    writer.writeln(msg);
+                    message.append(message).append("\n");
                 }
+                messages.add(message.toString());
             }
 
             collectionManager.applyRemoteBatch(serverBatch);
@@ -81,7 +85,7 @@ public class SynchronizationThread extends Thread {
         } catch (Exception e) {
             LOG.error("Synchronization failed", e);
             try {
-                writer.writeln("Synchronization failed: " + e.getMessage());
+                messages.add("Synchronization failed: " + e.getMessage());
             } catch (Exception ignored) {}
             return false;
         }

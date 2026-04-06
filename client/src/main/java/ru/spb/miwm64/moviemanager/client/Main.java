@@ -14,6 +14,9 @@ import ru.spb.miwm64.moviemanager.common.io.Writer;
 import ru.spb.miwm64.moviemanager.common.io.XMLParser;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 
 public class Main {
@@ -29,11 +32,12 @@ public class Main {
         XMLParser xmlParser = new XMLParser();
         Reader reader = new ConsoleReader();
         Writer writer = new ConsoleWriter();
+        List<String> messages = Collections.synchronizedList(new ArrayList<String>());
 
-        SynchronizationThread thread = new SynchronizationThread(jsonRpcClient, queue, collectionManager, writer);
+        SynchronizationThread thread = new SynchronizationThread(jsonRpcClient, queue, collectionManager, messages);
         thread.start();
 
-        var mainController = new MainController(collectionManager, reader, writer, xmlParser);
+        var mainController = new MainController(collectionManager, reader, writer, xmlParser, messages);
         mainController.run();
 
         thread.gracefulShutdown();
