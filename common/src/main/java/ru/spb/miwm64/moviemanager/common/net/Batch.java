@@ -12,16 +12,16 @@ public class Batch {
 
     public Batch(){};
 
-    public Batch(ArrayList<VersionedObject<Movie>> updates,
-                 ArrayList<VersionedObject<Movie>> creates,
+    public Batch(ArrayList<VersionedObject<Movie>> creates,
+                 ArrayList<VersionedObject<Movie>> updates,
                  ArrayList<Long> deletes) {
         this.updates = updates;
         this.creates = creates;
         this.deletes = deletes;
     }
 
-    public Batch(ArrayList<VersionedObject<Movie>> updates,
-                 ArrayList<VersionedObject<Movie>> creates,
+    public Batch(ArrayList<VersionedObject<Movie>> creates,
+                 ArrayList<VersionedObject<Movie>> updates,
                  ArrayList<Long> deletes,
                  ArrayList<String> messages) {
         this.updates = updates;

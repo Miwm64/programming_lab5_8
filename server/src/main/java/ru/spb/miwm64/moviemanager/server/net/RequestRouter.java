@@ -1,26 +1,29 @@
 package ru.spb.miwm64.moviemanager.server.net;
 
 import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
-import ru.spb.miwm64.moviemanager.common.entities.Movie;
-import ru.spb.miwm64.moviemanager.common.entities.Person;
+import ru.spb.miwm64.moviemanager.common.entities.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ru.spb.miwm64.moviemanager.common.exceptions.NonExistentCommand;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.spb.miwm64.moviemanager.common.net.Batch;
+import ru.spb.miwm64.moviemanager.common.net.VersionedObject;
+import ru.spb.miwm64.moviemanager.server.collectionmanager.BatchStreamCollectionManager;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.util.*;
 
 public class RequestRouter {
     private final Map<String, Handler> handlers = new HashMap<>();
-    private final CollectionManager collectionManager;
+    private final BatchStreamCollectionManager collectionManager;
     private final ObjectMapper mapper;
 
     private static final Logger LOG = LoggerFactory.getLogger(RequestRouter.class);
 
-    public RequestRouter(CollectionManager collectionManager, ObjectMapper mapper) {
+    public RequestRouter(BatchStreamCollectionManager collectionManager, ObjectMapper mapper) {
         this.collectionManager = collectionManager;
         this.mapper = mapper;
         LOG.debug("Initializing RequestRouter");
@@ -30,45 +33,23 @@ public class RequestRouter {
 
     private void registerHandlers() {
         LOG.debug("Registering handlers");
+        handlers.put("sync", params -> {
+            JsonNode pendingNode = params.get("pendingBatch");
+            Batch pendingBatch = (pendingNode == null || pendingNode.isNull())
+                    ? null
+                    : mapper.treeToValue(pendingNode, Batch.class);
 
-        handlers.put("add", params -> collectionManager.add(mapper.treeToValue(params, Movie.class)));
-        handlers.put("addIfMin", params -> collectionManager.addIfMin(mapper.treeToValue(params, Movie.class)));
-        handlers.put("setById", params -> {
-            long id = params.get("id").asLong();
-            Movie movie = mapper.treeToValue(params.get("movie"), Movie.class);
-            collectionManager.setById(id, movie);
-            return null;
+            JsonNode versionsNode = params.get("clientVersions");
+            Map<Long, Integer> clientVersions = new HashMap<>();
+            if (versionsNode != null && !versionsNode.isNull()) {
+                Iterator<Map.Entry<String, JsonNode>> fields = versionsNode.fields();
+                while (fields.hasNext()) {
+                    Map.Entry<String, JsonNode> entry = fields.next();
+                    clientVersions.put(Long.parseLong(entry.getKey()), entry.getValue().asInt());
+                }
+            }
+            return collectionManager.applyBatch(pendingBatch, clientVersions);
         });
-        handlers.put("getById", params -> collectionManager.getById(params.get("id").asLong()));
-        handlers.put("getByIndex", params -> collectionManager.getByIndex(params.get("index").asInt()));
-        handlers.put("getGreater", params -> collectionManager.getGreater(mapper.treeToValue(params, Person.class)));
-        handlers.put("getAll", params -> collectionManager.getAll());
-        handlers.put("removeById", params -> {
-            collectionManager.removeById(params.get("id").asLong());
-            return null;
-        });
-        handlers.put("removeByIndex", params -> {
-            collectionManager.removeByIndex(params.get("index").asInt());
-            return null;
-        });
-        handlers.put("removeGreater", params -> {
-            collectionManager.removeGreater(mapper.treeToValue(params, Movie.class));
-            return null;
-        });
-        handlers.put("removeAll", params -> {
-            collectionManager.removeAll();
-            return null;
-        });
-        handlers.put("clear", params -> {
-            collectionManager.clear();
-            return null;
-        });
-        handlers.put("countByGoldenPalmCount", params ->
-                collectionManager.countByGoldenPalmCount(params.get("count").asLong()));
-        handlers.put("filterGreaterThanOperator", params ->
-                collectionManager.filterGreaterThanOperatorCommand(mapper.treeToValue(params, Person.class)));
-        handlers.put("printFieldAscendingGoldenPalmCount", params ->
-                collectionManager.printFieldAscendingGoldenPalmCountCommand());
 
         LOG.debug("Handlers registered: {}", handlers.keySet());
     }
