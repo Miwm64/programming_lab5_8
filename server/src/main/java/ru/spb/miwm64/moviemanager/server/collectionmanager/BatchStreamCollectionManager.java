@@ -144,11 +144,11 @@ public class BatchStreamCollectionManager {
         ArrayList<VersionedObject<Movie>> deltaUpdates = new ArrayList<>();
         ArrayList<Long> deltaDeletes = new ArrayList<>();
 
-
         if (clientVersions == null || clientVersions.isEmpty()) {
             deltaCreates = getAll();
             messages.add("Client had no version map – full sync");
         } else {
+            // Find new or updated movies
             for (VersionedObject<Movie> serverMovie : getAll()) {
                 Long id = serverMovie.data.getId();
                 int serverVersion = serverMovie.version;
@@ -159,8 +159,38 @@ public class BatchStreamCollectionManager {
                     deltaUpdates.add(serverMovie);
                 }
             }
+            // Find deleted movies (client has ID, server does not)
+            for (Long id : clientVersions.keySet()) {
+                try {
+                    getById(id);
+                } catch (NoSuchElementException e) {
+                    deltaDeletes.add(id);
+                }
+            }
         }
 
         return new Batch(deltaCreates, deltaUpdates, deltaDeletes, messages);
+    }
+
+    public void setCollection(ArrayList<Movie> movies) {
+        // Clear existing data
+        versionedMovies.clear();
+        currentIDs.clear();
+        lastAssignedId = 1L;
+
+        // Add each movie as VersionedObject with version 1
+        for (Movie m : movies) {
+            if (m.getId() == null || m.getId() <= 0) {
+                throw new InvalidValueException("Movie must have a positive ID for server collection");
+            }
+            VersionedObject<Movie> vm = new VersionedObject<>(1, m);
+            int index = Collections.binarySearch(versionedMovies, vm);
+            if (index < 0) index = -index - 1;
+            versionedMovies.add(index, vm);
+            currentIDs.put(m.getId(), true);
+            if (m.getId() >= lastAssignedId) {
+                lastAssignedId = m.getId() + 1;
+            }
+        }
     }
 }
