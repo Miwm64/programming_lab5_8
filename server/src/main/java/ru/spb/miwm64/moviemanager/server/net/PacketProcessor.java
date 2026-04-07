@@ -12,6 +12,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 public class PacketProcessor {
     private static final int MAX_PACKET_SIZE = 65536;
@@ -36,6 +37,7 @@ public class PacketProcessor {
     public void process() {
         SocketAddress client = null;
         Integer id = null;
+        UUID uuid = null;
 
         try {
             LOG.debug("Receiving packet");
@@ -53,6 +55,7 @@ public class PacketProcessor {
 
             JsonRpcRequest request = jsonRpc.decodeRequest(json);
             id = request.id;
+            uuid = request.uuid;
 
             if (!(client instanceof InetSocketAddress inetClient)) {
                 LOG.warn("Unknown client address type: {}", client.getClass());
@@ -69,7 +72,7 @@ public class PacketProcessor {
             JsonRpcResponse<?> cached = cache.lookUp(key);
             if (cached != null) {
                 LOG.info("Duplicate request detected, sending cached response for id={} to {}:{}", id, ip, port);
-                transport.send(client, jsonRpc.encodeSuccess(cached.result, id));
+                transport.send(client, jsonRpc.encodeSuccess(cached.result, id, uuid));
                 return;
             }
 
@@ -77,7 +80,7 @@ public class PacketProcessor {
             Object result = handler.route(request.method, request.params);
 
             // Encode and send response
-            byte[] response = jsonRpc.encodeSuccess(result, id);
+            byte[] response = jsonRpc.encodeSuccess(result, id, uuid);
             transport.send(client, response);
 
             // Store in cache for duplicate detection
@@ -94,7 +97,8 @@ public class PacketProcessor {
                     byte[] err = jsonRpc.encodeError(
                             JsonRpcError.INTERNAL_ERROR,
                             "Internal error",
-                            id
+                            id,
+                            uuid
                     );
                     transport.send(client, err);
                     LOG.info("Error response sent to {} for id={}", client, id);

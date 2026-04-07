@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.UUID;
 
 public class JsonRpc {
     private final ObjectMapper objectMapper;
@@ -40,26 +41,28 @@ public class JsonRpc {
         }
     }
 
-    public byte[] encodeSuccess(Object result, int id) throws IOException {
+    public byte[] encodeSuccess(Object result, int id, UUID uuid) throws IOException {
         try {
             JsonRpcResponse<Object> res = new JsonRpcResponse<>();
             res.id = id;
             res.result = result;
+            res.uuid = uuid;
 
             byte[] bytes = objectMapper.writeValueAsBytes(res);
-            LOG.debug("Encoded success response ({} bytes) for id={}", bytes.length, id);
+            LOG.debug("Encoded success response ({} bytes) for uuid={} id={}", bytes.length, uuid, id);
             return bytes;
         } catch (IOException e) {
-            LOG.error("Failed to encode success response for id={}", id, e);
+            LOG.error("Failed to encode success response for uuid={} id={}", uuid, id, e);
             throw e;
         }
     }
 
-    public byte[] encodeError(int code, String message, Integer id) throws IOException {
+    public byte[] encodeError(int code, String message, Integer id, UUID uuid) throws IOException {
         LOG.error("Encoding error response for id={}, code={}, message={}", id, code, message);
         try {
             JsonRpcResponse<Void> res = new JsonRpcResponse<>();
             res.id = id;
+            res.uuid = uuid;
             res.error = new JsonRpcError(code, message, null);
 
             byte[] bytes = objectMapper.writeValueAsBytes(res);
