@@ -57,13 +57,10 @@ public class PacketProcessor {
             id = request.id;
             uuid = request.uuid;
 
-            if (!(client instanceof InetSocketAddress inetClient)) {
+            if (!(client instanceof InetSocketAddress)) {
                 LOG.warn("Unknown client address type: {}", client.getClass());
                 return;
             }
-
-            String ip = inetClient.getAddress().getHostAddress();
-            int port = inetClient.getPort();
 
             RequestKey key = new RequestKey(id, uuid);
 
@@ -88,7 +85,7 @@ public class PacketProcessor {
                 this.id = id;
                 this.result = result;
             }});
-            LOG.info("Added response to cache with id={}, ip:port={}:{}", id, ip, port);
+            LOG.info("Added response to cache with uuid={} id={}", uuid, id);
         } catch (Exception e) {
             LOG.error("Error during packet processing (id={})", id, e);
 
