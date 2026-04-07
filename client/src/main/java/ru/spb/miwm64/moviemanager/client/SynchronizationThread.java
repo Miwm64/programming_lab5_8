@@ -75,7 +75,7 @@ public class SynchronizationThread extends Thread {
             if (serverBatch.messages != null && !serverBatch.messages.isEmpty()){
                 StringBuilder message = new StringBuilder("Server refused some local actions:\n");
                 for (var msg : serverBatch.messages){
-                    message.append(message).append("\n");
+                    message.append(msg).append("\n");
                 }
                 messages.add(message.toString());
             }

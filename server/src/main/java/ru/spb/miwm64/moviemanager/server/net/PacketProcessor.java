@@ -65,14 +65,14 @@ public class PacketProcessor {
             String ip = inetClient.getAddress().getHostAddress();
             int port = inetClient.getPort();
 
-            RequestKey key = new RequestKey(id, ip, port);
+            RequestKey key = new RequestKey(id, uuid);
 
             // Check cache for duplicates
-            LOG.info("Checking packet for duplication id={} to {}:{}", id, ip, port);
+            LOG.info("Checking packet for duplication id={} to {}", id, uuid);
             JsonRpcResponse<?> cached = cache.lookUp(key);
             if (cached != null) {
-                LOG.info("Duplicate request detected, sending cached response for id={} to {}:{}", id, ip, port);
-                transport.send(client, jsonRpc.encodeSuccess(cached.result, id, uuid));
+                LOG.info("Duplicate request detected, sending cached response for id={} to {}", id, uuid);
+                transport.send(client, jsonRpc.encodePacket(cached));
                 return;
             }
 

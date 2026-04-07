@@ -33,10 +33,23 @@ public class JsonRpc {
     public JsonRpcRequest decodeRequest(String json) throws IOException {
         try {
             JsonRpcRequest request = objectMapper.readValue(json, JsonRpcRequest.class);
-            LOG.debug("Decoded request: id={}, method={}", request.id, request.method);
+            LOG.debug("Decoded request: uuid={} id={}, method={}", request.uuid, request.id, request.method);
             return request;
         } catch (IOException e) {
             LOG.error("Failed to decode JSON-RPC request", e);
+            throw e;
+        }
+    }
+
+    public byte[] encodePacket(JsonRpcResponse<?> jsonRpcResponse) throws IOException {
+        try {
+            byte[] bytes = objectMapper.writeValueAsBytes(jsonRpcResponse);
+            LOG.debug("Encoded packet response ({} bytes) for uuid={} id={}",
+                    bytes.length, jsonRpcResponse.uuid, jsonRpcResponse.id);
+            return bytes;
+        } catch (IOException e) {
+            LOG.error("Failed to encode success response for uuid={} id={}",
+                    jsonRpcResponse.uuid, jsonRpcResponse.id, e);
             throw e;
         }
     }
