@@ -39,7 +39,7 @@ public class JsonRpcClient {
     public <T> T call(String method, Object params, TypeReference<T> resultType)
             throws NetException, InvalidValueException, NoSuchElementException {
 
-        Integer id = nextId++;
+        Integer id = nextId+1;
         String requestId = UUID.randomUUID().toString();
         MDC.put("requestId", requestId);
 
@@ -55,6 +55,7 @@ public class JsonRpcClient {
                             objectMapper.getTypeFactory().constructType(resultType));
 
             JsonRpcResponse<T> response = objectMapper.readValue(responseJson, type);
+            ++nextId;
 
             if (!Objects.equals(request.id, response.id)) {
                 throw new WrongPacketException();
