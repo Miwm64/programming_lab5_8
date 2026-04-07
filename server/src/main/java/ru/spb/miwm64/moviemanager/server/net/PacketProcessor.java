@@ -12,6 +12,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 public class PacketProcessor {
     private static final int MAX_PACKET_SIZE = 65536;
@@ -36,6 +37,7 @@ public class PacketProcessor {
     public void process() {
         SocketAddress client = null;
         Integer id = null;
+        UUID uuid = null;
 
         try {
             LOG.debug("Receiving packet");
@@ -53,23 +55,21 @@ public class PacketProcessor {
 
             JsonRpcRequest request = jsonRpc.decodeRequest(json);
             id = request.id;
+            uuid = request.uuid;
 
-            if (!(client instanceof InetSocketAddress inetClient)) {
+            if (!(client instanceof InetSocketAddress)) {
                 LOG.warn("Unknown client address type: {}", client.getClass());
                 return;
             }
 
-            String ip = inetClient.getAddress().getHostAddress();
-            int port = inetClient.getPort();
-
-            RequestKey key = new RequestKey(id, ip, port);
+            RequestKey key = new RequestKey(id, uuid);
 
             // Check cache for duplicates
-            LOG.info("Checking packet for duplication id={} to {}:{}", id, ip, port);
+            LOG.info("Checking packet for duplication id={} to {}", id, uuid);
             JsonRpcResponse<?> cached = cache.lookUp(key);
             if (cached != null) {
-                LOG.info("Duplicate request detected, sending cached response for id={} to {}:{}", id, ip, port);
-                transport.send(client, jsonRpc.encodeSuccess(cached.result, id));
+                LOG.info("Duplicate request detected, sending cached response for id={} to {}", id, uuid);
+                transport.send(client, jsonRpc.encodePacket(cached));
                 return;
             }
 
@@ -77,7 +77,7 @@ public class PacketProcessor {
             Object result = handler.route(request.method, request.params);
 
             // Encode and send response
-            byte[] response = jsonRpc.encodeSuccess(result, id);
+            byte[] response = jsonRpc.encodeSuccess(result, id, uuid);
             transport.send(client, response);
 
             // Store in cache for duplicate detection
@@ -85,7 +85,7 @@ public class PacketProcessor {
                 this.id = id;
                 this.result = result;
             }});
-            LOG.info("Added response to cache with id={}, ip:port={}:{}", id, ip, port);
+            LOG.info("Added response to cache with uuid={} id={}", uuid, id);
         } catch (Exception e) {
             LOG.error("Error during packet processing (id={})", id, e);
 
@@ -94,7 +94,8 @@ public class PacketProcessor {
                     byte[] err = jsonRpc.encodeError(
                             JsonRpcError.INTERNAL_ERROR,
                             "Internal error",
-                            id
+                            id,
+                            uuid
                     );
                     transport.send(client, err);
                     LOG.info("Error response sent to {} for id={}", client, id);

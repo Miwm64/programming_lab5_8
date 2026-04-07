@@ -106,7 +106,9 @@ public class PendingChangeQueue {
             if (updates.removeIf(vm -> Objects.equals(vm.data.getId(), movieId))){
                 return;
             }
-            deletes.add(movieId);
+            if (movieId > 0) {
+                deletes.add(movieId);
+            }
         } finally {
             mutex.unlock();
         }

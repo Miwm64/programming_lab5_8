@@ -30,23 +30,25 @@ public class JsonRpcClient {
 
     private final ConnectionClient connection;
     private Integer nextId = 1;
+    private final UUID uuid;
 
     public JsonRpcClient(ConnectionClient connection) {
         this.connection = connection;
         LOG.info("JsonRpcClient initialized");
+        this.uuid = UUID.randomUUID();
     }
 
     public <T> T call(String method, Object params, TypeReference<T> resultType)
             throws NetException, InvalidValueException, NoSuchElementException {
 
-        Integer id = nextId++;
+        Integer id = nextId+1;
         String requestId = UUID.randomUUID().toString();
         MDC.put("requestId", requestId);
 
         try {
             LOG.info("Sending JSON-RPC request '{}' id={} params={}", method, id, params);
 
-            JsonRpcRequest request = new JsonRpcRequest(id, method, objectMapper.valueToTree(params));
+            JsonRpcRequest request = new JsonRpcRequest(id, method, objectMapper.valueToTree(params), uuid);
             String requestJson = objectMapper.writeValueAsString(request);
             String responseJson = connection.exchangeString(requestJson);
 
@@ -55,8 +57,12 @@ public class JsonRpcClient {
                             objectMapper.getTypeFactory().constructType(resultType));
 
             JsonRpcResponse<T> response = objectMapper.readValue(responseJson, type);
+            ++nextId;
 
             if (!Objects.equals(request.id, response.id)) {
+                throw new WrongPacketException();
+            }
+            if (!Objects.equals(request.uuid, response.uuid)) {
                 throw new WrongPacketException();
             }
 
