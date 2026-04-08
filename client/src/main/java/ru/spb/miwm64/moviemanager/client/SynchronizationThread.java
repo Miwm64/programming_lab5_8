@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class SynchronizationThread extends Thread {
     private static final long NORMAL_SYNC_INTERVAL_MS = 15_000L;
@@ -25,6 +26,8 @@ public class SynchronizationThread extends Thread {
     private final PendingChangeQueue pendingChangeQueue;
     private final List<String> messages;
     private final BatchRemoteCollectionManager collectionManager;
+
+    private static final ReentrantLock mutex = new ReentrantLock();
 
     public SynchronizationThread(JsonRpcClient jsonRpcClient, PendingChangeQueue pendingChangeQueue,
                                  BatchRemoteCollectionManager collectionManager, List<String> messages) {
@@ -58,7 +61,9 @@ public class SynchronizationThread extends Thread {
     }
 
     private boolean sync() {
+        mutex.lock();
         LOG.info("Synchronization started");
+        System.out.println("sync");
         Batch localBatch = pendingChangeQueue.getBatch();
         try {
             Map<String, Object> syncRequest = new HashMap<>();
@@ -88,6 +93,9 @@ public class SynchronizationThread extends Thread {
                 messages.add("Synchronization failed: " + e.getMessage());
             } catch (Exception ignored) {}
             return false;
+        }
+        finally {
+            mutex.unlock();
         }
     }
 

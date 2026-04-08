@@ -15,10 +15,11 @@ public class PendingChangeQueue {
     private final ArrayList<Long> deletes = new ArrayList<>();
     private final LinkedList<Batch> batchArray = new LinkedList<>();
 
-    private final ReentrantLock mutex = new ReentrantLock();
+    private final static ReentrantLock mutex = new ReentrantLock();
 
     public Batch getBatch() {
         mutex.lock();
+        System.out.println("getBatch");
         try {
             if (!batchArray.isEmpty()) {
                 return batchArray.get(0);

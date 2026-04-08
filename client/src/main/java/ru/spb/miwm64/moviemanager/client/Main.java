@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static java.lang.Thread.sleep;
+
 
 public class Main {
     public static void main(String[] args) {
@@ -36,6 +38,8 @@ public class Main {
 
         SynchronizationThread thread = new SynchronizationThread(jsonRpcClient, queue, collectionManager, messages);
         thread.start();
+        SynchronizationThread thread2 = new SynchronizationThread(jsonRpcClient, queue, collectionManager, messages);
+        thread2.start();
 
         var mainController = new MainController(collectionManager, reader, writer, xmlParser, messages);
         mainController.run();

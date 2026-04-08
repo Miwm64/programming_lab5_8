@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class UDPClient implements ConnectionClient {
     private static final Logger LOG = LoggerFactory.getLogger(UDPClient.class);
@@ -42,6 +43,7 @@ public class UDPClient implements ConnectionClient {
 
     @Override
     public String exchangeString(String msg) throws NetException {
+        System.out.println("udp send");
         String requestId = UUID.randomUUID().toString();
         MDC.put("requestId", requestId);
         if (!isConnected()) {
