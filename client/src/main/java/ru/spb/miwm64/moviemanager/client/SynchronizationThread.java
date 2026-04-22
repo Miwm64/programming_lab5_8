@@ -30,17 +30,13 @@ public class SynchronizationThread extends Thread {
 
     private static final ReentrantLock mutex = new ReentrantLock();
 
-    private static volatile AtomicInteger lastThreadId = new  AtomicInteger(0);
-    private final String threadTitle;
 
     public SynchronizationThread(JsonRpcClient jsonRpcClient, PendingChangeQueue pendingChangeQueue,
                                  BatchRemoteCollectionManager collectionManager, List<String> messages) {
-        this.threadTitle = "Synchronization thread id=" + lastThreadId.incrementAndGet();
         this.jsonRpcClient = jsonRpcClient;
         this.pendingChangeQueue = pendingChangeQueue;
         this.messages = messages;
         this.collectionManager = collectionManager;
-        System.out.println("Created " + threadTitle);
     }
 
     @Override
@@ -91,20 +87,7 @@ public class SynchronizationThread extends Thread {
                 pendingChangeQueue.removeFirstBatch();
             }
 
-            if (localBatch != null) {
-                messages.add("Synced by " + this.threadTitle);
-            }
-            else if (
-                    !serverBatch.messages.isEmpty() ||
-                    !serverBatch.creates.isEmpty() ||
-                    !serverBatch.updates.isEmpty() ||
-                    !serverBatch.deletes.isEmpty()
-            ) {
-                messages.add("Synced by " + this.threadTitle);
-            }
-            else{
-                messages.add("Nothing to sync by " + this.threadTitle);
-            }
+
             if (serverBatch.messages != null && !serverBatch.messages.isEmpty()){
                 StringBuilder message = new StringBuilder("Server refused some local actions:\n");
                 for (var msg : serverBatch.messages){
@@ -118,7 +101,7 @@ public class SynchronizationThread extends Thread {
         } catch (Exception e) {
             LOG.error("Synchronization failed", e);
             try {
-                messages.add("Synchronization failed: " + e.getMessage() + " by " + this.threadTitle);
+                messages.add("Synchronization failed: " + e.getMessage() + " by ");
             } catch (Exception ignored) {}
             return false;
         }

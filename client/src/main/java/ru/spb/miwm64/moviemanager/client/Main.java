@@ -38,8 +38,6 @@ public class Main {
 
         SynchronizationThread thread = new SynchronizationThread(jsonRpcClient, queue, collectionManager, messages);
         thread.start();
-        SynchronizationThread thread2 = new SynchronizationThread(jsonRpcClient, queue, collectionManager, messages);
-        thread2.start();
 
         var mainController = new MainController(collectionManager, reader, writer, xmlParser, messages);
         mainController.run();
