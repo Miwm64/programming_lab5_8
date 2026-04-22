@@ -41,15 +41,6 @@ public class SynchronizationThread extends Thread {
 
     @Override
     public void run() {
-        /*
-        if (threadTitle.contains("2")){
-            try {
-                sleep(5000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        */
         long retryDelay = BASE_RETRY_MS;
         while (isRunning) {
             try {
@@ -101,7 +92,7 @@ public class SynchronizationThread extends Thread {
         } catch (Exception e) {
             LOG.error("Synchronization failed", e);
             try {
-                messages.add("Synchronization failed: " + e.getMessage() + " by ");
+                messages.add("Synchronization failed: " + e.getMessage());
             } catch (Exception ignored) {}
             return false;
         }
