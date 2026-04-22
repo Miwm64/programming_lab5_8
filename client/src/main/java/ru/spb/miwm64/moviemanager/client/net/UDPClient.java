@@ -43,7 +43,6 @@ public class UDPClient implements ConnectionClient {
 
     @Override
     public String exchangeString(String msg) throws NetException {
-        System.out.println("udp send");
         String requestId = UUID.randomUUID().toString();
         MDC.put("requestId", requestId);
         if (!isConnected()) {

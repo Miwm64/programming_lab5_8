@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class SynchronizationThread extends Thread {
@@ -29,16 +30,30 @@ public class SynchronizationThread extends Thread {
 
     private static final ReentrantLock mutex = new ReentrantLock();
 
+    private static volatile AtomicInteger lastThreadId = new  AtomicInteger(0);
+    private final String threadTitle;
+
     public SynchronizationThread(JsonRpcClient jsonRpcClient, PendingChangeQueue pendingChangeQueue,
                                  BatchRemoteCollectionManager collectionManager, List<String> messages) {
+        this.threadTitle = "Synchronization thread id=" + lastThreadId.incrementAndGet();
         this.jsonRpcClient = jsonRpcClient;
         this.pendingChangeQueue = pendingChangeQueue;
         this.messages = messages;
         this.collectionManager = collectionManager;
+        System.out.println("Created " + threadTitle);
     }
 
     @Override
     public void run() {
+        /*
+        if (threadTitle.contains("2")){
+            try {
+                sleep(5000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        */
         long retryDelay = BASE_RETRY_MS;
         while (isRunning) {
             try {
@@ -63,7 +78,6 @@ public class SynchronizationThread extends Thread {
     private boolean sync() {
         mutex.lock();
         LOG.info("Synchronization started");
-        System.out.println("sync");
         Batch localBatch = pendingChangeQueue.getBatch();
         try {
             Map<String, Object> syncRequest = new HashMap<>();
@@ -77,6 +91,20 @@ public class SynchronizationThread extends Thread {
                 pendingChangeQueue.removeFirstBatch();
             }
 
+            if (localBatch != null) {
+                messages.add("Synced by " + this.threadTitle);
+            }
+            else if (
+                    !serverBatch.messages.isEmpty() ||
+                    !serverBatch.creates.isEmpty() ||
+                    !serverBatch.updates.isEmpty() ||
+                    !serverBatch.deletes.isEmpty()
+            ) {
+                messages.add("Synced by " + this.threadTitle);
+            }
+            else{
+                messages.add("Nothing to sync by " + this.threadTitle);
+            }
             if (serverBatch.messages != null && !serverBatch.messages.isEmpty()){
                 StringBuilder message = new StringBuilder("Server refused some local actions:\n");
                 for (var msg : serverBatch.messages){
@@ -90,7 +118,7 @@ public class SynchronizationThread extends Thread {
         } catch (Exception e) {
             LOG.error("Synchronization failed", e);
             try {
-                messages.add("Synchronization failed: " + e.getMessage());
+                messages.add("Synchronization failed: " + e.getMessage() + " by " + this.threadTitle);
             } catch (Exception ignored) {}
             return false;
         }

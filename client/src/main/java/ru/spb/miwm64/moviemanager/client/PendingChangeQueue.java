@@ -19,26 +19,25 @@ public class PendingChangeQueue {
 
     public Batch getBatch() {
         mutex.lock();
-        System.out.println("getBatch");
         try {
-            if (!batchArray.isEmpty()) {
-                return batchArray.get(0);
+            Batch res = getBatchImpl();
+            if (res != null) {
+                return res;
             }
-        } finally {
+            formBatch();
+            return getBatchImpl();
+        }
+        finally {
             mutex.unlock();
         }
+    }
 
-        formBatch();
 
-        mutex.lock();
-        try {
-            if (!batchArray.isEmpty()) {
-                return batchArray.get(0);
-            }
-            return null;
-        } finally {
-            mutex.unlock();
+    private Batch getBatchImpl(){
+        if (!batchArray.isEmpty()) {
+            return batchArray.get(0);
         }
+        return null;
     }
 
     private void formBatch() {
