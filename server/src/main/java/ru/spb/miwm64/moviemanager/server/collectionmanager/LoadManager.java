@@ -3,22 +3,25 @@ package ru.spb.miwm64.moviemanager.server.collectionmanager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
+import ru.spb.miwm64.moviemanager.common.entities.Movie;
 import ru.spb.miwm64.moviemanager.common.io.XMLParser;
+import ru.spb.miwm64.moviemanager.common.net.VersionedObject;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class LoadManager {
     private static final String ENV_VARIABLE = "XML_LOAD";
 
-    private final StreamCollectionManager collectionManager;
+    private final BatchStreamCollectionManager collectionManager;
     private final XMLParser xmlParser;
     private Logger log = LoggerFactory.getLogger(LoadManager.class);
 
-    public LoadManager(CollectionManager collectionManager, XMLParser xmlParser) {
-        this.collectionManager = (StreamCollectionManager) Objects.requireNonNull(collectionManager);
+    public LoadManager(BatchStreamCollectionManager collectionManager, XMLParser xmlParser) {
+        this.collectionManager = Objects.requireNonNull(collectionManager);
         this.xmlParser = Objects.requireNonNull(xmlParser);
     }
 
@@ -45,7 +48,12 @@ public class LoadManager {
     }
 
     public void saveCollection() {
-        String xml = xmlParser.parseCollectionIntoXML(collectionManager.getAll());
+        ArrayList<VersionedObject<Movie>> versionedMovies = collectionManager.getAll();
+        ArrayList<Movie> movies = new ArrayList<>();
+        for (var vm : versionedMovies){
+            movies.add(vm.data);
+        }
+        String xml = xmlParser.parseCollectionIntoXML(movies);
         writeFile(xml);
         System.out.println("Saved collection successfully");
     }

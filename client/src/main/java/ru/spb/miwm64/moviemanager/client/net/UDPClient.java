@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class UDPClient implements ConnectionClient {
     private static final Logger LOG = LoggerFactory.getLogger(UDPClient.class);
@@ -50,6 +51,7 @@ public class UDPClient implements ConnectionClient {
 
         try {
             LOG.info("Sending packet to {}", socketAddress);
+            LOG.debug("Out packet\n{}", msg);
             byte[] outBuffer = msg.getBytes(StandardCharsets.UTF_8);
             DatagramPacket outPacket = new DatagramPacket(outBuffer, outBuffer.length, socketAddress);
             socket.send(outPacket);
@@ -60,8 +62,8 @@ public class UDPClient implements ConnectionClient {
             socket.receive(inPacket);
             String response = new String(inPacket.getData(), 0, inPacket.getLength(), StandardCharsets.UTF_8);
             LOG.info("Packet received from {}", socketAddress);
+            LOG.debug("In packet\n{}", response);
             return response;
-
         } catch (SocketTimeoutException e) {
             LOG.error("Response timeout from {}", socketAddress, e);
             throw new ResponseTimeoutException(responseTimeout);
