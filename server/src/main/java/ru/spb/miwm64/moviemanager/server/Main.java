@@ -1,0 +1,30 @@
+package ru.spb.miwm64.moviemanager.server;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
+import ru.spb.miwm64.moviemanager.common.io.XMLParser;
+import ru.spb.miwm64.moviemanager.server.collectionmanager.BatchStreamCollectionManager;
+import ru.spb.miwm64.moviemanager.server.collectionmanager.StreamCollectionManager;
+import ru.spb.miwm64.moviemanager.server.net.UDPServer;
+
+public class Main {
+    public static void main(String[] args) {
+        Logger log = LoggerFactory.getLogger(Main.class);
+        XMLParser xmlParser = new XMLParser();
+        BatchStreamCollectionManager collectionManager = new BatchStreamCollectionManager();
+        UDPServer udpServer;
+        try {
+            log.info("Application started");
+            udpServer = new UDPServer(7878, collectionManager, xmlParser);
+            udpServer.run();
+        }
+        catch (IllegalStateException e) {
+            System.out.println("Set XML_LOAD environment variable");
+            log.error("Error: {}", e.getMessage());
+        }
+        catch (Exception e){
+            log.error("Error: {}", e.getMessage());
+        }
+    }
+}

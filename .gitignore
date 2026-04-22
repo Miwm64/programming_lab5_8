@@ -31,3 +31,8 @@ bin/
 .DS_Store
 
 inputs/
+build/
+**/*.jar
+logs/
+file.xml
+docker
