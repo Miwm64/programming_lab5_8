@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class SynchronizationThread extends Thread {
     private static final long NORMAL_SYNC_INTERVAL_MS = 15_000L;
@@ -25,6 +27,9 @@ public class SynchronizationThread extends Thread {
     private final PendingChangeQueue pendingChangeQueue;
     private final List<String> messages;
     private final BatchRemoteCollectionManager collectionManager;
+
+    private static final ReentrantLock mutex = new ReentrantLock();
+
 
     public SynchronizationThread(JsonRpcClient jsonRpcClient, PendingChangeQueue pendingChangeQueue,
                                  BatchRemoteCollectionManager collectionManager, List<String> messages) {
@@ -58,6 +63,7 @@ public class SynchronizationThread extends Thread {
     }
 
     private boolean sync() {
+        mutex.lock();
         LOG.info("Synchronization started");
         Batch localBatch = pendingChangeQueue.getBatch();
         try {
@@ -71,6 +77,7 @@ public class SynchronizationThread extends Thread {
             if (localBatch != null) {
                 pendingChangeQueue.removeFirstBatch();
             }
+
 
             if (serverBatch.messages != null && !serverBatch.messages.isEmpty()){
                 StringBuilder message = new StringBuilder("Server refused some local actions:\n");
@@ -88,6 +95,9 @@ public class SynchronizationThread extends Thread {
                 messages.add("Synchronization failed: " + e.getMessage());
             } catch (Exception ignored) {}
             return false;
+        }
+        finally {
+            mutex.unlock();
         }
     }
 

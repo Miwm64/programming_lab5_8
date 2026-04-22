@@ -15,29 +15,29 @@ public class PendingChangeQueue {
     private final ArrayList<Long> deletes = new ArrayList<>();
     private final LinkedList<Batch> batchArray = new LinkedList<>();
 
-    private final ReentrantLock mutex = new ReentrantLock();
+    private final static ReentrantLock mutex = new ReentrantLock();
 
     public Batch getBatch() {
         mutex.lock();
         try {
-            if (!batchArray.isEmpty()) {
-                return batchArray.get(0);
+            Batch res = getBatchImpl();
+            if (res != null) {
+                return res;
             }
-        } finally {
+            formBatch();
+            return getBatchImpl();
+        }
+        finally {
             mutex.unlock();
         }
+    }
 
-        formBatch();
 
-        mutex.lock();
-        try {
-            if (!batchArray.isEmpty()) {
-                return batchArray.get(0);
-            }
-            return null;
-        } finally {
-            mutex.unlock();
+    private Batch getBatchImpl(){
+        if (!batchArray.isEmpty()) {
+            return batchArray.get(0);
         }
+        return null;
     }
 
     private void formBatch() {
