@@ -9,10 +9,7 @@ import ru.spb.miwm64.moviemanager.server.collectionmanager.BatchStreamCollection
 import ru.spb.miwm64.moviemanager.server.collectionmanager.StreamCollectionManager;
 import ru.spb.miwm64.moviemanager.server.net.UDPServer;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 
 public class Main {
     public static void main(String[] args) {

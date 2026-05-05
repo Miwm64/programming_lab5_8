@@ -54,7 +54,7 @@ docker stop moviemanager-postgres
 docker rm moviemanager-postgres
 docker run --name moviemanager-postgres --env-file .env -p 5432:5432/tcp -d postgres:16
 docker restart moviemanager-postgres
-docker exec -it moviemanager-postgres /bin/bash
 
+docker exec -it  moviemanager-postgres psql -U name -d postgres
 then run create.sql
 ```
