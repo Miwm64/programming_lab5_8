@@ -1,14 +1,15 @@
-package ru.spb.miwm64.moviemanager.server.collectionmanager;
+package ru.spb.miwm64.moviemanager.server.db;
 
-import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
 import ru.spb.miwm64.moviemanager.common.entities.Movie;
 import ru.spb.miwm64.moviemanager.common.net.Batch;
 import ru.spb.miwm64.moviemanager.common.net.VersionedObject;
+import ru.spb.miwm64.moviemanager.server.collectionmanager.BatchCollectionManager;
 
 import java.util.ArrayList;
 import java.util.Map;
 
 public class DbBatchCollectionManager implements BatchCollectionManager {
+
     @Override
     public VersionedObject<Movie> add(VersionedObject<Movie> vm) {
         return null;

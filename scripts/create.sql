@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS person (
 
 CREATE TABLE IF NOT EXISTS movie (
     id BIGINT PRIMARY KEY DEFAULT nextval('movie_id_seq'),
+    version INTEGER,
     coord_x REAL CHECK (coord_x  <= 274),
     coord_y BIGINT NOT NULL CHECK (coord_y  > -559),
     name VARCHAR(255) NOT NULL CHECK (TRIM(name) <> ''),
@@ -36,7 +37,7 @@ CREATE TABLE IF NOT EXISTS movie (
     golden_palm_count BIGINT CHECK (golden_palm_count > 0),
     genre movie_genre,
     mpaa_rating mpaa_rating NOT NULL,
-    operator_id BIGINT REFERENCES person(id)
+    operator_id BIGINT REFERENCES person(id) ON DELETE CASCADE
     );
 
 

@@ -4,14 +4,22 @@ import org.postgresql.ds.PGSimpleDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
+import ru.spb.miwm64.moviemanager.common.entities.Coordinates;
+import ru.spb.miwm64.moviemanager.common.entities.Movie;
+import ru.spb.miwm64.moviemanager.common.entities.MovieGenre;
+import ru.spb.miwm64.moviemanager.common.entities.MpaaRating;
 import ru.spb.miwm64.moviemanager.common.io.XMLParser;
+import ru.spb.miwm64.moviemanager.common.net.VersionedObject;
 import ru.spb.miwm64.moviemanager.server.collectionmanager.BatchCollectionManager;
 import ru.spb.miwm64.moviemanager.server.collectionmanager.BatchStreamCollectionManager;
 import ru.spb.miwm64.moviemanager.server.collectionmanager.StreamCollectionManager;
+import ru.spb.miwm64.moviemanager.server.db.SQLRepository;
+import ru.spb.miwm64.moviemanager.server.io.DatabaseProvider;
 import ru.spb.miwm64.moviemanager.server.net.UDPServer;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.time.ZonedDateTime;
 
 public class Main {
     public static void main(String[] args) {
@@ -20,12 +28,15 @@ public class Main {
         BatchCollectionManager collectionManager = new BatchStreamCollectionManager();
         UDPServer udpServer;
 
-        String url = System.getenv("DB_URL");
-        String user = System.getenv("DB_USER");
-        String pass = System.getenv("DB_PASSWORD");
-
         try {
             DataSource dataSource = createDataSource();
+            DatabaseProvider databaseProvider = new DatabaseProvider(dataSource);
+            SQLRepository sql = new SQLRepository(databaseProvider);
+            databaseProvider.getConnection();
+            sql.insert(new VersionedObject<Movie>(1, new Movie(
+                    0l, "321", new Coordinates(1, 2l), ZonedDateTime.now(), 1, 1, MovieGenre.DRAMA, MpaaRating.PG_13, null)
+            ), 0l);
+
 
             log.info("Application started");
             udpServer = new UDPServer(7878, collectionManager, xmlParser);
@@ -43,10 +54,8 @@ public class Main {
     private static DataSource createDataSource() {
         PGSimpleDataSource ds = new PGSimpleDataSource();
         ds.setURL(System.getenv("DB_URL"));
-        ds.setDatabaseName(System.getenv("postgres"));
         ds.setUser(System.getenv("DB_USER"));
         ds.setPassword(System.getenv("DB_PASSWORD"));
-
         return ds;
     }
 }
