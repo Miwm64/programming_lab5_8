@@ -1,5 +1,6 @@
 package ru.spb.miwm64.moviemanager.server;
 
+import org.postgresql.ds.PGSimpleDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
@@ -9,6 +10,7 @@ import ru.spb.miwm64.moviemanager.server.collectionmanager.BatchStreamCollection
 import ru.spb.miwm64.moviemanager.server.collectionmanager.StreamCollectionManager;
 import ru.spb.miwm64.moviemanager.server.net.UDPServer;
 
+import javax.sql.DataSource;
 import java.sql.*;
 
 public class Main {
@@ -17,16 +19,14 @@ public class Main {
         XMLParser xmlParser = new XMLParser();
         BatchCollectionManager collectionManager = new BatchStreamCollectionManager();
         UDPServer udpServer;
-        String url;
-        String user;
-        String pass;
 
-        url = System.getenv("DB_URL");
-        user = System.getenv("DB_USER");
-        pass = System.getenv("DB_PASSWORD");
+        String url = System.getenv("DB_URL");
+        String user = System.getenv("DB_USER");
+        String pass = System.getenv("DB_PASSWORD");
 
         try {
-            Connection con = DriverManager.getConnection(url, user, pass);
+            DataSource dataSource = createDataSource();
+
             log.info("Application started");
             udpServer = new UDPServer(7878, collectionManager, xmlParser);
             udpServer.run();
@@ -38,5 +38,15 @@ public class Main {
         catch (Exception e){
             log.error("Error: {}", e.getMessage());
         }
+    }
+
+    private static DataSource createDataSource() {
+        PGSimpleDataSource ds = new PGSimpleDataSource();
+        ds.setURL(System.getenv("DB_URL"));
+        ds.setDatabaseName(System.getenv("postgres"));
+        ds.setUser(System.getenv("DB_USER"));
+        ds.setPassword(System.getenv("DB_PASSWORD"));
+
+        return ds;
     }
 }
