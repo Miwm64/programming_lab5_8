@@ -50,7 +50,6 @@ docker exec -it moviemanager-server /bin/sh
 DB
 ```
 docker pull postgres:16
-
 docker stop moviemanager-postgres
 docker rm moviemanager-postgres
 docker run --name moviemanager-postgres --env-file .env -p 5432:5432/tcp -d postgres:16
