@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.spb.miwm64.moviemanager.common.net.Batch;
 import ru.spb.miwm64.moviemanager.common.net.VersionedObject;
+import ru.spb.miwm64.moviemanager.server.collectionmanager.BatchCollectionManager;
 import ru.spb.miwm64.moviemanager.server.collectionmanager.BatchStreamCollectionManager;
 
 import java.time.LocalDateTime;
@@ -18,12 +19,12 @@ import java.util.*;
 
 public class RequestRouter {
     private final Map<String, Handler> handlers = new HashMap<>();
-    private final BatchStreamCollectionManager collectionManager;
+    private final BatchCollectionManager collectionManager;
     private final ObjectMapper mapper;
 
     private static final Logger LOG = LoggerFactory.getLogger(RequestRouter.class);
 
-    public RequestRouter(BatchStreamCollectionManager collectionManager, ObjectMapper mapper) {
+    public RequestRouter(BatchCollectionManager collectionManager, ObjectMapper mapper) {
         this.collectionManager = collectionManager;
         this.mapper = mapper;
         LOG.debug("Initializing RequestRouter");

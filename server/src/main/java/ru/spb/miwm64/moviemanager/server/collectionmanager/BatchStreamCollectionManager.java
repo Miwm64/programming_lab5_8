@@ -8,7 +8,7 @@ import ru.spb.miwm64.moviemanager.common.net.VersionedObject;
 import java.util.*;
 import java.util.stream.IntStream;
 
-public class BatchStreamCollectionManager {
+public class BatchStreamCollectionManager implements BatchCollectionManager{
     private final List<VersionedObject<Movie>> versionedMovies = new ArrayList<>();
     private final Map<Long, Boolean> currentIDs = new HashMap<>();
     private long lastAssignedId = 1L;

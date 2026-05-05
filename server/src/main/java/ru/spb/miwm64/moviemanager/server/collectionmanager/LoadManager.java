@@ -16,11 +16,11 @@ import java.util.Objects;
 public class LoadManager {
     private static final String ENV_VARIABLE = "XML_LOAD";
 
-    private final BatchStreamCollectionManager collectionManager;
+    private final BatchCollectionManager collectionManager;
     private final XMLParser xmlParser;
     private Logger log = LoggerFactory.getLogger(LoadManager.class);
 
-    public LoadManager(BatchStreamCollectionManager collectionManager, XMLParser xmlParser) {
+    public LoadManager(BatchCollectionManager collectionManager, XMLParser xmlParser) {
         this.collectionManager = Objects.requireNonNull(collectionManager);
         this.xmlParser = Objects.requireNonNull(xmlParser);
     }
