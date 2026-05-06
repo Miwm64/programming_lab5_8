@@ -36,3 +36,4 @@ build/
 logs/
 file.xml
 docker
+.env

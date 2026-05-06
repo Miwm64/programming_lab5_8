@@ -11,6 +11,7 @@ import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
 import ru.spb.miwm64.moviemanager.common.io.Reader;
 import ru.spb.miwm64.moviemanager.common.io.XMLParser;
 import ru.spb.miwm64.moviemanager.server.Main;
+import ru.spb.miwm64.moviemanager.server.collectionmanager.BatchCollectionManager;
 import ru.spb.miwm64.moviemanager.server.collectionmanager.BatchStreamCollectionManager;
 import ru.spb.miwm64.moviemanager.server.collectionmanager.LoadManager;
 import ru.spb.miwm64.moviemanager.server.io.NonBlockingConsoleReader;
@@ -34,7 +35,7 @@ public class UDPServer {
 
     private boolean running = true;
 
-    public UDPServer(int port, BatchStreamCollectionManager collectionManager, XMLParser xmlParser) throws IOException {
+    public UDPServer(int port, BatchCollectionManager collectionManager, XMLParser xmlParser) throws IOException {
 
         LOG.debug("Initializing UDPServer on port {}", port);
 

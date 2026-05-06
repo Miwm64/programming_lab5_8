@@ -1,4 +1,4 @@
-#Build
+Build
 
 Build all projects:
 ```bash
@@ -45,4 +45,16 @@ docker stop moviemanager-server
 docker rm moviemanager-server
 docker run -d -p 7878:7878/udp --name moviemanager-server moviemanager-server
 docker exec -it moviemanager-server /bin/sh
+```
+
+DB
+```
+docker pull postgres:16
+docker stop moviemanager-postgres
+docker rm moviemanager-postgres
+docker run --name moviemanager-postgres --env-file .env -p 5432:5432/tcp -d postgres:16
+docker restart moviemanager-postgres
+
+docker exec -it  moviemanager-postgres psql -U name -d postgres
+then run create.sql
 ```
