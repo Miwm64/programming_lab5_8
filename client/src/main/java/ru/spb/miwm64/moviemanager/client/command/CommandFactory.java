@@ -50,7 +50,7 @@ public final class CommandFactory {
         register("add_if_min", () -> new AddIfMinCommand(collectionManager));
         register("update_id", () -> new UpdateByIDCommand(collectionManager));
         register("remove_by_id", () -> new RemoveByIDCommand(collectionManager));
-        register("remove_at", () -> new RemoveByIndexCommand(collectionManager));
+        //register("remove_at", () -> new RemoveByIndexCommand(collectionManager));
         register("remove_greater", () -> new RemoveGreaterCommand(collectionManager));
         register("clear", () -> new ClearCommand(collectionManager));
 

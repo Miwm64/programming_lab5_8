@@ -12,6 +12,7 @@ import ru.spb.miwm64.moviemanager.common.io.XMLParser;
 import ru.spb.miwm64.moviemanager.common.net.VersionedObject;
 import ru.spb.miwm64.moviemanager.server.collectionmanager.BatchCollectionManager;
 import ru.spb.miwm64.moviemanager.server.collectionmanager.BatchStreamCollectionManager;
+import ru.spb.miwm64.moviemanager.server.collectionmanager.DbBatchCollectionManager;
 import ru.spb.miwm64.moviemanager.server.collectionmanager.StreamCollectionManager;
 import ru.spb.miwm64.moviemanager.server.db.SQLRepository;
 import ru.spb.miwm64.moviemanager.server.io.DatabaseProvider;
@@ -25,7 +26,6 @@ public class Main {
     public static void main(String[] args) {
         Logger log = LoggerFactory.getLogger(Main.class);
         XMLParser xmlParser = new XMLParser();
-        BatchCollectionManager collectionManager = new BatchStreamCollectionManager();
         UDPServer udpServer;
 
         try {
@@ -33,9 +33,10 @@ public class Main {
             DatabaseProvider databaseProvider = new DatabaseProvider(dataSource);
             SQLRepository sql = new SQLRepository(databaseProvider);
             databaseProvider.getConnection();
-            sql.insert(new VersionedObject<Movie>(1, new Movie(
-                    0l, "321", new Coordinates(1, 2l), ZonedDateTime.now(), 1, 1, MovieGenre.DRAMA, MpaaRating.PG_13, null)
-            ), 0l);
+            DbBatchCollectionManager collectionManager = new DbBatchCollectionManager(sql);
+//            sql.insert(new VersionedObject<Movie>(1, new Movie(
+//                    0l, "321", new Coordinates(1, 2l), ZonedDateTime.now(), 1, 1, MovieGenre.DRAMA, MpaaRating.PG_13, null)
+//            ));
 
 
             log.info("Application started");
