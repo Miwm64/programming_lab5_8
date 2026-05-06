@@ -34,10 +34,6 @@ public class Main {
             SQLRepository sql = new SQLRepository(databaseProvider);
             databaseProvider.getConnection();
             DbBatchCollectionManager collectionManager = new DbBatchCollectionManager(sql);
-//            sql.insert(new VersionedObject<Movie>(1, new Movie(
-//                    0l, "321", new Coordinates(1, 2l), ZonedDateTime.now(), 1, 1, MovieGenre.DRAMA, MpaaRating.PG_13, null)
-//            ));
-
 
             log.info("Application started");
             udpServer = new UDPServer(7878, collectionManager, xmlParser);
