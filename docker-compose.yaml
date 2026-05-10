@@ -24,3 +24,13 @@ services:
     volumes:
       - ./docker/db:/var/lib/postgresql/data
 
+  moviemanager-keycloack:
+    container_name: moviemanager-keycloack
+    image: quay.io/keycloak/keycloak:26.6.1
+    env_file: .env_keycloack
+    ports:
+      - "8989:8080"
+    volumes:
+      - ./docker/keycloack:/opt/keycloak/data
+    command:
+      - start-dev

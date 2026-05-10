@@ -27,7 +27,6 @@ public class Main {
 
     public static void main(String[] args) {
         Logger log = LoggerFactory.getLogger(Main.class);
-        log.info(System.getenv("XML_LOAD"));
         UDPServer udpServer;
 
         try {
