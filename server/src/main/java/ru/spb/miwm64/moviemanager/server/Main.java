@@ -23,19 +23,22 @@ import java.sql.*;
 import java.time.ZonedDateTime;
 
 public class Main {
+    private static final Logger log = LoggerFactory.getLogger(Main.class);
+
     public static void main(String[] args) {
         Logger log = LoggerFactory.getLogger(Main.class);
-        XMLParser xmlParser = new XMLParser();
+        log.info(System.getenv("XML_LOAD"));
         UDPServer udpServer;
 
         try {
+            XMLParser xmlParser = new XMLParser();
             DataSource dataSource = createDataSource();
             DatabaseProvider databaseProvider = new DatabaseProvider(dataSource);
             SQLRepository sql = new SQLRepository(databaseProvider);
             databaseProvider.getConnection();
             DbBatchCollectionManager collectionManager = new DbBatchCollectionManager(sql);
-
             log.info("Application started");
+
             udpServer = new UDPServer(7878, collectionManager, xmlParser);
             udpServer.run();
         }
