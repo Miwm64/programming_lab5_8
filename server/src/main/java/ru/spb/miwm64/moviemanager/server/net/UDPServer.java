@@ -31,12 +31,12 @@ public class UDPServer {
 
     private final AtomicBoolean running = new AtomicBoolean(true);
 
-    // Three fixed thread pools as required
+    // 3 thread pools
     private final ExecutorService readPool;
     private final ExecutorService processPool;
     private final ExecutorService writePool;
 
-    // TWO queues between THREE stages
+    // queues between thread pools
     private final BlockingQueue<ReceivedPacket> readQueue;
     private final BlockingQueue<ProcessedPacket> processQueue;
 
@@ -64,12 +64,10 @@ public class UDPServer {
         this.loadManager = new LoadManager(collectionManager, xmlParser);
         this.reader = new NonBlockingConsoleReader();
 
-        // Initialize thread pools
         this.readPool = Executors.newFixedThreadPool(READ_POOL_SIZE);
         this.processPool = Executors.newFixedThreadPool(PROCESS_POOL_SIZE);
         this.writePool = Executors.newFixedThreadPool(WRITE_POOL_SIZE);
 
-        // Initialize queues
         this.readQueue = new LinkedBlockingQueue<>();
         this.processQueue = new LinkedBlockingQueue<>();
 
@@ -84,15 +82,12 @@ public class UDPServer {
     public void run() {
         LOG.info("Server pipeline started");
 
-        // Start all three pipeline stages
         startReadStage();
         startProcessStage();
         startWriteStage();
 
-        // Main thread handles console commands
         handleConsoleLoop();
 
-        // Wait for all pools to finish
         shutdown();
     }
 
@@ -131,19 +126,17 @@ public class UDPServer {
                 Thread.currentThread().setName("Processor-" + Thread.currentThread().getId());
                 while (running.get()) {
                     try {
-                        ReceivedPacket packet = readQueue.poll(100, TimeUnit.MILLISECONDS);
+                        ReceivedPacket packet = readQueue.take();
                         if (packet == null) continue;
 
                         LOG.debug("Processing packet from {}", packet.client);
 
-                        // SYNCHRONIZED access to collection during processing
                         byte[] response;
                         synchronized (collectionManager) {
                             response = processor.process(packet.client, packet.buffer);
                         }
 
                         if (response != null) {
-                            // Put into Queue 2 (Process → Write)
                             processQueue.put(new ProcessedPacket(packet.client, response));
                             LOG.debug("Packet processed, queued for sending to {}", packet.client);
                         }
@@ -167,8 +160,7 @@ public class UDPServer {
                 Thread.currentThread().setName("Writer-" + Thread.currentThread().getId());
                 while (running.get()) {
                     try {
-                        // Take from Queue 2
-                        ProcessedPacket packet = processQueue.poll(100, TimeUnit.MILLISECONDS);
+                        ProcessedPacket packet = processQueue.take();
                         if (packet == null) continue;
 
                         transport.send(packet.client, packet.response);
@@ -230,7 +222,7 @@ public class UDPServer {
         LOG.info("Stopping server");
         running.set(false);
 
-        // Shutdown thread pools
+        // Shutdown
         readPool.shutdown();
         processPool.shutdown();
         writePool.shutdown();
@@ -240,7 +232,7 @@ public class UDPServer {
         LOG.info("Shutting down server...");
 
         try {
-            // Wait for thread pools to terminate
+            // Wait for pool shutdown
             if (!readPool.awaitTermination(5, TimeUnit.SECONDS)) {
                 readPool.shutdownNow();
             }

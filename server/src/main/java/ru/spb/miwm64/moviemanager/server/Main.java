@@ -31,11 +31,11 @@ public class Main {
 
         try {
             XMLParser xmlParser = new XMLParser();
-            DataSource dataSource = createDataSource();
-            DatabaseProvider databaseProvider = new DatabaseProvider(dataSource);
-            SQLRepository sql = new SQLRepository(databaseProvider);
-            databaseProvider.getConnection();
-            DbBatchCollectionManager collectionManager = new DbBatchCollectionManager(sql);
+//            DataSource dataSource = createDataSource();
+//            DatabaseProvider databaseProvider = new DatabaseProvider(dataSource);
+//            SQLRepository sql = new SQLRepository(databaseProvider);
+//            databaseProvider.getConnection();
+            BatchCollectionManager collectionManager = new BatchStreamCollectionManager();
             log.info("Application started");
 
             udpServer = new UDPServer(7878, collectionManager, xmlParser);
