@@ -35,7 +35,7 @@ public class Main {
             DatabaseProvider databaseProvider = new DatabaseProvider(dataSource);
             SQLRepository sql = new SQLRepository(databaseProvider);
             databaseProvider.getConnection();
-            BatchCollectionManager collectionManager = new BatchStreamCollectionManager(sql);
+            BatchCollectionManager collectionManager = new DbBatchCollectionManager(sql);
             log.info("Application started");
 
             udpServer = new UDPServer(7878, collectionManager, xmlParser);

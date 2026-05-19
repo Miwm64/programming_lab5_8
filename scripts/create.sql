@@ -43,3 +43,5 @@ CREATE TABLE IF NOT EXISTS movie (
 
 CREATE INDEX IF NOT EXISTS idx_movie_operator ON movie(operator_id);
 CREATE INDEX IF NOT EXISTS idx_movie_genre ON movie(genre);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_person
+    ON person(name, weight, hair_color, nationality);

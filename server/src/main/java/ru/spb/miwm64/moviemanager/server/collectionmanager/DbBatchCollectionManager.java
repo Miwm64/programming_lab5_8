@@ -15,11 +15,6 @@ public class DbBatchCollectionManager implements BatchCollectionManager {
 
     public DbBatchCollectionManager(SQLRepository repo) {
         this.repo = Objects.requireNonNull(repo);
-        try {
-            var vm = repo.findAllMovies();
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to load existing movies", e);
-        }
     }
 
     @Override
