@@ -12,19 +12,11 @@ import java.util.stream.IntStream;
 
 public class DbBatchCollectionManager implements BatchCollectionManager {
     private final SQLRepository repo;
-    private final Map<Long, Boolean> currentIDs = new HashMap<>();
-    private long lastAssignedId = 1L;
 
     public DbBatchCollectionManager(SQLRepository repo) {
         this.repo = Objects.requireNonNull(repo);
         try {
-            for (VersionedObject<Movie> vm : repo.findAllMovies()) {
-                Long id = vm.data.getId();
-                currentIDs.put(id, true);
-                if (id >= lastAssignedId) {
-                    lastAssignedId = id + 1;
-                }
-            }
+            var vm = repo.findAllMovies();
         } catch (SQLException e) {
             throw new RuntimeException("Failed to load existing movies", e);
         }
@@ -33,25 +25,22 @@ public class DbBatchCollectionManager implements BatchCollectionManager {
     @Override
     public VersionedObject<Movie> add(VersionedObject<Movie> vm) {
         Objects.requireNonNull(vm);
-
-        if (vm.data.getId() != null && vm.data.getId() > 0) {
-            if (currentIDs.containsKey(vm.data.getId())) {
-                throw new InvalidValueException("Movie id must be unique");
+        vm.version = 1;
+        if (!Objects.isNull(vm.data.getId()) && vm.data.getId() != 0) {
+            try {
+                if (!Objects.isNull(repo.findById(vm.data.getId()))) {
+                    throw new InvalidValueException("Movie id must be unique");
+                }
             }
-        } else {
-            while (currentIDs.containsKey(lastAssignedId)) {
-                lastAssignedId++;
+            catch (SQLException e) {
+                throw new RuntimeException("Failed to load existing movies", e);
             }
-            vm.data.setId(lastAssignedId);
-            currentIDs.put(lastAssignedId, true);
-            vm.version = 1;
         }
-
-        // Insert into DB
         try {
             repo.insert(vm);
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to add movie", e);
+        }
+        catch (SQLException e) {
+            throw new RuntimeException("Failed to insert movie " + vm, e);
         }
 
         return vm;
@@ -66,13 +55,6 @@ public class DbBatchCollectionManager implements BatchCollectionManager {
         }
     }
 
-    private int findIndexById(Long id) {
-        List<VersionedObject<Movie>> all = getAll();
-        return IntStream.range(0, all.size())
-                .filter(i -> Objects.equals(all.get(i).data.getId(), id))
-                .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("Movie with id " + id + " not found"));
-    }
 
     @Override
     public VersionedObject<Movie> getById(Long id) {
@@ -85,15 +67,6 @@ public class DbBatchCollectionManager implements BatchCollectionManager {
         } catch (SQLException e) {
             throw new RuntimeException("Failed to fetch movie", e);
         }
-    }
-
-    @Override
-    public VersionedObject<Movie> getByIndex(int index) {
-        List<VersionedObject<Movie>> all = getAll();
-        if (index < 0 || index >= all.size()) {
-            throw new InvalidValueException("Index out of bounds: " + index);
-        }
-        return all.get(index);
     }
 
     @Override
@@ -112,37 +85,16 @@ public class DbBatchCollectionManager implements BatchCollectionManager {
             if (!removed) {
                 throw new NoSuchElementException("Movie with id " + id + " not found");
             }
-            currentIDs.remove(id);
         } catch (SQLException e) {
             throw new RuntimeException("Failed to delete movie", e);
         }
     }
 
-    @Override
-    public void removeByIndex(int index) {
-        List<VersionedObject<Movie>> all = getAll();
-        if (index < 0 || index >= all.size()) {
-            throw new InvalidValueException("Index out of bounds: " + index);
-        }
-        Long id = all.get(index).data.getId();
-        removeById(id);
-    }
-
-    @Override
-    public void removeGreater(VersionedObject<Movie> threshold) {
-        Objects.requireNonNull(threshold);
-        List<VersionedObject<Movie>> all = getAll();
-        all.stream()
-                .filter(m -> m.compareTo(threshold) > 0)
-                .forEach(m -> removeById(m.data.getId()));
-    }
 
     @Override
     public void removeAll() {
         try {
             repo.clearAll();
-            currentIDs.clear();
-            lastAssignedId = 1L;
         } catch (SQLException e) {
             throw new RuntimeException("Failed to clear movies", e);
         }
