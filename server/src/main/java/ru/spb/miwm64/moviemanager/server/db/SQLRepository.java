@@ -15,105 +15,115 @@ public class SQLRepository {
         this.db = db;
     }
 
-    public void insert(VersionedObject<Movie> vo) throws SQLException {
-        Person operator = vo.data.getOperator();
+    private Long getOrCreatePerson(Person person, Connection conn) throws SQLException {
+        if (person == null) return null;
+
+        // First try to find existing person
+        String selectSql = "SELECT id FROM person WHERE name = ? AND weight = ? " +
+                "AND hair_color = ?::color AND nationality = ?::country";
+        try (PreparedStatement stmt = conn.prepareStatement(selectSql)) {
+            stmt.setString(1, person.getName());
+            stmt.setFloat(2, person.getWeight());
+            stmt.setString(3, person.getHairColor().name());
+            stmt.setString(4, person.getNationality().name());
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getLong(1);  // Found existing
+            }
+        }
+
+        // Insert new person if not exists
+        String insertSql = "INSERT INTO person (name, weight, hair_color, nationality) " +
+                "VALUES (?, ?, ?::color, ?::country) RETURNING id";
+        try (PreparedStatement stmt = conn.prepareStatement(insertSql)) {
+            stmt.setString(1, person.getName());
+            stmt.setFloat(2, person.getWeight());
+            stmt.setString(3, person.getHairColor().name());
+            stmt.setString(4, person.getNationality().name());
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getLong(1);
+            }
+        }
+
+        throw new SQLException("Failed to create or find person");
+    }
+
+    public void insert(VersionedObject<Movie> vm) throws SQLException {
+        Person operator = vm.data.getOperator();
         try (Connection conn = db.getConnection()) {
             conn.setAutoCommit(false);
+            try {
+                Long personId = getOrCreatePerson(operator, conn);  // Use lookup!
 
-            Long personId = null;
-            if (operator != null) {
-                String sql = "INSERT INTO person (name, weight, hair_color, nationality) VALUES (?, ?, ?::color, ?::country) RETURNING id";
+                String sql = "INSERT INTO movie (version, coord_x, coord_y, name, " +
+                        "creation_date, oscars_count, golden_palm_count, genre, " +
+                        "mpaa_rating, operator_id) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?::movie_genre, ?::mpaa_rating, ?)";
                 try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                    stmt.setString(1, operator.getName());
-                    stmt.setFloat(2, operator.getWeight());
-                    stmt.setString(3, operator.getHairColor().name());
-                    stmt.setString(4, operator.getNationality().name());
-                    ResultSet rs = stmt.executeQuery();
-                    if (rs.next()) personId = rs.getLong(1);
+                    stmt.setInt(1, vm.version);
+                    stmt.setFloat(2, vm.data.getCoordinates().getX());
+                    stmt.setLong(3, vm.data.getCoordinates().getY());
+                    stmt.setString(4, vm.data.getName());
+                    stmt.setTimestamp(5, Timestamp.from(vm.data.getCreationDate().toInstant()));
+                    stmt.setInt(6, vm.data.getOscarsCount());
+                    stmt.setLong(7, vm.data.getGoldenPalmCount());
+                    stmt.setString(8, vm.data.getGenre() != null ? vm.data.getGenre().name() : null);
+                    stmt.setString(9, vm.data.getMpaaRating().name());
+                    stmt.setObject(10, personId);
+                    stmt.executeUpdate();
                 }
-            }
 
-            String sql = "INSERT INTO movie (version, coord_x, coord_y, name, creation_date, oscars_count, golden_palm_count, genre, mpaa_rating, operator_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?::movie_genre, ?::mpaa_rating, ?)";
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setInt(1, vo.version);
-                stmt.setFloat(2, vo.data.getCoordinates().getX());
-                stmt.setLong(3, vo.data.getCoordinates().getY());
-                stmt.setString(4, vo.data.getName());
-                stmt.setTimestamp(5, Timestamp.from(vo.data.getCreationDate().toInstant()));
-                stmt.setInt(6, vo.data.getOscarsCount());
-                stmt.setLong(7, vo.data.getGoldenPalmCount());
-                stmt.setString(8, vo.data.getGenre() != null ? vo.data.getGenre().name() : null);
-                stmt.setString(9, vo.data.getMpaaRating().name());
-                stmt.setObject(10, personId);
-                stmt.executeUpdate();
+                conn.commit();
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
             }
-
-            conn.commit();
         }
     }
+
 
     public void updateById(VersionedObject<Movie> vo, Person operator) throws SQLException {
         Long movieId = vo.data.getId();
         try (Connection conn = db.getConnection()) {
             conn.setAutoCommit(false);
+            try {
+                // Get new person ID (or existing)
+                Long newPersonId = getOrCreatePerson(operator, conn);
 
-            // Get old operator
-            Long oldPersonId = null;
-            String selectSql = "SELECT operator_id FROM movie WHERE id = ?";
-            try (PreparedStatement stmt = conn.prepareStatement(selectSql)) {
-                stmt.setLong(1, movieId);
-                ResultSet rs = stmt.executeQuery();
-                if (rs.next()) {
-                    long id = rs.getLong("operator_id");
-                    if (!rs.wasNull()) oldPersonId = id;
-                }
-            }
-
-            // Insert new operator FIRST
-            Long newPersonId = null;
-            if (operator != null) {
-                String sql = "INSERT INTO person (name, weight, hair_color, nationality) VALUES (?, ?, ?::color, ?::country) RETURNING id";
+                // Update movie - NO DELETION of old person!
+                String sql = "UPDATE movie SET version = ?, coord_x = ?, coord_y = ?, " +
+                        "name = ?, creation_date = ?, oscars_count = ?, " +
+                        "golden_palm_count = ?, genre = ?::movie_genre, " +
+                        "mpaa_rating = ?::mpaa_rating, operator_id = ? WHERE id = ?";
                 try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                    stmt.setString(1, operator.getName());
-                    stmt.setFloat(2, operator.getWeight());
-                    stmt.setString(3, operator.getHairColor().name());
-                    stmt.setString(4, operator.getNationality().name());
-                    ResultSet rs = stmt.executeQuery();
-                    if (rs.next()) newPersonId = rs.getLong(1);
-                }
-            }
-
-            // Update movie
-            String sql = "UPDATE movie SET version = ?, coord_x = ?, coord_y = ?, name = ?, creation_date = ?, oscars_count = ?, golden_palm_count = ?, genre = ?::movie_genre, mpaa_rating = ?::mpaa_rating, operator_id = ? WHERE id = ?";
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setInt(1, vo.version);
-                stmt.setFloat(2, vo.data.getCoordinates().getX());
-                stmt.setLong(3, vo.data.getCoordinates().getY());
-                stmt.setString(4, vo.data.getName());
-                stmt.setTimestamp(5, Timestamp.from(vo.data.getCreationDate().toInstant()));
-                stmt.setInt(6, vo.data.getOscarsCount());
-                stmt.setLong(7, vo.data.getGoldenPalmCount());
-                stmt.setString(8, vo.data.getGenre() != null ? vo.data.getGenre().name() : null);
-                stmt.setString(9, vo.data.getMpaaRating().name());
-                stmt.setObject(10, newPersonId);
-                stmt.setLong(11, movieId);
-                stmt.executeUpdate();
-            }
-
-            // ONLY delete old operator AFTER successful update
-            if (oldPersonId != null) {
-                try (PreparedStatement stmt = conn.prepareStatement("DELETE FROM person WHERE id = ?")) {
-                    stmt.setLong(1, oldPersonId);
+                    stmt.setInt(1, vo.version);
+                    stmt.setFloat(2, vo.data.getCoordinates().getX());
+                    stmt.setLong(3, vo.data.getCoordinates().getY());
+                    stmt.setString(4, vo.data.getName());
+                    stmt.setTimestamp(5, Timestamp.from(vo.data.getCreationDate().toInstant()));
+                    stmt.setInt(6, vo.data.getOscarsCount());
+                    stmt.setLong(7, vo.data.getGoldenPalmCount());
+                    stmt.setString(8, vo.data.getGenre() != null ? vo.data.getGenre().name() : null);
+                    stmt.setString(9, vo.data.getMpaaRating().name());
+                    stmt.setObject(10, newPersonId);
+                    stmt.setLong(11, movieId);
                     stmt.executeUpdate();
                 }
-            }
 
-            conn.commit();
+                conn.commit();
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            }
         }
     }
 
+
     public boolean deleteById(Long id) throws SQLException {
-        try (Connection conn = db.getConnection()) {
+        Connection conn = null;
+        try  {
+            conn = db.getConnection();
             conn.setAutoCommit(false);
 
             // Get operator
@@ -146,10 +156,17 @@ public class SQLRepository {
             conn.commit();
             return deleted;
         }
+        catch (SQLException e) {
+            if (conn != null) {
+                conn.rollback();
+            }
+            throw e;
+        }
     }
 
     public VersionedObject<Movie> findById(Long id) throws SQLException {
-        String sql = "SELECT m.*, p.name as p_name, p.weight as p_weight, p.hair_color as p_hair, p.nationality as p_nat FROM movie m LEFT JOIN person p ON m.operator_id = p.id WHERE m.id = ?";
+        String sql = "SELECT m.*, p.name as p_name, p.weight as p_weight, p.hair_color as p_hair, p.nationality as p_nat " +
+                "FROM movie m LEFT JOIN person p ON m.operator_id = p.id WHERE m.id = ?";
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setLong(1, id);
@@ -162,7 +179,8 @@ public class SQLRepository {
     }
 
     public List<VersionedObject<Movie>> findAllMovies() throws SQLException {
-        String sql = "SELECT m.*, p.name as p_name, p.weight as p_weight, p.hair_color as p_hair, p.nationality as p_nat FROM movie m LEFT JOIN person p ON m.operator_id = p.id ORDER BY m.name, m.id";
+        String sql = "SELECT m.*, p.name as p_name, p.weight as p_weight, p.hair_color as p_hair, p.nationality as p_nat " +
+                "FROM movie m LEFT JOIN person p ON m.operator_id = p.id ORDER BY m.name, m.id";
         List<VersionedObject<Movie>> list = new ArrayList<>();
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -175,13 +193,21 @@ public class SQLRepository {
     }
 
     public void clearAll() throws SQLException {
-        try (Connection conn = db.getConnection()) {
-            try (PreparedStatement stmt = conn.prepareStatement("DELETE FROM movie")) {
-                stmt.executeUpdate();
-            }
+        Connection conn = null;
+        try  {
+            conn = db.getConnection();
+            conn.setAutoCommit(false);
             try (PreparedStatement stmt = conn.prepareStatement("DELETE FROM person")) {
                 stmt.executeUpdate();
             }
+            try (PreparedStatement stmt = conn.prepareStatement("DELETE FROM movie")) {
+                stmt.executeUpdate();
+            }
+            conn.commit();
+        }
+        catch (SQLException e) {
+            conn.rollback();
+            throw e;
         }
     }
 

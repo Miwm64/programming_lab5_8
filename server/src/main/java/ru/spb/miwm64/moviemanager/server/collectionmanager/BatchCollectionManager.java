@@ -15,15 +15,9 @@ public interface BatchCollectionManager {
 
     VersionedObject<Movie> getById(Long id);
 
-    VersionedObject<Movie> getByIndex(int index);
-
     ArrayList<VersionedObject<Movie>> getAll();
 
     void removeById(Long id);
-
-    void removeByIndex(int index);
-
-    void removeGreater(VersionedObject<Movie> vm);
 
     void removeAll();
 

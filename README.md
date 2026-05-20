@@ -53,3 +53,8 @@ Postgres create tables
 ```
 psql -U miwm64 -d postgres
 ```
+
+Attach to docker compose
+```
+docker-compose run --service-ports moviemanager-server
+```
