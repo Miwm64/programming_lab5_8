@@ -14,6 +14,7 @@ public class JsonRpcRequest {
     public String method;
     public JsonNode params;
     public UUID uuid;
+    public static String token;
 
     public JsonRpcRequest(){}
 
