@@ -1,7 +1,10 @@
 package ru.spb.miwm64.moviemanager.server.keycloak;
 
 public class KeycloakService implements UserAuthService{
-    public KeycloakService(){}
+    private final KeycloakConfig keycloakConfig;
+    public KeycloakService(KeycloakConfig config) {
+        this.keycloakConfig = config;
+    }
 
 
     @Override
