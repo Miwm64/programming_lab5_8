@@ -8,6 +8,7 @@ import ru.spb.miwm64.moviemanager.client.collectionmanager.BatchRemoteCollection
 import ru.spb.miwm64.moviemanager.client.net.JsonRpcClient;
 import ru.spb.miwm64.moviemanager.common.io.Writer;
 import ru.spb.miwm64.moviemanager.common.net.Batch;
+import ru.spb.miwm64.moviemanager.common.net.JsonRpcRequest;
 
 import java.util.HashMap;
 import java.util.List;
@@ -64,9 +65,13 @@ public class SynchronizationThread extends Thread {
 
     private boolean sync() {
         mutex.lock();
-        LOG.info("Synchronization started");
-        Batch localBatch = pendingChangeQueue.getBatch();
         try {
+            if (JsonRpcRequest.token == null || JsonRpcRequest.token.isEmpty()) {
+                messages.add("You need to login first");
+                return true;
+            }
+            LOG.info("Synchronization started");
+            Batch localBatch = pendingChangeQueue.getBatch();
             Map<String, Object> syncRequest = new HashMap<>();
             syncRequest.put("pendingBatch", localBatch);
             syncRequest.put("clientVersions", collectionManager.getVersionMap());
