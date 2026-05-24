@@ -62,6 +62,10 @@ public class RequestRouter {
             return userAuthService.login(userName, password);
         });
 
+        handlers.put("deleteUser", (JsonNode params, String token) -> {
+            return userAuthService.deleteUser(userAuthService.getUserIdFromToken(token), token);
+        });
+
         handlers.put("sync", (JsonNode params, String token) -> {
             JsonNode pendingNode = params.get("pendingBatch");
             Batch pendingBatch = (pendingNode == null || pendingNode.isNull())

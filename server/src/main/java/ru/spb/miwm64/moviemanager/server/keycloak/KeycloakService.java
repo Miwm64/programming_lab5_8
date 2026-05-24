@@ -81,12 +81,13 @@ public class KeycloakService implements UserAuthService {
 
     // ---------- Delete User ----------
     @Override
-    public void deleteUser(String userId, String token) {
+    public boolean deleteUser(String userId, String token) {
         String adminToken = getAdminToken();
         String path = String.format("/admin/realms/%s/users/%s", config.targetRealmName, userId);
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Bearer " + adminToken);
         http.delete(path, headers);
+        return true;
     }
 
     // ---------- Update User Info ----------
