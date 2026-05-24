@@ -43,7 +43,7 @@ public class KeycloakService implements UserAuthService {
 
         // Build JSON with Jackson
         ObjectNode userJson = mapper.createObjectNode();
-        userJson.put("username", userInfo.userName);
+        userJson.put("username", userInfo.username);
         userJson.put("email", userInfo.email);
         userJson.put("firstName", userInfo.firstName);
         userJson.put("lastName", userInfo.lastName);
@@ -59,7 +59,7 @@ public class KeycloakService implements UserAuthService {
         http.post(path, userJson.toString(), headers);
 
         // Fetch the created user's ID by username
-        return getUserIdByUsername(userInfo.userName);
+        return getUserIdByUsername(userInfo.username);
     }
 
     private String getUserIdByUsername(String username) {
@@ -101,7 +101,7 @@ public class KeycloakService implements UserAuthService {
         try {
             JsonNode existing = mapper.readTree(existingJson);
             ObjectNode update = existing.deepCopy();
-            if (userInfo.userName != null) update.put("username", userInfo.userName);
+            if (userInfo.username != null) update.put("username", userInfo.username);
             if (userInfo.email != null) update.put("email", userInfo.email);
             if (userInfo.firstName != null) update.put("firstName", userInfo.firstName);
             if (userInfo.lastName != null) update.put("lastName", userInfo.lastName);
@@ -121,7 +121,7 @@ public class KeycloakService implements UserAuthService {
         if (userInfo.userId != null && !userInfo.userId.isEmpty()) {
             path = String.format("/admin/realms/%s/users/%s", config.targetRealmName, userInfo.userId);
         } else {
-            path = String.format("/admin/realms/%s/users?username=%s&exact=true", config.targetRealmName, userInfo.userName);
+            path = String.format("/admin/realms/%s/users?username=%s&exact=true", config.targetRealmName, userInfo.username);
         }
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Bearer " + adminToken);
@@ -135,12 +135,12 @@ public class KeycloakService implements UserAuthService {
                 if (arr.isArray() && arr.size() > 0) {
                     node = arr.get(0);
                 } else {
-                    throw new RuntimeException("User not found: " + userInfo.userName);
+                    throw new RuntimeException("User not found: " + userInfo.username);
                 }
             }
             UserInfo result = new UserInfo();
             result.userId = node.path("id").asText(null);
-            result.userName = node.path("username").asText(null);
+            result.username = node.path("username").asText(null);
             result.email = node.path("email").asText(null);
             result.firstName = node.path("firstName").asText(null);
             result.lastName = node.path("lastName").asText(null);

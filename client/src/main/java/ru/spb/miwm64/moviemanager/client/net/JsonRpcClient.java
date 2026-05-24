@@ -59,12 +59,12 @@ public class JsonRpcClient {
             JsonRpcResponse<T> response = objectMapper.readValue(responseJson, type);
             ++nextId;
 
-            if (!Objects.equals(request.id, response.id)) {
-                throw new WrongPacketException();
-            }
-            if (!Objects.equals(request.uuid, response.uuid)) {
-                throw new WrongPacketException();
-            }
+//            if (!Objects.equals(request.id, response.id)) {
+//                throw new WrongPacketException();
+//            }
+//            if (!Objects.equals(request.uuid, response.uuid)) {
+//                throw new WrongPacketException();
+//            }
 
             if (response.error != null) {
                 LOG.error("JSON-RPC call '{}' failed with error: {}", method, response.error.message);

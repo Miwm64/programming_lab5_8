@@ -42,15 +42,23 @@ public class RequestRouter {
         LOG.debug("Registering handlers");
         handlers.put("register", params -> {
             JsonNode pendingNode = params.get("params");
-            UserInfo userInfo = (pendingNode == null || pendingNode.isNull())
-                    ? null
-                    : mapper.treeToValue(pendingNode.get("userInfo"), UserInfo.class);
-
+            String username = params.get("username").asText();
             String password = params.get("password").asText();
+            String email = params.get("email").asText();
+            String firstName = params.get("firstName").asText();
+            String lastName = params.get("lastName").asText();
+
+            UserInfo userInfo = new UserInfo();
+            userInfo.userId = null; // will be generated
+            userInfo.username = username;
+            userInfo.email = email;
+            userInfo.firstName = firstName;
+            userInfo.lastName = lastName;
+
             return userAuthService.createUser(userInfo, password);
         });
         handlers.put("login", params -> {
-            String userName = params.get("userName").asText();
+            String userName = params.get("username").asText();
             String password = params.get("password").asText();
             return userAuthService.login(userName, password);
         });
