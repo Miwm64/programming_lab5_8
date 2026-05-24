@@ -10,6 +10,9 @@ import java.util.*;
 
 public class SQLRepository {
     private final DatabaseProvider db;
+    // Match PostgreSQL enum access_level values (lowercase)
+    private static final String ACCESS_OWNER = "owner";
+    private static final String ACCESS_EDIT = "edit";
 
     public SQLRepository(DatabaseProvider db) {
         this.db = db;
@@ -18,7 +21,6 @@ public class SQLRepository {
     private Long getOrCreatePerson(Person person, Connection conn) throws SQLException {
         if (person == null) return null;
 
-        // First try to find existing person
         String selectSql = "SELECT id FROM person WHERE name = ? AND weight = ? " +
                 "AND hair_color = ?::color AND nationality = ?::country";
         try (PreparedStatement stmt = conn.prepareStatement(selectSql)) {
@@ -28,11 +30,10 @@ public class SQLRepository {
             stmt.setString(4, person.getNationality().name());
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                return rs.getLong(1);  // Found existing
+                return rs.getLong(1);
             }
         }
 
-        // Insert new person if not exists
         String insertSql = "INSERT INTO person (name, weight, hair_color, nationality) " +
                 "VALUES (?, ?, ?::color, ?::country) RETURNING id";
         try (PreparedStatement stmt = conn.prepareStatement(insertSql)) {
@@ -45,22 +46,23 @@ public class SQLRepository {
                 return rs.getLong(1);
             }
         }
-
         throw new SQLException("Failed to create or find person");
     }
 
-    public void insert(VersionedObject<Movie> vm) throws SQLException {
+    // Insert movie with owner access for the given userId
+    public void insert(VersionedObject<Movie> vm, String userId) throws SQLException {
         Person operator = vm.data.getOperator();
         try (Connection conn = db.getConnection()) {
             conn.setAutoCommit(false);
             try {
-                Long personId = getOrCreatePerson(operator, conn);  // Use lookup!
+                Long personId = getOrCreatePerson(operator, conn);
 
                 String sql = "INSERT INTO movie (version, coord_x, coord_y, name, " +
                         "creation_date, oscars_count, golden_palm_count, genre, " +
                         "mpaa_rating, operator_id) " +
                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?::movie_genre, ?::mpaa_rating, ?)";
-                try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                long movieId;
+                try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                     stmt.setInt(1, vm.version);
                     stmt.setFloat(2, vm.data.getCoordinates().getX());
                     stmt.setLong(3, vm.data.getCoordinates().getY());
@@ -72,7 +74,16 @@ public class SQLRepository {
                     stmt.setString(9, vm.data.getMpaaRating().name());
                     stmt.setObject(10, personId);
                     stmt.executeUpdate();
+                    ResultSet keys = stmt.getGeneratedKeys();
+                    if (keys.next()) {
+                        movieId = keys.getLong(1);
+                    } else {
+                        throw new SQLException("Failed to get generated movie id");
+                    }
                 }
+
+                // Grant owner access to the creating user (lowercase)
+                grantAccess(conn, movieId, userId, ACCESS_OWNER);
 
                 conn.commit();
             } catch (SQLException e) {
@@ -82,16 +93,16 @@ public class SQLRepository {
         }
     }
 
-
-    public void updateById(VersionedObject<Movie> vo, Person operator) throws SQLException {
+    // Update: requires at least EDIT access
+    public void updateById(VersionedObject<Movie> vo, Person operator, String userId) throws SQLException {
         Long movieId = vo.data.getId();
         try (Connection conn = db.getConnection()) {
             conn.setAutoCommit(false);
             try {
-                // Get new person ID (or existing)
-                Long newPersonId = getOrCreatePerson(operator, conn);
+                // Check access (owner or edit)
+                checkAccess(conn, movieId, userId, ACCESS_EDIT);
 
-                // Update movie - NO DELETION of old person!
+                Long newPersonId = getOrCreatePerson(operator, conn);
                 String sql = "UPDATE movie SET version = ?, coord_x = ?, coord_y = ?, " +
                         "name = ?, creation_date = ?, oscars_count = ?, " +
                         "golden_palm_count = ?, genre = ?::movie_genre, " +
@@ -110,7 +121,6 @@ public class SQLRepository {
                     stmt.setLong(11, movieId);
                     stmt.executeUpdate();
                 }
-
                 conn.commit();
             } catch (SQLException e) {
                 conn.rollback();
@@ -119,14 +129,17 @@ public class SQLRepository {
         }
     }
 
-
-    public boolean deleteById(Long id) throws SQLException {
+    // Delete: only OWNER can delete
+    public boolean deleteById(Long id, String userId) throws SQLException {
         Connection conn = null;
-        try  {
+        try {
             conn = db.getConnection();
             conn.setAutoCommit(false);
 
-            // Get operator
+            // Check owner access
+            checkAccess(conn, id, userId, ACCESS_OWNER);
+
+            // Get operator id for possible person cleanup
             Long personId = null;
             String selectSql = "SELECT operator_id FROM movie WHERE id = ?";
             try (PreparedStatement stmt = conn.prepareStatement(selectSql)) {
@@ -138,32 +151,38 @@ public class SQLRepository {
                 }
             }
 
+            // Delete access records first (foreign key)
+            try (PreparedStatement stmt = conn.prepareStatement("DELETE FROM user_movie_access WHERE movie_id = ?")) {
+                stmt.setLong(1, id);
+                stmt.executeUpdate();
+            }
+
             // Delete movie
-            boolean deleted = false;
+            boolean deleted;
             try (PreparedStatement stmt = conn.prepareStatement("DELETE FROM movie WHERE id = ?")) {
                 stmt.setLong(1, id);
                 deleted = stmt.executeUpdate() == 1;
             }
 
-            // Delete operator
+            // Clean up person if no other movies reference it
             if (deleted && personId != null) {
-                try (PreparedStatement stmt = conn.prepareStatement("DELETE FROM person WHERE id = ?")) {
+                try (PreparedStatement stmt = conn.prepareStatement(
+                        "DELETE FROM person WHERE id = ? AND NOT EXISTS (SELECT 1 FROM movie WHERE operator_id = ?)")) {
                     stmt.setLong(1, personId);
+                    stmt.setLong(2, personId);
                     stmt.executeUpdate();
                 }
             }
 
             conn.commit();
             return deleted;
-        }
-        catch (SQLException e) {
-            if (conn != null) {
-                conn.rollback();
-            }
+        } catch (SQLException e) {
+            if (conn != null) conn.rollback();
             throw e;
         }
     }
 
+    // Find by id – no access check (public read)
     public VersionedObject<Movie> findById(Long id) throws SQLException {
         String sql = "SELECT m.*, p.name as p_name, p.weight as p_weight, p.hair_color as p_hair, p.nationality as p_nat " +
                 "FROM movie m LEFT JOIN person p ON m.operator_id = p.id WHERE m.id = ?";
@@ -178,6 +197,7 @@ public class SQLRepository {
         }
     }
 
+    // Find all movies – no access check (public read)
     public List<VersionedObject<Movie>> findAllMovies() throws SQLException {
         String sql = "SELECT m.*, p.name as p_name, p.weight as p_weight, p.hair_color as p_hair, p.nationality as p_nat " +
                 "FROM movie m LEFT JOIN person p ON m.operator_id = p.id ORDER BY m.name, m.id";
@@ -192,22 +212,71 @@ public class SQLRepository {
         return list;
     }
 
+    // Clear all movies and persons (admin only – no access check)
     public void clearAll() throws SQLException {
-        Connection conn = null;
-        try  {
-            conn = db.getConnection();
+        try (Connection conn = db.getConnection()) {
             conn.setAutoCommit(false);
-            try (PreparedStatement stmt = conn.prepareStatement("DELETE FROM person")) {
+            try (PreparedStatement stmt = conn.prepareStatement("DELETE FROM user_movie_access")) {
                 stmt.executeUpdate();
             }
             try (PreparedStatement stmt = conn.prepareStatement("DELETE FROM movie")) {
                 stmt.executeUpdate();
             }
+            try (PreparedStatement stmt = conn.prepareStatement("DELETE FROM person")) {
+                stmt.executeUpdate();
+            }
             conn.commit();
         }
-        catch (SQLException e) {
-            conn.rollback();
-            throw e;
+    }
+
+    // Grant access to a user for a movie (owner or edit)
+    public void grantAccess(long movieId, String userId, String accessLevel) throws SQLException {
+        try (Connection conn = db.getConnection()) {
+            grantAccess(conn, movieId, userId, accessLevel);
+        }
+    }
+
+    private void grantAccess(Connection conn, long movieId, String userId, String accessLevel) throws SQLException {
+        String sql = "INSERT INTO user_movie_access (movie_id, user_id, access) VALUES (?, ?, ?::access_level) " +
+                "ON CONFLICT (movie_id, user_id) DO UPDATE SET access = EXCLUDED.access";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, movieId);
+            stmt.setString(2, userId);
+            stmt.setString(3, accessLevel);
+            stmt.executeUpdate();
+        }
+    }
+
+    // Revoke all access for a user on a movie
+    public void revokeAccess(long movieId, String userId) throws SQLException {
+        try (Connection conn = db.getConnection()) {
+            String sql = "DELETE FROM user_movie_access WHERE movie_id = ? AND user_id = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setLong(1, movieId);
+                stmt.setString(2, userId);
+                stmt.executeUpdate();
+            }
+        }
+    }
+
+    // Helper: check if user has at least required access (owner or edit) – throws if not
+    private void checkAccess(Connection conn, long movieId, String userId, String requiredLevel) throws SQLException {
+        String sql = "SELECT access FROM user_movie_access WHERE movie_id = ? AND user_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, movieId);
+            stmt.setString(2, userId);
+            ResultSet rs = stmt.executeQuery();
+            if (!rs.next()) {
+                throw new SQLException("Access denied: no access record for user " + userId + " on movie " + movieId);
+            }
+            String access = rs.getString("access");
+            if (requiredLevel.equals(ACCESS_OWNER) && !ACCESS_OWNER.equals(access)) {
+                throw new SQLException("Access denied: " + requiredLevel + " required, but user has " + access);
+            }
+            // For EDIT, both owner and edit are acceptable
+            if (requiredLevel.equals(ACCESS_EDIT) && !(ACCESS_OWNER.equals(access) || ACCESS_EDIT.equals(access))) {
+                throw new SQLException("Access denied: " + requiredLevel + " required, but user has " + access);
+            }
         }
     }
 
@@ -231,7 +300,6 @@ public class SQLRepository {
             p.setNationality(Country.valueOf(rs.getString("p_nat")));
             m.setOperator(p);
         }
-
         return new VersionedObject<>(rs.getInt("version"), m);
     }
 }

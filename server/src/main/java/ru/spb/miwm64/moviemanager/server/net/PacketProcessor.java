@@ -59,7 +59,7 @@ public class PacketProcessor {
             LOG.info("Processing request id={} method={}", id, request.method);
 
             // This will be synchronized by the caller
-            Object result = handler.route(request.method, request.params);
+            Object result = handler.route(request.method, request.params, request.getToken());
 
             // Store in cache
             JsonRpcResponse<Object> response = new JsonRpcResponse<>();

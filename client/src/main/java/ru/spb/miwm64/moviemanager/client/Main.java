@@ -36,13 +36,13 @@ public class Main {
         Writer writer = new ConsoleWriter();
         List<String> messages = Collections.synchronizedList(new ArrayList<String>());
 
-//        Synchronization Thread thread = new SynchronizationThread(jsonRpcClient, queue, collectionManager, messages);
-//        thread.start();
+        SynchronizationThread thread = new SynchronizationThread(jsonRpcClient, queue, collectionManager, messages);
+        thread.start();
 
         var mainController = new MainController(collectionManager, reader, writer, xmlParser, messages, jsonRpcClient);
         mainController.run();
 
-//        thread.gracefulShutdown();
+        thread.gracefulShutdown();
         return;
     }
 }

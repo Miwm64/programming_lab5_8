@@ -40,8 +40,7 @@ public class RequestRouter {
 
     private void registerHandlers() {
         LOG.debug("Registering handlers");
-        handlers.put("register", params -> {
-            JsonNode pendingNode = params.get("params");
+        handlers.put("register", (JsonNode params, String token) -> {
             String username = params.get("username").asText();
             String password = params.get("password").asText();
             String email = params.get("email").asText();
@@ -49,7 +48,7 @@ public class RequestRouter {
             String lastName = params.get("lastName").asText();
 
             UserInfo userInfo = new UserInfo();
-            userInfo.userId = null; // will be generated
+            userInfo.userId = null;
             userInfo.username = username;
             userInfo.email = email;
             userInfo.firstName = firstName;
@@ -57,13 +56,13 @@ public class RequestRouter {
 
             return userAuthService.createUser(userInfo, password);
         });
-        handlers.put("login", params -> {
+        handlers.put("login", (JsonNode params, String token) -> {
             String userName = params.get("username").asText();
             String password = params.get("password").asText();
             return userAuthService.login(userName, password);
         });
 
-        handlers.put("sync", params -> {
+        handlers.put("sync", (JsonNode params, String token) -> {
             JsonNode pendingNode = params.get("pendingBatch");
             Batch pendingBatch = (pendingNode == null || pendingNode.isNull())
                     ? null
@@ -78,13 +77,18 @@ public class RequestRouter {
                     clientVersions.put(Long.parseLong(entry.getKey()), entry.getValue().asInt());
                 }
             }
-            return collectionManager.applyBatch(pendingBatch, clientVersions, "");
+            return collectionManager.applyBatch(pendingBatch, clientVersions,
+                    userAuthService.getUserIdFromToken(token));
         });
 
         LOG.debug("Handlers registered: {}", handlers.keySet());
     }
 
-    public Object route(String method, JsonNode params) throws Exception {
+    public Object route(String method, JsonNode params, String token) throws Exception {
+        boolean isTokenValid = userAuthService.validateToken(token);
+        if (!isTokenValid && !method.equals("register") && !method.equals("login")) {
+            throw new RuntimeException("Invalid token");
+        }
         Handler handler = handlers.get(method);
         if (handler == null) {
             LOG.error("Unknown method requested: {}", method);
@@ -92,7 +96,7 @@ public class RequestRouter {
         }
 
         try {
-            Object result = handler.handle(params);
+            Object result = handler.handle(params, token);
             LOG.debug("Method executed successfully: {}", method);
             return result;
         } catch (Exception e) {
@@ -103,6 +107,6 @@ public class RequestRouter {
 
     @FunctionalInterface
     public interface Handler {
-        Object handle(JsonNode params) throws Exception;
+        Object handle(JsonNode params, String token) throws Exception;
     }
 }

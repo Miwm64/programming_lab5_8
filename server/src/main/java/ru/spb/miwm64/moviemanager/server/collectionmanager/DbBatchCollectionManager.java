@@ -33,7 +33,7 @@ public class DbBatchCollectionManager {
             }
         }
         try {
-            repo.insert(vm);
+            repo.insert(vm,  userId);
         }
         catch (SQLException e) {
             throw new RuntimeException("Failed to insert movie " + vm, e);
@@ -45,7 +45,7 @@ public class DbBatchCollectionManager {
     
     public void setById(Long id, VersionedObject<Movie> vm, String userId) {
         try {
-            repo.updateById(vm, vm.data.getOperator());
+            repo.updateById(vm, vm.data.getOperator(), userId);
         } catch (SQLException e) {
             throw new RuntimeException("Failed to update movie", e);
         }
@@ -77,7 +77,7 @@ public class DbBatchCollectionManager {
     
     public void removeById(Long id, String userId) {
         try {
-            boolean removed = repo.deleteById(id);
+            boolean removed = repo.deleteById(id, userId);
             if (!removed) {
                 throw new NoSuchElementException("Movie with id " + id + " not found");
             }

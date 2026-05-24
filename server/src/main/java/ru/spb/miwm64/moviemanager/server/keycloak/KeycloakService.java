@@ -187,4 +187,30 @@ public class KeycloakService implements UserAuthService {
             return false;
         }
     }
+
+    @Override
+    public String getUserIdFromToken(String token) {
+        String path = String.format("/realms/%s/protocol/openid-connect/token/introspect", config.targetRealmName);
+        String body = String.format(
+                "client_id=%s&client_secret=%s&token=%s",
+                config.ClientId, config.ClientSecret, token
+        );
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-Type", "application/x-www-form-urlencoded");
+
+        try {
+            String response = http.post(path, body, headers);
+            JsonNode root = mapper.readTree(response);
+            boolean active = root.path("active").asBoolean(false);
+            if (active) {
+                JsonNode subNode = root.path("sub");
+                if (!subNode.isMissingNode() && !subNode.isNull()) {
+                    return subNode.asText();
+                }
+            }
+            return null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }
