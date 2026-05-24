@@ -13,11 +13,13 @@ import ru.spb.miwm64.moviemanager.common.net.VersionedObject;
 import ru.spb.miwm64.moviemanager.server.collectionmanager.BatchCollectionManager;
 import ru.spb.miwm64.moviemanager.server.collectionmanager.BatchStreamCollectionManager;
 import ru.spb.miwm64.moviemanager.server.collectionmanager.DbBatchCollectionManager;
+import ru.spb.miwm64.moviemanager.server.db.SQLRepository;
 import ru.spb.miwm64.moviemanager.server.keycloak.KeycloakConfig;
 import ru.spb.miwm64.moviemanager.server.keycloak.KeycloakService;
 import ru.spb.miwm64.moviemanager.server.keycloak.UserAuthService;
 import ru.spb.miwm64.moviemanager.server.keycloak.UserInfo;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -26,11 +28,13 @@ public class RequestRouter {
     private final Map<String, Handler> handlers = new HashMap<>();
     private final DbBatchCollectionManager collectionManager;
     private final ObjectMapper mapper;
+    private final SQLRepository sqlRepository;
     UserAuthService userAuthService = new KeycloakService(new KeycloakConfig());
 
     private static final Logger LOG = LoggerFactory.getLogger(RequestRouter.class);
 
-    public RequestRouter(DbBatchCollectionManager collectionManager, ObjectMapper mapper) {
+    public RequestRouter(DbBatchCollectionManager collectionManager, ObjectMapper mapper, SQLRepository sqlRepository) {
+        this.sqlRepository = sqlRepository;
         this.collectionManager = collectionManager;
         this.mapper = mapper;
         LOG.debug("Initializing RequestRouter");
@@ -64,6 +68,36 @@ public class RequestRouter {
 
         handlers.put("deleteUser", (JsonNode params, String token) -> {
             return userAuthService.deleteUser(userAuthService.getUserIdFromToken(token), token);
+        });
+
+        handlers.put("grantAccess", (JsonNode params, String token) -> {
+            long movieId = params.get("movieId").asLong();
+            String targetUsername = params.get("nickname").asText();
+
+            String requesterId = userAuthService.getUserIdFromToken(token);
+            if (!sqlRepository.isOwner(movieId, requesterId)) {
+                throw new RuntimeException("Only the movie owner can grant access");
+            }
+
+            String targetUserId = userAuthService.getUserIdByUsername(targetUsername);
+            sqlRepository.grantAccess(movieId, targetUserId, "edit");
+
+            return true;
+        });
+
+        handlers.put("revokeAccess", (JsonNode params, String token) -> {
+            long movieId = params.get("movieId").asLong();
+            String targetUsername = params.get("nickname").asText();
+
+            String requesterId = userAuthService.getUserIdFromToken(token);
+            if (!sqlRepository.isOwner(movieId, requesterId)) {
+                throw new RuntimeException("Only the movie owner can revoke access");
+            }
+
+            String targetUserId = userAuthService.getUserIdByUsername(targetUsername);
+            sqlRepository.revokeAccess(movieId, targetUserId);
+
+            return true;
         });
 
         handlers.put("sync", (JsonNode params, String token) -> {

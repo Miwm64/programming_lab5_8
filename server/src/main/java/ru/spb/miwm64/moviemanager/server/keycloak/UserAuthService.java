@@ -10,4 +10,6 @@ public interface UserAuthService {
     public String login(String username, String password);
     public boolean validateToken(String token);
     public String getUserIdFromToken(String token);
+
+    String getUserIdByUsername(String username);
 }

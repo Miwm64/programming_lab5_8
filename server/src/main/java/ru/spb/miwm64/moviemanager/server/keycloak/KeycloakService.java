@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -62,20 +63,23 @@ public class KeycloakService implements UserAuthService {
         return getUserIdByUsername(userInfo.username);
     }
 
-    private String getUserIdByUsername(String username) {
-        String adminToken = getAdminToken();
-        String path = String.format("/admin/realms/%s/users?username=%s&exact=true", config.targetRealmName, username);
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Authorization", "Bearer " + adminToken);
-        String response = http.get(path, headers);
+    public String getUserIdByUsername(String username) {
         try {
-            JsonNode arr = mapper.readTree(response);
-            if (arr.isArray() && arr.size() > 0) {
-                return arr.get(0).get("id").asText();
+            // First, get an admin token using client credentials
+            String adminToken = getAdminToken();
+
+            String path = String.format("/admin/realms/%s/users?username=%s&exact=true", config.targetRealmName, username);
+            Map<String, String> headers = new HashMap<>();
+            headers.put("Authorization", "Bearer " + adminToken);
+            String response = http.get(path, headers);
+            JsonNode users = mapper.readTree(response);
+            if (users.isArray() && users.size() > 0) {
+                return users.get(0).path("id").asText();
             }
-            throw new RuntimeException("User not found after creation: " + username);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to parse user ID response", e);
+            throw new IllegalArgumentException("User not found: " + username);
+        }
+        catch (Exception e) {
+            throw new RuntimeException("Error while executing method", e);
         }
     }
 

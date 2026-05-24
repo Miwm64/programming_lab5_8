@@ -1,7 +1,7 @@
 package ru.spb.miwm64.moviemanager.server.keycloak;
 
 public class KeycloakConfig {
-    public String baseUrl = "http://localhost:8989";
+    public String baseUrl = "http://localhost:8989"; // host.docker.internal
     public String masterRealmName = "master";
     public String targetRealmName = "movie";
 

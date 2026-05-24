@@ -65,6 +65,9 @@ public final class CommandFactory {
         register("logout", () -> new LogoutCommand());
         register("delete_user", () -> new DeleteUserCommand(jsonRpcClient));
 
+        register("grant_access", () -> new GrantAccessCommand(jsonRpcClient));
+        register("revoke_access", () -> new RevokeAccessCommand(jsonRpcClient));
+
         LOG.info("Commands registered: {}", commandsRegistry.keySet());
     }
 

@@ -302,4 +302,19 @@ public class SQLRepository {
         }
         return new VersionedObject<>(rs.getInt("version"), m);
     }
+
+    // Inside SQLRepository
+    public boolean isOwner(long movieId, String userId) throws SQLException {
+        String sql = "SELECT access FROM user_movie_access WHERE movie_id = ? AND user_id = ?";
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, movieId);
+            stmt.setString(2, userId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return ACCESS_OWNER.equals(rs.getString("access"));
+            }
+            return false;
+        }
+    }
 }

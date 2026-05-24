@@ -38,7 +38,7 @@ public class Main {
             DbBatchCollectionManager collectionManager = new DbBatchCollectionManager(sql);
             log.info("Application started");
 
-            udpServer = new UDPServer(7878, collectionManager, xmlParser);
+            udpServer = new UDPServer(7878, collectionManager, xmlParser, sql);
             udpServer.run();
         }
         catch (IllegalStateException e) {
