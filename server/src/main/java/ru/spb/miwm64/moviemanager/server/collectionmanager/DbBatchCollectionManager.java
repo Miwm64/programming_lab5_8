@@ -10,15 +10,16 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.IntStream;
 
-public class DbBatchCollectionManager implements BatchCollectionManager {
+public class DbBatchCollectionManager {
     private final SQLRepository repo;
 
     public DbBatchCollectionManager(SQLRepository repo) {
         this.repo = Objects.requireNonNull(repo);
     }
 
-    @Override
-    public VersionedObject<Movie> add(VersionedObject<Movie> vm) {
+    
+    public VersionedObject<Movie> add(VersionedObject<Movie> vm,
+                                      String userId) {
         Objects.requireNonNull(vm);
         vm.version = 1;
         if (!Objects.isNull(vm.data.getId()) && vm.data.getId() != 0) {
@@ -41,8 +42,8 @@ public class DbBatchCollectionManager implements BatchCollectionManager {
         return vm;
     }
 
-    @Override
-    public void setById(Long id, VersionedObject<Movie> vm) {
+    
+    public void setById(Long id, VersionedObject<Movie> vm, String userId) {
         try {
             repo.updateById(vm, vm.data.getOperator());
         } catch (SQLException e) {
@@ -51,7 +52,7 @@ public class DbBatchCollectionManager implements BatchCollectionManager {
     }
 
 
-    @Override
+    
     public VersionedObject<Movie> getById(Long id) {
         try {
             VersionedObject<Movie> result = repo.findById(id);
@@ -64,7 +65,7 @@ public class DbBatchCollectionManager implements BatchCollectionManager {
         }
     }
 
-    @Override
+    
     public ArrayList<VersionedObject<Movie>> getAll() {
         try {
             return new ArrayList<>(repo.findAllMovies());
@@ -73,8 +74,8 @@ public class DbBatchCollectionManager implements BatchCollectionManager {
         }
     }
 
-    @Override
-    public void removeById(Long id) {
+    
+    public void removeById(Long id, String userId) {
         try {
             boolean removed = repo.deleteById(id);
             if (!removed) {
@@ -86,7 +87,7 @@ public class DbBatchCollectionManager implements BatchCollectionManager {
     }
 
 
-    @Override
+    
     public void removeAll() {
         try {
             repo.clearAll();
@@ -95,14 +96,15 @@ public class DbBatchCollectionManager implements BatchCollectionManager {
         }
     }
 
-    @Override
-    public Batch applyBatch(Batch pendingBatch, Map<Long, Integer> clientVersions) {
+    
+    public Batch applyBatch(Batch pendingBatch, Map<Long, Integer> clientVersions,
+                            String userId) {
         ArrayList<String> messages = new ArrayList<>();
 
         if (pendingBatch != null) {
             for (VersionedObject<Movie> vm : pendingBatch.creates) {
                 try {
-                    add(vm);
+                    add(vm, userId);
                 } catch (Exception e) {
                     messages.add("Failed to create movie: " + e.getMessage());
                 }
@@ -120,7 +122,7 @@ public class DbBatchCollectionManager implements BatchCollectionManager {
                     }
                     int newVersion = current.version + 1;
                     VersionedObject<Movie> updated = new VersionedObject<>(newVersion, vm.data);
-                    setById(id, updated);
+                    setById(id, updated, userId);
                 } catch (NoSuchElementException e) {
                     messages.add("Update failed: movie " + id + " not found");
                 }
@@ -128,7 +130,7 @@ public class DbBatchCollectionManager implements BatchCollectionManager {
 
             for (Long id : pendingBatch.deletes) {
                 try {
-                    removeById(id);
+                    removeById(id, userId);
                 } catch (NoSuchElementException e) {
                     messages.add("Delete failed: movie " + id + " not found");
                 }
@@ -163,18 +165,5 @@ public class DbBatchCollectionManager implements BatchCollectionManager {
         }
 
         return new Batch(deltaCreates, deltaUpdates, deltaDeletes, messages);
-    }
-
-    @Override
-    public void setCollection(ArrayList<Movie> movies) {
-        removeAll();
-
-        for (Movie m : movies) {
-            if (m.getId() == null || m.getId() <= 0) {
-                throw new InvalidValueException("Movie must have a positive ID for server collection");
-            }
-            VersionedObject<Movie> vm = new VersionedObject<>(1, m);
-            add(vm);
-        }
     }
 }

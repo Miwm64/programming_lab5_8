@@ -12,6 +12,11 @@ import ru.spb.miwm64.moviemanager.common.net.Batch;
 import ru.spb.miwm64.moviemanager.common.net.VersionedObject;
 import ru.spb.miwm64.moviemanager.server.collectionmanager.BatchCollectionManager;
 import ru.spb.miwm64.moviemanager.server.collectionmanager.BatchStreamCollectionManager;
+import ru.spb.miwm64.moviemanager.server.collectionmanager.DbBatchCollectionManager;
+import ru.spb.miwm64.moviemanager.server.keycloak.KeycloakConfig;
+import ru.spb.miwm64.moviemanager.server.keycloak.KeycloakService;
+import ru.spb.miwm64.moviemanager.server.keycloak.UserAuthService;
+import ru.spb.miwm64.moviemanager.server.keycloak.UserInfo;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -19,12 +24,13 @@ import java.util.*;
 
 public class RequestRouter {
     private final Map<String, Handler> handlers = new HashMap<>();
-    private final BatchCollectionManager collectionManager;
+    private final DbBatchCollectionManager collectionManager;
     private final ObjectMapper mapper;
+    UserAuthService userAuthService = new KeycloakService(new KeycloakConfig());
 
     private static final Logger LOG = LoggerFactory.getLogger(RequestRouter.class);
 
-    public RequestRouter(BatchCollectionManager collectionManager, ObjectMapper mapper) {
+    public RequestRouter(DbBatchCollectionManager collectionManager, ObjectMapper mapper) {
         this.collectionManager = collectionManager;
         this.mapper = mapper;
         LOG.debug("Initializing RequestRouter");
@@ -34,6 +40,21 @@ public class RequestRouter {
 
     private void registerHandlers() {
         LOG.debug("Registering handlers");
+        handlers.put("register", params -> {
+            JsonNode pendingNode = params.get("params");
+            UserInfo userInfo = (pendingNode == null || pendingNode.isNull())
+                    ? null
+                    : mapper.treeToValue(pendingNode.get("userInfo"), UserInfo.class);
+
+            String password = params.get("password").asText();
+            return userAuthService.createUser(userInfo, password);
+        });
+        handlers.put("login", params -> {
+            String userName = params.get("userName").asText();
+            String password = params.get("password").asText();
+            return userAuthService.login(userName, password);
+        });
+
         handlers.put("sync", params -> {
             JsonNode pendingNode = params.get("pendingBatch");
             Batch pendingBatch = (pendingNode == null || pendingNode.isNull())
@@ -49,7 +70,7 @@ public class RequestRouter {
                     clientVersions.put(Long.parseLong(entry.getKey()), entry.getValue().asInt());
                 }
             }
-            return collectionManager.applyBatch(pendingBatch, clientVersions);
+            return collectionManager.applyBatch(pendingBatch, clientVersions, "");
         });
 
         LOG.debug("Handlers registered: {}", handlers.keySet());
