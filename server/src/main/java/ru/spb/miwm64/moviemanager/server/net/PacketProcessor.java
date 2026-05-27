@@ -3,6 +3,7 @@ package ru.spb.miwm64.moviemanager.server.net;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import ru.spb.miwm64.moviemanager.common.exceptions.WrongCredentials;
 import ru.spb.miwm64.moviemanager.common.net.JsonRpcError;
 import ru.spb.miwm64.moviemanager.common.net.JsonRpcRequest;
 import ru.spb.miwm64.moviemanager.common.net.JsonRpcResponse;
@@ -36,7 +37,8 @@ public class PacketProcessor {
     public byte[] process(SocketAddress client, ByteBuffer buffer) {
         String requestId = UUID.randomUUID().toString();
         MDC.put("requestId", requestId);
-
+        Integer id = null;
+        UUID uuid = null;
         try {
             LOG.debug("Processing packet from {}", client);
 
@@ -44,8 +46,8 @@ public class PacketProcessor {
             LOG.debug("Raw JSON received: {}", json);
 
             JsonRpcRequest request = jsonRpc.decodeRequest(json);
-            Integer id = request.id;
-            UUID uuid = request.uuid;
+            id = request.id;
+            uuid = request.uuid;
 
             RequestKey key = new RequestKey(id, uuid);
 
@@ -74,12 +76,21 @@ public class PacketProcessor {
             LOG.error("Error during packet processing", e);
 
             try {
-                return jsonRpc.encodeError(
-                        JsonRpcError.INTERNAL_ERROR,
-                        "Internal error: " + e.getMessage(),
-                        null,
-                        null
-                );
+                if (e instanceof WrongCredentials) {
+                    return jsonRpc.encodeError(
+                            JsonRpcError.WRONG_CREDENTIALS,
+                            "Invalid credentials",
+                            id,
+                            uuid
+                    );
+                } else {
+                    return jsonRpc.encodeError(
+                            JsonRpcError.INTERNAL_ERROR,
+                            "Internal error: " + e.getMessage(),
+                            id,
+                            uuid
+                    );
+                }
             } catch (Exception encodeError) {
                 LOG.error("Failed to encode error response", encodeError);
                 return null;
