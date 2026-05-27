@@ -133,6 +133,8 @@ public class DbBatchCollectionManager {
                     removeById(id, userId);
                 } catch (NoSuchElementException e) {
                     messages.add("Delete failed: movie " + id + " not found");
+                } catch (RuntimeException e) {
+                    messages.add("Failed to delete movie");
                 }
             }
         }

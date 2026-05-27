@@ -62,8 +62,8 @@ public final class CommandFactory {
 
         register("login", () -> new LoginCommand(jsonRpcClient));
         register("register", () -> new RegisterCommand(jsonRpcClient));
-        register("logout", () -> new LogoutCommand());
-        register("delete_user", () -> new DeleteUserCommand(jsonRpcClient));
+        register("logout", () -> new LogoutCommand(collectionManager));
+        register("delete_user", () -> new DeleteUserCommand(jsonRpcClient, collectionManager));
 
         register("grant_access", () -> new GrantAccessCommand(jsonRpcClient));
         register("revoke_access", () -> new RevokeAccessCommand(jsonRpcClient));

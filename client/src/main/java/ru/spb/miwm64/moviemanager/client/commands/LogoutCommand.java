@@ -10,8 +10,9 @@ import ru.spb.miwm64.moviemanager.client.command.CommandResultSuccess;
 import ru.spb.miwm64.moviemanager.common.net.JsonRpcRequest;
 
 public final class LogoutCommand extends AbstractCommand {
-    public LogoutCommand() {
-
+    private CollectionManager collectionManager;
+    public LogoutCommand(CollectionManager collectionManager) {
+        this.collectionManager = collectionManager;
         this.name = "logout";
         this.help = "logout - leave account";
     }
@@ -20,6 +21,7 @@ public final class LogoutCommand extends AbstractCommand {
     public CommandResult execute() {
         try {
             JsonRpcRequest.token = null;
+            collectionManager.clear();
             return new CommandResultSuccess(null, "Successfully logged out");
 
         } catch (Exception e) {

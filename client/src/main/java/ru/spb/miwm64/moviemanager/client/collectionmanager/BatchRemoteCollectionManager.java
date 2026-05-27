@@ -162,7 +162,9 @@ public class BatchRemoteCollectionManager implements CollectionManager {
 
     @Override
     public void clear() {
-        removeAll();
+        movies.clear();
+        currentIDs.clear();
+        lastAssignedId = 1L;
     }
 
     @Override
