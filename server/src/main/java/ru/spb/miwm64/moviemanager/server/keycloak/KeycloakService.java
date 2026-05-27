@@ -3,6 +3,7 @@ package ru.spb.miwm64.moviemanager.server.keycloak;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import ru.spb.miwm64.moviemanager.common.exceptions.WrongCredentials;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -165,10 +166,20 @@ public class KeycloakService implements UserAuthService {
         );
         Map<String, String> headers = new HashMap<>();
         headers.put("Content-Type", "application/x-www-form-urlencoded");
+
         String response = http.post(path, body, headers);
         try {
             JsonNode root = mapper.readTree(response);
+            if (root.has("error")) {
+                String error = root.get("error").asText();
+                if ("invalid_grant".equals(error)) {
+                    throw new WrongCredentials();
+                }
+                throw new RuntimeException("Keycloak error: " + error);
+            }
             return root.get("access_token").asText();
+        } catch (WrongCredentials e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException("Failed to parse login response", e);
         }

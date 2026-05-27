@@ -3,14 +3,16 @@ package ru.spb.miwm64.moviemanager.client.commands;
 import com.fasterxml.jackson.core.type.TypeReference;
 import ru.spb.miwm64.moviemanager.client.command.*;
 import ru.spb.miwm64.moviemanager.client.net.JsonRpcClient;
+import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
 import ru.spb.miwm64.moviemanager.common.net.JsonRpcRequest;
 
 import java.util.HashMap;
 import java.util.Objects;
 
 public final class DeleteUserCommand extends AbstractCommand {
-    JsonRpcClient jsonRpcClient;
-    public DeleteUserCommand(JsonRpcClient jsonRpcClient) {
+    private JsonRpcClient jsonRpcClient;
+    private CollectionManager collectionManager;
+    public DeleteUserCommand(JsonRpcClient jsonRpcClient, CollectionManager collectionManager) {
         this.jsonRpcClient = jsonRpcClient;
 
         this.name = "delete_user";
@@ -38,6 +40,7 @@ public final class DeleteUserCommand extends AbstractCommand {
             }
             Boolean token = jsonRpcClient.call("deleteUser", null, new TypeReference<Boolean>(){});
             JsonRpcRequest.token = null;
+            collectionManager.clear();
 
             return new CommandResultSuccess(
                     token,

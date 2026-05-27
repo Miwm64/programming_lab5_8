@@ -189,12 +189,12 @@ public class KeycloakHttpClient {
 
         String response = readStream(stream);
 
-        if (status < 200 || status >= 300) {
-
-            throw new RuntimeException(
-                    "HTTP " + status + "\n" + response
-            );
-        }
+//        if (status < 200 || status >= 300) {
+//
+//            throw new RuntimeException(
+//                    "HTTP " + status + "\n" + response
+//            );
+//        }
 
         return response;
     }
