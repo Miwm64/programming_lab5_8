@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import ru.spb.miwm64.moviemanager.client.exceptions.*;
+import ru.spb.miwm64.moviemanager.common.exceptions.WrongCredentials;
 import ru.spb.miwm64.moviemanager.common.net.JsonRpcError;
 import ru.spb.miwm64.moviemanager.common.net.JsonRpcRequest;
 import ru.spb.miwm64.moviemanager.common.net.JsonRpcResponse;
@@ -90,6 +91,7 @@ public class JsonRpcClient {
         return switch (error.code) {
             case JsonRpcError.INVALID_VALUE -> new InvalidValueException(error.message);
             case JsonRpcError.NOT_FOUND -> new NoSuchElementException(error.message);
+            case JsonRpcError.WRONG_CREDENTIALS -> new WrongCredentials();
             default -> new RuntimeException(error.message);
         };
     }

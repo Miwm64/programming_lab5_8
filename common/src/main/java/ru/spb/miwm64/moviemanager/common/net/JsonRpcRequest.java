@@ -14,6 +14,7 @@ public class JsonRpcRequest {
     public String method;
     public JsonNode params;
     public UUID uuid;
+    public static String token;
 
     public JsonRpcRequest(){}
 
@@ -23,4 +24,13 @@ public class JsonRpcRequest {
         this.params = params;
         this.uuid = uuid;
     }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        JsonRpcRequest.token = token;
+    }
+
 }

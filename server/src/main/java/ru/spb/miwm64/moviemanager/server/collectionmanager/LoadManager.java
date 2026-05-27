@@ -16,11 +16,11 @@ import java.util.Objects;
 public class LoadManager {
     private static final String ENV_VARIABLE = "XML_LOAD";
 
-    private final BatchCollectionManager collectionManager;
+    private final DbBatchCollectionManager collectionManager;
     private final XMLParser xmlParser;
     private Logger log = LoggerFactory.getLogger(LoadManager.class);
 
-    public LoadManager(BatchCollectionManager collectionManager, XMLParser xmlParser) {
+    public LoadManager(DbBatchCollectionManager collectionManager, XMLParser xmlParser) {
         this.collectionManager = Objects.requireNonNull(collectionManager);
         this.xmlParser = Objects.requireNonNull(xmlParser);
     }
@@ -28,7 +28,7 @@ public class LoadManager {
     public void loadCollection() {
         try {
             String xml = readFile();
-            collectionManager.setCollection(xmlParser.parseFromXMLCollection(xml));
+//            collectionManager.setCollection(xmlParser.parseFromXMLCollection(xml));
             System.out.println("Loaded collection successfully");
         }
         catch (Exception e){

@@ -2,6 +2,7 @@ package ru.spb.miwm64.moviemanager.client;
 
 import ru.spb.miwm64.moviemanager.client.commands.AbortCommand;
 import ru.spb.miwm64.moviemanager.client.commands.ExitCommand;
+import ru.spb.miwm64.moviemanager.client.net.JsonRpcClient;
 import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
 import ru.spb.miwm64.moviemanager.client.command.Command;
 import ru.spb.miwm64.moviemanager.client.command.CommandFactory;
@@ -33,7 +34,7 @@ public final class MainController {
     private final Object messageLock = new Object();
 
     public MainController(CollectionManager collectionManager, Reader defaultReader,
-                          Writer defaultWriter, XMLParser xmlParser, List<String> messages) {
+                          Writer defaultWriter, XMLParser xmlParser, List<String> messages, JsonRpcClient jsonRpcClient) {
         this.readers = new LinkedList<>();
         readers.add(defaultReader);
         this.writer = defaultWriter;
@@ -41,7 +42,8 @@ public final class MainController {
         this.defaultWriter = defaultWriter;
         this.xmlParser = xmlParser;
         this.openedFilesSet = new HashSet<>();
-        this.commandFactory = new CommandFactory(collectionManager, xmlParser, readers, openedFilesSet);
+        this.commandFactory = new CommandFactory(collectionManager, xmlParser, readers, openedFilesSet,
+                jsonRpcClient);
         this.messages = messages;
         LOG.info("MainController initialized");
     }

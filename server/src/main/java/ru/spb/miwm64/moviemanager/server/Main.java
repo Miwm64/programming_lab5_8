@@ -35,10 +35,10 @@ public class Main {
             DatabaseProvider databaseProvider = new DatabaseProvider(dataSource);
             SQLRepository sql = new SQLRepository(databaseProvider);
             databaseProvider.getConnection();
-            BatchCollectionManager collectionManager = new DbBatchCollectionManager(sql);
+            DbBatchCollectionManager collectionManager = new DbBatchCollectionManager(sql);
             log.info("Application started");
 
-            udpServer = new UDPServer(7878, collectionManager, xmlParser);
+            udpServer = new UDPServer(7878, collectionManager, xmlParser, sql);
             udpServer.run();
         }
         catch (IllegalStateException e) {
