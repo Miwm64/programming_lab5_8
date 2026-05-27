@@ -47,7 +47,7 @@ public class DbBatchCollectionManager {
         try {
             repo.updateById(vm, vm.data.getOperator(), userId);
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to update movie", e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 
@@ -82,7 +82,7 @@ public class DbBatchCollectionManager {
                 throw new NoSuchElementException("Movie with id " + id + " not found");
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to delete movie", e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 
@@ -125,6 +125,8 @@ public class DbBatchCollectionManager {
                     setById(id, updated, userId);
                 } catch (NoSuchElementException e) {
                     messages.add("Update failed: movie " + id + " not found");
+                } catch (RuntimeException e) {
+                    messages.add(e.getMessage());
                 }
             }
 
@@ -134,7 +136,7 @@ public class DbBatchCollectionManager {
                 } catch (NoSuchElementException e) {
                     messages.add("Delete failed: movie " + id + " not found");
                 } catch (RuntimeException e) {
-                    messages.add("Failed to delete movie");
+                    messages.add(e.getMessage());
                 }
             }
         }
