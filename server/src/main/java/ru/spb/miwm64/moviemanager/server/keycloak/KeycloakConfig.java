@@ -6,9 +6,9 @@ public class KeycloakConfig {
     public String targetRealmName = "movie";
 
     public String adminClientId = "admin-cli";
-    public String adminUsername = "";
-    public String adminPassword = "";
+    public String adminUsername = "miwm64";
+    public String adminPassword = "12345";
 
     public String ClientId = "movie-api";
-    public String ClientSecret = "";
+    public String ClientSecret = "WPfcmcDYln8pxtZE2sRl0f3MKmohGpNL";
 }
