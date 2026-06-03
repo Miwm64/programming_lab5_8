@@ -39,7 +39,7 @@ public class Main {
         SynchronizationThread thread = new SynchronizationThread(jsonRpcClient, queue, collectionManager, messages);
         thread.start();
 
-        var mainController = new MainController(collectionManager, reader, writer, xmlParser, messages);
+        var mainController = new MainController(collectionManager, reader, writer, xmlParser, messages, jsonRpcClient);
         mainController.run();
 
         thread.gracefulShutdown();

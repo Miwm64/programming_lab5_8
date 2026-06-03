@@ -36,3 +36,8 @@ build/
 logs/
 file.xml
 docker
+.env
+.env_server
+.env_docker_server
+.env_db
+.env_keycloack

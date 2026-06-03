@@ -1,0 +1,36 @@
+services:
+  moviemanager-server:
+    container_name: moviemanager-server
+    image: moviemanager-server
+    build: .
+    ports:
+      - "7878:7878/udp"
+      - "5005:5005" # Debug port
+    env_file: .env_docker_server
+    volumes:
+      - ./docker:/app/config
+      - ./logs:/app/logs
+    environment:
+      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+    depends_on:
+      - moviemanager-postgres
+
+  moviemanager-postgres:
+    container_name: moviemanager-postgres
+    image: postgres:16
+    env_file: .env_db
+    ports:
+      - "5433:5432/tcp"
+    volumes:
+      - ./docker/db:/var/lib/postgresql/data
+
+  moviemanager-keycloack:
+    container_name: moviemanager-keycloack
+    image: quay.io/keycloak/keycloak:26.6.1
+    env_file: .env_keycloack
+    ports:
+      - "8989:8080"
+    volumes:
+      - ./docker/keycloack:/opt/keycloak/data
+    command:
+      - start-dev

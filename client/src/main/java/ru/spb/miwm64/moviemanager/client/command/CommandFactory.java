@@ -1,5 +1,6 @@
 package ru.spb.miwm64.moviemanager.client.command;
 
+import ru.spb.miwm64.moviemanager.client.net.JsonRpcClient;
 import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
 import ru.spb.miwm64.moviemanager.client.commands.*;
 import ru.spb.miwm64.moviemanager.common.exceptions.NonExistentCommand;
@@ -21,13 +22,16 @@ public final class CommandFactory {
     private XMLParser xmlParser;
     private List<Reader> readers;
     private Set<String> openedFilesSet;
+    private JsonRpcClient jsonRpcClient;
 
     public CommandFactory(CollectionManager collectionManager, XMLParser xmlParser,
-                          List<Reader> readers, Set<String> openedFilesSet) {
+                          List<Reader> readers, Set<String> openedFilesSet,
+                          JsonRpcClient jsonRpcClient) {
         this.collectionManager = collectionManager;
         this.xmlParser = xmlParser;
         this.readers = readers;
         this.openedFilesSet = openedFilesSet;
+        this.jsonRpcClient = jsonRpcClient;
 
         LOG.info("Initializing CommandFactory");
         registerCommands();
@@ -50,11 +54,19 @@ public final class CommandFactory {
         register("add_if_min", () -> new AddIfMinCommand(collectionManager));
         register("update_id", () -> new UpdateByIDCommand(collectionManager));
         register("remove_by_id", () -> new RemoveByIDCommand(collectionManager));
-        register("remove_at", () -> new RemoveByIndexCommand(collectionManager));
+        //register("remove_at", () -> new RemoveByIndexCommand(collectionManager));
         register("remove_greater", () -> new RemoveGreaterCommand(collectionManager));
         register("clear", () -> new ClearCommand(collectionManager));
 
         register("execute_script", () -> new ExecuteScriptCommand(readers, openedFilesSet));
+
+        register("login", () -> new LoginCommand(jsonRpcClient));
+        register("register", () -> new RegisterCommand(jsonRpcClient));
+        register("logout", () -> new LogoutCommand(collectionManager));
+        register("delete_user", () -> new DeleteUserCommand(jsonRpcClient, collectionManager));
+
+        register("grant_access", () -> new GrantAccessCommand(jsonRpcClient));
+        register("revoke_access", () -> new RevokeAccessCommand(jsonRpcClient));
 
         LOG.info("Commands registered: {}", commandsRegistry.keySet());
     }

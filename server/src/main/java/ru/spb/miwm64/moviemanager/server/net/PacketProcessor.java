@@ -2,6 +2,8 @@ package ru.spb.miwm64.moviemanager.server.net;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+import ru.spb.miwm64.moviemanager.common.exceptions.WrongCredentials;
 import ru.spb.miwm64.moviemanager.common.net.JsonRpcError;
 import ru.spb.miwm64.moviemanager.common.net.JsonRpcRequest;
 import ru.spb.miwm64.moviemanager.common.net.JsonRpcResponse;
@@ -17,7 +19,7 @@ import java.util.UUID;
 public class PacketProcessor {
     private static final int MAX_PACKET_SIZE = 65536;
 
-    private final UDPTransport transport;
+
     private final JsonRpc jsonRpc;
     private final RequestRouter handler;
 
@@ -25,30 +27,20 @@ public class PacketProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(PacketProcessor.class);
 
-    public PacketProcessor(UDPTransport transport,
-                           JsonRpc codec,
+    public PacketProcessor(JsonRpc codec,
                            RequestRouter handler) {
-        this.transport = transport;
         this.jsonRpc = codec;
         this.handler = handler;
         LOG.debug("PacketProcessor initialized");
     }
 
-    public void process() {
-        SocketAddress client = null;
+    public byte[] process(SocketAddress client, ByteBuffer buffer) {
+        String requestId = UUID.randomUUID().toString();
+        MDC.put("requestId", requestId);
         Integer id = null;
         UUID uuid = null;
-
         try {
-            LOG.debug("Receiving packet");
-
-            ByteBuffer buffer = ByteBuffer.allocate(MAX_PACKET_SIZE);
-            client = transport.receive(buffer);
-
-            if (client == null) {
-                LOG.debug("No packet received");
-                return;
-            }
+            LOG.debug("Processing packet from {}", client);
 
             String json = extract(buffer);
             LOG.debug("Raw JSON received: {}", json);
@@ -57,52 +49,54 @@ public class PacketProcessor {
             id = request.id;
             uuid = request.uuid;
 
-            if (!(client instanceof InetSocketAddress)) {
-                LOG.warn("Unknown client address type: {}", client.getClass());
-                return;
-            }
-
             RequestKey key = new RequestKey(id, uuid);
 
             // Check cache for duplicates
-            LOG.info("Checking packet for duplication id={} to {}", id, uuid);
             JsonRpcResponse<?> cached = cache.lookUp(key);
             if (cached != null) {
                 LOG.info("Duplicate request detected, sending cached response for id={} to {}", id, uuid);
-                transport.send(client, jsonRpc.encodePacket(cached));
-                return;
+                return jsonRpc.encodeSuccess(cached.result, id, uuid);
             }
 
             LOG.info("Processing request id={} method={}", id, request.method);
-            Object result = handler.route(request.method, request.params);
 
-            // Encode and send response
-            byte[] response = jsonRpc.encodeSuccess(result, id, uuid);
-            transport.send(client, response);
+            // This will be synchronized by the caller
+            Object result = handler.route(request.method, request.params, request.getToken());
 
-            // Store in cache for duplicate detection
-            cache.add(key, new JsonRpcResponse<>() {{
-                this.id = id;
-                this.result = result;
-            }});
+            // Store in cache
+            JsonRpcResponse<Object> response = new JsonRpcResponse<>();
+            response.id = id;
+            response.result = result;
+            cache.add(key, response);
             LOG.info("Added response to cache with uuid={} id={}", uuid, id);
-        } catch (Exception e) {
-            LOG.error("Error during packet processing (id={})", id, e);
 
-            if (client != null) {
-                try {
-                    byte[] err = jsonRpc.encodeError(
-                            JsonRpcError.INTERNAL_ERROR,
-                            "Internal error",
+            return jsonRpc.encodeSuccess(result, id, uuid);
+
+        } catch (Exception e) {
+            LOG.error("Error during packet processing", e);
+
+            try {
+                if (e instanceof WrongCredentials) {
+                    return jsonRpc.encodeError(
+                            JsonRpcError.WRONG_CREDENTIALS,
+                            "Invalid credentials",
                             id,
                             uuid
                     );
-                    transport.send(client, err);
-                    LOG.info("Error response sent to {} for id={}", client, id);
-                } catch (IOException err) {
-                    LOG.error("Failed to send error response", err);
+                } else {
+                    return jsonRpc.encodeError(
+                            JsonRpcError.INTERNAL_ERROR,
+                            "Internal error: " + e.getMessage(),
+                            id,
+                            uuid
+                    );
                 }
+            } catch (Exception encodeError) {
+                LOG.error("Failed to encode error response", encodeError);
+                return null;
             }
+        } finally {
+            MDC.clear();
         }
     }
 

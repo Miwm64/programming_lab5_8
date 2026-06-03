@@ -1,4 +1,4 @@
-#Build
+Build
 
 Build all projects:
 ```bash
@@ -38,11 +38,23 @@ Logger
 -DLOG_STDOUT=true
 ```
 
-Docker
+Docker compose - build and run all
 ```
-docker build -t moviemanager-server .
-docker stop moviemanager-server
-docker rm moviemanager-server
-docker run -d -p 7878:7878/udp --name moviemanager-server moviemanager-server
-docker exec -it moviemanager-server /bin/sh
+docker compose down
+docker compose up -d --build
+```
+
+Docker compose restart server
+```
+docker compose up -d --build moviemanager-server
+```
+
+Postgres create tables
+```
+psql -U miwm64 -d postgres
+```
+
+Attach to docker compose
+```
+docker-compose run --service-ports moviemanager-server
 ```

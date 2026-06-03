@@ -1,0 +1,14 @@
+DROP INDEX IF EXISTS idx_movie_coords;
+DROP INDEX IF EXISTS idx_movie_operator;
+DROP INDEX IF EXISTS idx_movie_genre;
+
+DROP TABLE IF EXISTS movie CASCADE;
+DROP TABLE IF EXISTS person CASCADE;
+
+DROP SEQUENCE IF EXISTS movie_id_seq;
+DROP SEQUENCE IF EXISTS person_id_seq;
+
+DROP TYPE IF EXISTS movie_genre;
+DROP TYPE IF EXISTS mpaa_rating;
+DROP TYPE IF EXISTS color;
+DROP TYPE IF EXISTS country;
