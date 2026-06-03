@@ -29,14 +29,17 @@ public class RequestRouter {
     private final DbBatchCollectionManager collectionManager;
     private final ObjectMapper mapper;
     private final SQLRepository sqlRepository;
-    UserAuthService userAuthService = new KeycloakService(new KeycloakConfig());
+    private final UserAuthService userAuthService;
 
     private static final Logger LOG = LoggerFactory.getLogger(RequestRouter.class);
 
-    public RequestRouter(DbBatchCollectionManager collectionManager, ObjectMapper mapper, SQLRepository sqlRepository) {
+    public RequestRouter(DbBatchCollectionManager collectionManager,
+                         ObjectMapper mapper, SQLRepository sqlRepository, UserAuthService userAuthService
+                         ) {
         this.sqlRepository = sqlRepository;
         this.collectionManager = collectionManager;
         this.mapper = mapper;
+        this.userAuthService = userAuthService;
         LOG.debug("Initializing RequestRouter");
         registerHandlers();
         LOG.info("RequestRouter initialized with {} handlers", handlers.size());

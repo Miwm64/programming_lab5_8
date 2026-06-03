@@ -14,6 +14,7 @@ import ru.spb.miwm64.moviemanager.server.collectionmanager.DbBatchCollectionMana
 import ru.spb.miwm64.moviemanager.server.collectionmanager.LoadManager;
 import ru.spb.miwm64.moviemanager.server.db.SQLRepository;
 import ru.spb.miwm64.moviemanager.server.io.NonBlockingConsoleReader;
+import ru.spb.miwm64.moviemanager.server.keycloak.UserAuthService;
 
 import java.io.IOException;
 import java.net.SocketAddress;
@@ -47,7 +48,8 @@ public class UDPServer {
     private static final int PROCESS_POOL_SIZE = 8;
     private static final int WRITE_POOL_SIZE = 4;
 
-    public UDPServer(int port, DbBatchCollectionManager collectionManager, XMLParser xmlParser, SQLRepository sqlRepository) throws IOException {
+    public UDPServer(int port, DbBatchCollectionManager collectionManager, XMLParser xmlParser,
+                     SQLRepository sqlRepository, UserAuthService userAuthService) throws IOException {
         LOG.debug("Initializing UDPServer on port {}", port);
 
         this.transport = new UDPTransport(port);
@@ -59,7 +61,7 @@ public class UDPServer {
                 .registerModule(new JavaTimeModule())
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        RequestRouter router = new RequestRouter(collectionManager, objectMapper, sqlRepository);
+        RequestRouter router = new RequestRouter(collectionManager, objectMapper, sqlRepository, userAuthService);
 
         this.processor = new PacketProcessor(jsonRpc, router);
         this.collectionManager = collectionManager;

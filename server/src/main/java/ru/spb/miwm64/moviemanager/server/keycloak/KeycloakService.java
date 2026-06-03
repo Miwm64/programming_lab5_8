@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import ru.spb.miwm64.moviemanager.common.exceptions.WrongCredentials;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -162,7 +161,7 @@ public class KeycloakService implements UserAuthService {
         String path = String.format("/realms/%s/protocol/openid-connect/token", config.targetRealmName);
         String body = String.format(
                 "client_id=%s&client_secret=%s&grant_type=password&username=%s&password=%s",
-                config.ClientId, config.ClientSecret, username, password
+                config.clientId, config.clientSecret, username, password
         );
         Map<String, String> headers = new HashMap<>();
         headers.put("Content-Type", "application/x-www-form-urlencoded");
@@ -191,7 +190,7 @@ public class KeycloakService implements UserAuthService {
         String path = String.format("/realms/%s/protocol/openid-connect/token/introspect", config.targetRealmName);
         String body = String.format(
                 "client_id=%s&client_secret=%s&token=%s",
-                config.ClientId, config.ClientSecret, token
+                config.clientId, config.clientSecret, token
         );
         Map<String, String> headers = new HashMap<>();
         headers.put("Content-Type", "application/x-www-form-urlencoded");
@@ -209,7 +208,7 @@ public class KeycloakService implements UserAuthService {
         String path = String.format("/realms/%s/protocol/openid-connect/token/introspect", config.targetRealmName);
         String body = String.format(
                 "client_id=%s&client_secret=%s&token=%s",
-                config.ClientId, config.ClientSecret, token
+                config.clientId, config.clientSecret, token
         );
         Map<String, String> headers = new HashMap<>();
         headers.put("Content-Type", "application/x-www-form-urlencoded");

@@ -3,24 +3,17 @@ package ru.spb.miwm64.moviemanager.server;
 import org.postgresql.ds.PGSimpleDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
-import ru.spb.miwm64.moviemanager.common.entities.Coordinates;
-import ru.spb.miwm64.moviemanager.common.entities.Movie;
-import ru.spb.miwm64.moviemanager.common.entities.MovieGenre;
-import ru.spb.miwm64.moviemanager.common.entities.MpaaRating;
 import ru.spb.miwm64.moviemanager.common.io.XMLParser;
-import ru.spb.miwm64.moviemanager.common.net.VersionedObject;
-import ru.spb.miwm64.moviemanager.server.collectionmanager.BatchCollectionManager;
-import ru.spb.miwm64.moviemanager.server.collectionmanager.BatchStreamCollectionManager;
 import ru.spb.miwm64.moviemanager.server.collectionmanager.DbBatchCollectionManager;
-import ru.spb.miwm64.moviemanager.server.collectionmanager.StreamCollectionManager;
 import ru.spb.miwm64.moviemanager.server.db.SQLRepository;
 import ru.spb.miwm64.moviemanager.server.io.DatabaseProvider;
+import ru.spb.miwm64.moviemanager.server.keycloak.KeycloakConfig;
+import ru.spb.miwm64.moviemanager.server.keycloak.KeycloakService;
+import ru.spb.miwm64.moviemanager.server.keycloak.UserAuthService;
 import ru.spb.miwm64.moviemanager.server.net.UDPServer;
 
 import javax.sql.DataSource;
 import java.sql.*;
-import java.time.ZonedDateTime;
 
 public class Main {
     private static final Logger log = LoggerFactory.getLogger(Main.class);
@@ -38,7 +31,15 @@ public class Main {
             DbBatchCollectionManager collectionManager = new DbBatchCollectionManager(sql);
             log.info("Application started");
 
-            udpServer = new UDPServer(7878, collectionManager, xmlParser, sql);
+            KeycloakConfig keycloakConfig = new KeycloakConfig(
+                    System.getenv("KEYCLOACK_BASE_URL"),
+                    System.getenv("KEYCLOACK_ADMIN_USERNAME"),
+                    System.getenv("KEYCLOACK_ADMIN_PASSWORD"),
+                    System.getenv("KEYCLOACK_CLIENT_SECRET")
+            );
+            UserAuthService userAuthService = new KeycloakService(keycloakConfig);
+
+            udpServer = new UDPServer(7878, collectionManager, xmlParser, sql, userAuthService);
             udpServer.run();
         }
         catch (IllegalStateException e) {

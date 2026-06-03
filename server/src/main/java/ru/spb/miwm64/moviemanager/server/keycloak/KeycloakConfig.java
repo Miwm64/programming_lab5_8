@@ -1,14 +1,21 @@
 package ru.spb.miwm64.moviemanager.server.keycloak;
 
 public class KeycloakConfig {
-    public String baseUrl = "http://localhost:8989"; // host.docker.internal
-    public String masterRealmName = "master";
-    public String targetRealmName = "movie";
+    public KeycloakConfig(String baseUrl, String adminUsername, String adminPassword, String clientSecret) {
+        this.baseUrl = baseUrl;
+        this.adminUsername = adminUsername;
+        this.adminPassword = adminPassword;
+        this.clientSecret = clientSecret;
 
-    public String adminClientId = "admin-cli";
-    public String adminUsername = "miwm64";
-    public String adminPassword = "12345";
+    }
+    public final String baseUrl;
+    public final String masterRealmName = "master";
+    public final String targetRealmName = "movie";
 
-    public String ClientId = "movie-api";
-    public String ClientSecret = "WPfcmcDYln8pxtZE2sRl0f3MKmohGpNL";
+    public final String adminClientId = "admin-cli";
+    public final String adminUsername;
+    public final String adminPassword;
+
+    public final String clientId = "movie-api";
+    public final String clientSecret;
 }
