@@ -1,7 +1,7 @@
-package com.example.pane;
+package ru.spb.miwm64.moviemanager.client.gui.pane;
 
-import com.example.util.Helper;
-import com.example.widgets.TableEntry;
+import ru.spb.miwm64.moviemanager.client.gui.util.Helper;
+import ru.spb.miwm64.moviemanager.client.gui.widgets.TableEntry;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;

@@ -1,4 +1,4 @@
-package com.example.util;
+package ru.spb.miwm64.moviemanager.client.gui.util;
 
 import javafx.scene.text.Font;
 

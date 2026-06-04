@@ -1,6 +1,6 @@
-package com.example.widgets;
+package ru.spb.miwm64.moviemanager.client.gui.widgets;
 
-import com.example.util.Helper;
+import ru.spb.miwm64.moviemanager.client.gui.util.Helper;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;

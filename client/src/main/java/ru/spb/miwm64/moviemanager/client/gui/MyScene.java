@@ -1,7 +1,7 @@
-package com.example;
+package ru.spb.miwm64.moviemanager.client.gui;
 
-import com.example.pane.*;
-import com.example.widgets.FooterLabel;
+import ru.spb.miwm64.moviemanager.client.gui.pane.*;
+import ru.spb.miwm64.moviemanager.client.gui.widgets.FooterLabel;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;

@@ -1,4 +1,4 @@
-package com.example.pane;
+package ru.spb.miwm64.moviemanager.client.gui.pane;
 
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
