@@ -37,14 +37,6 @@ public class MyScene extends Scene {
         this.headerPane = new HeaderPane(primaryStage);
         this.footerLabel = new FooterLabel();
 
-        Button tmp = new Button();
-        tmp.setText("login");
-        tmp.setOnMouseClicked((event) -> {
-            I18N.setLocale(new  Locale("en", "EN"));
-        });
-
-        loginPane.getChildren().add(tmp);
-
         footerLabel.setOnMouseClicked(event -> {
             footerClickedCount++;
             if (footerClickedCount >= 3) {

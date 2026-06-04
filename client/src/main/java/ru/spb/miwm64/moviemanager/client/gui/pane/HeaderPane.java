@@ -1,5 +1,10 @@
 package ru.spb.miwm64.moviemanager.client.gui.pane;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableArray;
+import javafx.collections.ObservableList;
+import javafx.scene.control.ComboBox;
+import javafx.scene.layout.*;
 import ru.spb.miwm64.moviemanager.client.gui.util.Helper;
 import ru.spb.miwm64.moviemanager.client.gui.util.I18N;
 import javafx.geometry.Insets;
@@ -7,13 +12,11 @@ import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+
+import java.util.Locale;
 
 public class HeaderPane extends StackPane {
     private final Label title;
@@ -24,6 +27,8 @@ public class HeaderPane extends StackPane {
     private final Button fullscreenButton;
 
     private boolean isFullscreen = false;
+    private BorderPane mainPane;
+    private ComboBox<String> changeLocalization;
 
     public HeaderPane(Stage primaryStage) {
         menu = new HBox();
@@ -31,11 +36,24 @@ public class HeaderPane extends StackPane {
         fullscreenButton = new Button();
         hideButton = new Button();
         title = new Label();
+        mainPane = new BorderPane();
+        changeLocalization = new ComboBox<>();
+        ObservableList<String> langs = FXCollections.observableArrayList();
+        langs.add("en");
+        langs.add("fr");
+        changeLocalization.setItems(langs);
+        changeLocalization.getSelectionModel().select(0);
+        changeLocalization.valueProperty().addListener((observable, oldValue, newValue) -> {
+            I18N.setLocale(new Locale(newValue));
+        });
 
         elementInit(primaryStage);
 
         menu.getChildren().addAll(closeButton, fullscreenButton, hideButton);
-        this.getChildren().add(title);
+        mainPane.setTop(title);
+        BorderPane.setAlignment(title, Pos.CENTER);
+        mainPane.setRight(changeLocalization);
+        this.getChildren().add(mainPane);
         VBox.setVgrow(this, Priority.ALWAYS);
         HBox.setHgrow(this, Priority.ALWAYS);
     }
