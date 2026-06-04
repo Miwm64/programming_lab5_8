@@ -1,6 +1,7 @@
 package ru.spb.miwm64.moviemanager.client.gui.pane;
 
 import ru.spb.miwm64.moviemanager.client.gui.util.Helper;
+import ru.spb.miwm64.moviemanager.client.gui.util.I18N;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
@@ -25,21 +26,18 @@ public class HeaderPane extends StackPane {
     private boolean isFullscreen = false;
 
     public HeaderPane(Stage primaryStage) {
-        // top bar
         menu = new HBox();
-        closeButton = new Button("X");
-        fullscreenButton = new Button("[]");
-        hideButton = new Button("-");
-        // title
-        title = new Label("Movie manager");
+        closeButton = new Button();
+        fullscreenButton = new Button();
+        hideButton = new Button();
+        title = new Label();
 
         elementInit(primaryStage);
 
         menu.getChildren().addAll(closeButton, fullscreenButton, hideButton);
-//        this.getChildren().add(menu);
         this.getChildren().add(title);
-        VBox.setVgrow(this, Priority.ALWAYS); // For vertical resizing
-        HBox.setHgrow(this, Priority.ALWAYS); // For horizontal resizing
+        VBox.setVgrow(this, Priority.ALWAYS);
+        HBox.setHgrow(this, Priority.ALWAYS);
     }
 
     private void elementInit(Stage primaryStage) {
@@ -47,11 +45,19 @@ public class HeaderPane extends StackPane {
         title.setTextFill(Color.web("#A100FF"));
         title.setFont(Helper.getBoldFont(20));
         title.setPadding(new Insets(0, 100, 0, 100));
+        title.textProperty().bind(I18N.createBinding("header_pane.label.title"));
+
         menu.setAlignment(Pos.CENTER_LEFT);
 
         closeButton.setStyle("-fx-background-color: transparent;");
+        closeButton.textProperty().bind(I18N.createBinding("header_pane.button.close"));
+
         fullscreenButton.setStyle("-fx-background-color: transparent;");
+        fullscreenButton.textProperty().bind(I18N.createBinding("header_pane.button.fullscreen"));
+
         hideButton.setStyle("-fx-background-color: transparent;");
+        hideButton.textProperty().bind(I18N.createBinding("header_pane.button.hide"));
+
         closeButton.setOnMouseClicked(event -> {
             primaryStage.close();
         });

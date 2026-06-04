@@ -12,6 +12,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import ru.spb.miwm64.moviemanager.client.gui.util.I18N;
 
 import java.util.Objects;
 
@@ -24,16 +25,16 @@ public class RegisterPane extends VBox {
     private final Button switchButton;
 
     public RegisterPane() {
-        titleLabel = new Label("User registration");
+        titleLabel = new Label();
         nicknameEdit = new TextField();
         passwordEdit = new PasswordField();
         password2Edit = new PasswordField();
 
-        enterButton = new Button("Register");
-        switchButton = new Button("Switch to login");
+        enterButton = new Button();
+        switchButton = new Button();
 
-        VBox.setVgrow(this, Priority.ALWAYS); // For vertical resizing
-        HBox.setHgrow(this, Priority.ALWAYS); // For horizontal resizing
+        VBox.setVgrow(this, Priority.ALWAYS);
+        HBox.setHgrow(this, Priority.ALWAYS);
         elementInit();
     }
 
@@ -62,11 +63,14 @@ public class RegisterPane extends VBox {
         enterButton.setStyle("-fx-background-color: #D8AA7E; -fx-background-radius: 24px;");
         enterButton.setFont(Helper.getFont(16));
         enterButton.setDisable(true);
+        enterButton.textProperty().bind(I18N.createBinding("register_pane.button.register"));
+
         switchButton.setStyle("-fx-background-color: #EEDEC5; -fx-background-radius: 24px;");
         switchButton.setFont(Helper.getFont(16));
         switchButton.setTextFill(Color.BLACK);
+        switchButton.textProperty().bind(I18N.createBinding("register_pane.button.switch_to_login"));
 
-
+        titleLabel.textProperty().bind(I18N.createBinding("table_pane.label.title"));
         titleLabel.setStyle("-fx-background-color: #EEDEC5; -fx-background-radius: 20px;");
         titleLabel.setFont(Helper.getBoldFont(18));
         titleLabel.setPadding(new Insets(0, 10, 0, 10));
@@ -77,7 +81,7 @@ public class RegisterPane extends VBox {
 
         nicknameEdit.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!Objects.equals(password2Edit.getText(), passwordEdit.getText()) || passwordEdit.getText().isEmpty() ||
-            nicknameEdit.getText().isEmpty()) {
+                    nicknameEdit.getText().isEmpty()) {
                 enterButton.setDisable(true);
             }
             else  {

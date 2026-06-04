@@ -29,7 +29,7 @@ public class MyScene extends Scene {
     private int footerClickedCount = 0;
 
     public MyScene(Stage primaryStage) {
-        super(new Label("Loading..."));
+        super(new Label(I18N.get("my_scene.label.loading")));
         this.mainPane = new BorderPane();
         this.loginPane = new LoginPane();
         this.registerPane = new RegisterPane();
@@ -40,7 +40,7 @@ public class MyScene extends Scene {
         Button tmp = new Button();
         tmp.setText("login");
         tmp.setOnMouseClicked((event) -> {
-            I18N.setLocale(new  Locale("fr", "fr"));
+            I18N.setLocale(new  Locale("en", "EN"));
         });
 
         loginPane.getChildren().add(tmp);

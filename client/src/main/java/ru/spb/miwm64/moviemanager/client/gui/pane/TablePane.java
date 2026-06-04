@@ -1,6 +1,7 @@
 package ru.spb.miwm64.moviemanager.client.gui.pane;
 
 import ru.spb.miwm64.moviemanager.client.gui.util.Helper;
+import ru.spb.miwm64.moviemanager.client.gui.util.I18N;
 import ru.spb.miwm64.moviemanager.client.gui.widgets.TableEntry;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -23,12 +24,14 @@ public class TablePane extends VBox {
     private final TableEntry columnRow;
     private final VBox entriesVBox;
     private final ScrollPane entriesScrollPane;
-    private final Button createButton = new Button("Create");
+    private final Button createButton = new Button();
+
     public TablePane() {
         entriesScrollPane = new ScrollPane();
         entriesVBox = new VBox();
         entriesScrollPane.setContent(entriesVBox);
-        titleLabel = new Label("Movie table");
+        titleLabel = new Label();
+        titleLabel.textProperty().bind(I18N.createBinding("table_pane.label.title"));
         titleLabel.setFont(Helper.getBoldFont(18));
         titleLabel.setStyle("-fx-background-color: #EEDEC5;" +
                 "-fx-background-radius: 24px;  -fx-border-radius: 24;");
@@ -55,6 +58,7 @@ public class TablePane extends VBox {
         for (int i = 0; i < 10; ++i){
             addEntry();
         }
+        createButton.textProperty().bind(I18N.createBinding("table_pane.button.create"));
     }
 
     private void addEntry() {

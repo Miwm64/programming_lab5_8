@@ -1,6 +1,7 @@
 package ru.spb.miwm64.moviemanager.client.gui.pane;
 
 import ru.spb.miwm64.moviemanager.client.gui.util.Helper;
+import ru.spb.miwm64.moviemanager.client.gui.util.I18N;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -21,15 +22,15 @@ public class LoginPane extends VBox {
     private final Button switchButton;
 
     public LoginPane() {
-        titleLabel = new Label("User login");
+        titleLabel = new Label();
         nicknameEdit = new TextField();
         passwordEdit = new PasswordField();
 
-        enterButton = new Button("Login");
-        switchButton = new Button("Switch to registration");
+        enterButton = new Button();
+        switchButton = new Button();
 
-        VBox.setVgrow(this, Priority.ALWAYS); // For vertical resizing
-        HBox.setHgrow(this, Priority.ALWAYS); // For horizontal resizing
+        VBox.setVgrow(this, Priority.ALWAYS);
+        HBox.setHgrow(this, Priority.ALWAYS);
         elementInit();
     }
 
@@ -38,7 +39,7 @@ public class LoginPane extends VBox {
         nicknameEdit.setMaxWidth(300);
         nicknameEdit.setMaxHeight(200);
         nicknameEdit.setStyle("-fx-background-color: #EEDEC5; -fx-background-radius: 24;" +
-                        "-fx-border-color: E7B36F; -fx-border-width: 1; -fx-border-radius: 24;");
+                "-fx-border-color: E7B36F; -fx-border-width: 1; -fx-border-radius: 24;");
         nicknameEdit.setFont(Helper.getFont(14));
 
         passwordEdit.setPromptText("password");
@@ -50,11 +51,14 @@ public class LoginPane extends VBox {
 
         enterButton.setStyle("-fx-background-color: #D8AA7E; -fx-background-radius: 24px;");
         enterButton.setFont(Helper.getFont(16));
+        enterButton.textProperty().bind(I18N.createBinding("login_pane.button.login"));
+
         switchButton.setStyle("-fx-background-color: #EEDEC5; -fx-background-radius: 24px;");
         switchButton.setFont(Helper.getFont(16));
         switchButton.setTextFill(Color.BLACK);
+        switchButton.textProperty().bind(I18N.createBinding("login_pane.button.switch_to_registration"));
 
-
+        titleLabel.textProperty().bind(I18N.createBinding("login_pane.label.title"));
         titleLabel.setStyle("-fx-background-color: #EEDEC5; -fx-background-radius: 20px;");
         titleLabel.setFont(Helper.getBoldFont(18));
         titleLabel.setPadding(new Insets(0, 10, 0, 10));
