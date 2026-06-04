@@ -18,15 +18,15 @@ import ru.spb.miwm64.moviemanager.common.io.Writer;
 import ru.spb.miwm64.moviemanager.common.io.XMLParser;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         Logger log = LoggerFactory.getLogger(Main.class);
         log.info("JavaFX application started");
+        ResourceBundle bundle = ResourceBundle.getBundle("messages.messages", new Locale("fr", "FR"));
+        System.out.println(bundle.getString("test"));
         stageInit(primaryStage);
 
 
