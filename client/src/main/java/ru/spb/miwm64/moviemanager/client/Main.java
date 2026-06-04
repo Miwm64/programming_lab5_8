@@ -25,8 +25,6 @@ public class Main extends Application {
     public void start(Stage primaryStage) {
         Logger log = LoggerFactory.getLogger(Main.class);
         log.info("JavaFX application started");
-        ResourceBundle bundle = ResourceBundle.getBundle("messages.messages", new Locale("fr", "FR"));
-        System.out.println(bundle.getString("test"));
         stageInit(primaryStage);
 
 

@@ -1,6 +1,8 @@
 package ru.spb.miwm64.moviemanager.client.gui;
 
+import javafx.scene.control.Button;
 import ru.spb.miwm64.moviemanager.client.gui.pane.*;
+import ru.spb.miwm64.moviemanager.client.gui.util.I18N;
 import ru.spb.miwm64.moviemanager.client.gui.widgets.FooterLabel;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -11,6 +13,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 public class MyScene extends Scene {
     private final BorderPane mainPane;
@@ -31,6 +36,14 @@ public class MyScene extends Scene {
         this.tablePane = new TablePane();
         this.headerPane = new HeaderPane(primaryStage);
         this.footerLabel = new FooterLabel();
+
+        Button tmp = new Button();
+        tmp.setText("login");
+        tmp.setOnMouseClicked((event) -> {
+            I18N.setLocale(new  Locale("fr", "fr"));
+        });
+
+        loginPane.getChildren().add(tmp);
 
         footerLabel.setOnMouseClicked(event -> {
             footerClickedCount++;
