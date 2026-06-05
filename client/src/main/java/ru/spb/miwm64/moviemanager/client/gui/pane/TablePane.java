@@ -26,10 +26,13 @@ import ru.spb.miwm64.moviemanager.common.entities.Movie;
 import ru.spb.miwm64.moviemanager.common.net.VersionedObject;
 
 import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TablePane extends VBox {
     private final ObservableList<VersionedObject<Movie>> tableEntries;
     private final ListChangeListener<VersionedObject<Movie>> tableEntryListChangeListener;
+    private final Map<Long, TableEntry> tableEntryMap;
 
     private final Label titleLabel;
     private final TableEntry columnRow;
@@ -41,6 +44,7 @@ public class TablePane extends VBox {
 
 
     public TablePane(ObservableCollection collectionManager) {
+        tableEntryMap = new ConcurrentHashMap<>();
         tableEntries = collectionManager.getRawAll();
         tableEntryListChangeListener = change -> {
             handleUpdate(change);
@@ -85,22 +89,21 @@ public class TablePane extends VBox {
             TableEntry entry = new TableEntry(movie.data);
             entriesVBox.getChildren().add(entry);
             VBox.setMargin(entry, new Insets(0, 0, 5, 0));
+            tableEntryMap.put(movie.data.getId(), entry);
         });
     }
 
     private void removeEntry(VersionedObject<Movie> movie) {
         Platform.runLater(() -> {
-            TableEntry entry = new TableEntry(movie.data);
-            entriesVBox.getChildren().add(entry);
-            VBox.setMargin(entry, new Insets(0, 0, 5, 0));
+            TableEntry entry = tableEntryMap.remove(movie.data.getId());
+            entriesVBox.getChildren().remove(entry);
         });
     }
 
     private void updateEntry(VersionedObject<Movie> movie) {
         Platform.runLater(() -> {
-        TableEntry entry = new TableEntry(movie.data);
-        entriesVBox.getChildren().add(entry);
-        VBox.setMargin(entry,  new Insets(0, 0, 5, 0));
+            TableEntry entry = tableEntryMap.get(movie.data.getId());
+            entry.setMovie(movie.data);
         });
     }
 
