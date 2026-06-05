@@ -52,6 +52,7 @@ public class TableEntry extends HBox {
     }
 
     public void setMovie(Movie movie) {
+        this.id.setText(""+movie.getId());
         this.title.setText(movie.getName());
         this.coordinate.setText("(" + movie.getCoordinates().getX() + ", " + movie.getCoordinates().getY() + ")");
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy-HH:mm");
