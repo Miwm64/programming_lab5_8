@@ -6,7 +6,7 @@ import javafx.scene.control.ComboBox;
 import ru.spb.miwm64.moviemanager.client.gui.util.I18N;
 
 import java.util.Locale;
-
+// TODO icon
 public class LanguageSelector extends ComboBox<String> {
     private final ObservableList<String> langs;
     public LanguageSelector() {
