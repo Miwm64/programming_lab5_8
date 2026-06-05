@@ -1,5 +1,6 @@
 package ru.spb.miwm64.moviemanager.client.gui;
 
+import javafx.geometry.NodeOrientation;
 import javafx.scene.control.Button;
 import ru.spb.miwm64.moviemanager.client.gui.pane.*;
 import ru.spb.miwm64.moviemanager.client.gui.util.I18N;

@@ -15,6 +15,7 @@ import javafx.scene.control.Label;
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import ru.spb.miwm64.moviemanager.client.gui.widgets.LanguageSelector;
 
 import java.util.Locale;
 
@@ -37,15 +38,7 @@ public class HeaderPane extends StackPane {
         hideButton = new Button();
         title = new Label();
         mainPane = new BorderPane();
-        changeLocalization = new ComboBox<>();
-        ObservableList<String> langs = FXCollections.observableArrayList();
-        langs.add("en");
-        langs.add("fr");
-        changeLocalization.setItems(langs);
-        changeLocalization.getSelectionModel().select(0);
-        changeLocalization.valueProperty().addListener((observable, oldValue, newValue) -> {
-            I18N.setLocale(new Locale(newValue));
-        });
+        changeLocalization = new LanguageSelector();
 
         elementInit(primaryStage);
 
