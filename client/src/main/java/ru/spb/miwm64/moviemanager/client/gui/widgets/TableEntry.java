@@ -10,6 +10,7 @@ import javafx.scene.layout.Priority;
 
 import java.util.Random;
 
+// TODO i18n
 public class TableEntry extends HBox {
     private Button editButton = new Button("Edit");
     private Label title = createLabel("Title");

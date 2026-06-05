@@ -1,6 +1,9 @@
 package ru.spb.miwm64.moviemanager.client.gui;
 
+import javafx.geometry.NodeOrientation;
+import javafx.scene.control.Button;
 import ru.spb.miwm64.moviemanager.client.gui.pane.*;
+import ru.spb.miwm64.moviemanager.client.gui.util.I18N;
 import ru.spb.miwm64.moviemanager.client.gui.widgets.FooterLabel;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -11,6 +14,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 public class MyScene extends Scene {
     private final BorderPane mainPane;
@@ -24,7 +30,7 @@ public class MyScene extends Scene {
     private int footerClickedCount = 0;
 
     public MyScene(Stage primaryStage) {
-        super(new Label("Loading..."));
+        super(new Label(I18N.get("my_scene.label.loading")));
         this.mainPane = new BorderPane();
         this.loginPane = new LoginPane();
         this.registerPane = new RegisterPane();

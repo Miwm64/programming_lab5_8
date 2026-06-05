@@ -18,9 +18,7 @@ import ru.spb.miwm64.moviemanager.common.io.Writer;
 import ru.spb.miwm64.moviemanager.common.io.XMLParser;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class Main extends Application {
     @Override
