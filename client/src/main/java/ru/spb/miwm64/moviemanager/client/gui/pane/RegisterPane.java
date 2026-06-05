@@ -156,8 +156,8 @@ public class RegisterPane extends VBox {
         data.put("username", nicknameEdit.getText());
         data.put("password", passwordEdit.getText());
         data.put("email", emailEdit.getText());
-        data.put("firstName", "test");
-        data.put("lastName", "test");
+        data.put("firstName", "default");
+        data.put("lastName", "default");
         return data;
     }
 }
