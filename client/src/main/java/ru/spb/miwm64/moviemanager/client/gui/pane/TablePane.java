@@ -1,5 +1,9 @@
 package ru.spb.miwm64.moviemanager.client.gui.pane;
 
+import javafx.application.Platform;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ru.spb.miwm64.moviemanager.client.Main;
 import ru.spb.miwm64.moviemanager.client.collectionmanager.ObservableCollection;
 import ru.spb.miwm64.moviemanager.client.gui.util.Helper;
 import ru.spb.miwm64.moviemanager.client.gui.util.I18N;
@@ -33,12 +37,17 @@ public class TablePane extends VBox {
     private final ScrollPane entriesScrollPane;
     private final Button createButton = new Button();
 
+    private final Logger log = LoggerFactory.getLogger(TablePane.class);
+
+
     public TablePane(ObservableCollection collectionManager) {
         tableEntries = collectionManager.getRawAll();
         tableEntryListChangeListener = change -> {
-            System.out.println("Changed list change");
+            handleUpdate(change);
         };
         tableEntries.addListener(tableEntryListChangeListener);
+
+
         entriesScrollPane = new ScrollPane();
         entriesVBox = new VBox();
         entriesScrollPane.setContent(entriesVBox);
@@ -67,15 +76,54 @@ public class TablePane extends VBox {
             CreatePane createPane = new CreatePane();
             createPane.show();
         });
-        for (int i = 0; i < 10; ++i){
-            addEntry();
-        }
+
         createButton.textProperty().bind(I18N.createBinding("table_pane.button.create"));
     }
 
-    private void addEntry() {
-        TableEntry entry = new TableEntry(true);
+    private void addEntry(VersionedObject<Movie> movie) {
+        Platform.runLater(() -> {
+            TableEntry entry = new TableEntry(movie.data);
+            entriesVBox.getChildren().add(entry);
+            VBox.setMargin(entry, new Insets(0, 0, 5, 0));
+        });
+    }
+
+    private void removeEntry(VersionedObject<Movie> movie) {
+        Platform.runLater(() -> {
+            TableEntry entry = new TableEntry(movie.data);
+            entriesVBox.getChildren().add(entry);
+            VBox.setMargin(entry, new Insets(0, 0, 5, 0));
+        });
+    }
+
+    private void updateEntry(VersionedObject<Movie> movie) {
+        Platform.runLater(() -> {
+        TableEntry entry = new TableEntry(movie.data);
         entriesVBox.getChildren().add(entry);
         VBox.setMargin(entry,  new Insets(0, 0, 5, 0));
+        });
+    }
+
+    private void handleUpdate(ListChangeListener.Change<? extends VersionedObject<Movie>> change){
+        while (change.next()) {
+            if (change.wasRemoved() && change.wasAdded()) {
+                for (VersionedObject<Movie> item : change.getAddedSubList()) {
+                    log.info("updated - id: " + item.data.getId());
+                    updateEntry(item);
+                }
+            }
+            else if (change.wasRemoved()) {
+                for (VersionedObject<Movie> item : change.getRemoved()) {
+                    log.info("deleted - id: " + item.data.getId());
+                    removeEntry(item);
+                }
+            }
+            else if (change.wasAdded()) {
+                for (VersionedObject<Movie> item : change.getAddedSubList()) {
+                    log.info("created - id: " + item.data.getId());
+                    addEntry(item);
+                }
+            }
+        }
     }
 }
