@@ -26,7 +26,6 @@ public class Main extends Application {
     public void start(Stage primaryStage) {
         Logger log = LoggerFactory.getLogger(Main.class);
         log.info("JavaFX application started");
-        Scene scene = new MyScene(primaryStage);
         UDPClient udpClient = new UDPClient(new InetSocketAddress("localhost", 7878));
         JsonRpcClient jsonRpcClient = new JsonRpcClient(udpClient);
 
@@ -36,6 +35,7 @@ public class Main extends Application {
         XMLParser xmlParser = new XMLParser();
         List<String> messages = Collections.synchronizedList(new ArrayList<String>());
 
+        Scene scene = new MyScene(primaryStage, collectionManager, xmlParser, jsonRpcClient);
         stageInit(primaryStage, scene);
 
         SynchronizationThread thread = new SynchronizationThread(jsonRpcClient, queue, collectionManager, messages);

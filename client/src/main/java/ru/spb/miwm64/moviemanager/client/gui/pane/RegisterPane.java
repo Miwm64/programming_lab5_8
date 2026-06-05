@@ -14,11 +14,14 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import ru.spb.miwm64.moviemanager.client.gui.util.I18N;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class RegisterPane extends VBox {
     private final Label titleLabel;
     private final TextField nicknameEdit;
+    private final TextField emailEdit;
     private final PasswordField passwordEdit;
     private final PasswordField password2Edit;
     private final Button enterButton;
@@ -27,6 +30,7 @@ public class RegisterPane extends VBox {
     public RegisterPane() {
         titleLabel = new Label();
         nicknameEdit = new TextField();
+        emailEdit = new TextField();
         passwordEdit = new PasswordField();
         password2Edit = new PasswordField();
 
@@ -45,6 +49,13 @@ public class RegisterPane extends VBox {
         nicknameEdit.setStyle("-fx-background-color: #EEDEC5; -fx-background-radius: 24;" +
                 "-fx-border-color: E7B36F; -fx-border-width: 1; -fx-border-radius: 24;");
         nicknameEdit.setFont(Helper.getFont(14));
+
+        emailEdit.setPromptText("email");
+        emailEdit.setMaxWidth(300);
+        emailEdit.setMaxHeight(200);
+        emailEdit.setStyle("-fx-background-color: #EEDEC5; -fx-background-radius: 24;" +
+                "-fx-border-color: E7B36F; -fx-border-width: 1; -fx-border-radius: 24;");
+        emailEdit.setFont(Helper.getFont(14));
 
         passwordEdit.setPromptText("password");
         passwordEdit.setMaxWidth(300);
@@ -75,13 +86,23 @@ public class RegisterPane extends VBox {
         titleLabel.setFont(Helper.getBoldFont(18));
         titleLabel.setPadding(new Insets(0, 10, 0, 10));
         setMargin(titleLabel, new Insets(0, 0, 40, 0));
+        setMargin(emailEdit, new Insets(10, 0, 0, 0));
         setMargin(passwordEdit, new Insets(10, 0, 0, 0));
         setMargin(password2Edit, new Insets(10, 0, 40, 0));
         setMargin(switchButton, new Insets(0, 0, 20, 0));
 
         nicknameEdit.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!Objects.equals(password2Edit.getText(), passwordEdit.getText()) || passwordEdit.getText().isEmpty() ||
-                    nicknameEdit.getText().isEmpty()) {
+                    nicknameEdit.getText().isEmpty() || emailEdit.getText().isEmpty() || !emailEdit.getText().contains("@")) {
+                enterButton.setDisable(true);
+            }
+            else  {
+                enterButton.setDisable(false);
+            }
+        });
+        emailEdit.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!Objects.equals(password2Edit.getText(), passwordEdit.getText()) || passwordEdit.getText().isEmpty() ||
+                    nicknameEdit.getText().isEmpty() || emailEdit.getText().isEmpty() || !emailEdit.getText().contains("@")) {
                 enterButton.setDisable(true);
             }
             else  {
@@ -90,7 +111,7 @@ public class RegisterPane extends VBox {
         });
         passwordEdit.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!Objects.equals(password2Edit.getText(), newValue) || newValue.isEmpty() ||
-                    nicknameEdit.getText().isEmpty()) {
+                    nicknameEdit.getText().isEmpty() || emailEdit.getText().isEmpty() || !emailEdit.getText().contains("@")) {
                 enterButton.setDisable(true);
             }
             else  {
@@ -99,7 +120,7 @@ public class RegisterPane extends VBox {
         });
         password2Edit.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!Objects.equals(passwordEdit.getText(), newValue) || newValue.isEmpty() ||
-                    nicknameEdit.getText().isEmpty()) {
+                    nicknameEdit.getText().isEmpty() || emailEdit.getText().isEmpty() || !emailEdit.getText().contains("@")) {
                 enterButton.setDisable(true);
             }
             else  {
@@ -114,6 +135,7 @@ public class RegisterPane extends VBox {
 
         this.getChildren().add(titleLabel);
         this.getChildren().add(nicknameEdit);
+        this.getChildren().add(emailEdit);
         this.getChildren().add(passwordEdit);
         this.getChildren().add(password2Edit);
 
@@ -127,5 +149,15 @@ public class RegisterPane extends VBox {
 
     public Button getRegisterButton() {
         return enterButton;
+    }
+
+    public Map<String, String> getData() {
+        Map<String, String> data = new HashMap<>();
+        data.put("username", nicknameEdit.getText());
+        data.put("password", passwordEdit.getText());
+        data.put("email", emailEdit.getText());
+        data.put("firstName", "test");
+        data.put("lastName", "test");
+        return data;
     }
 }
