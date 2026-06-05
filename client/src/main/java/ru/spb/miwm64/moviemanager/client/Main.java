@@ -41,7 +41,6 @@ public class Main extends Application {
         SynchronizationThread thread = new SynchronizationThread(jsonRpcClient, queue, collectionManager, messages);
         thread.start();
 
-        thread.gracefulShutdown();
         return;
     }
 

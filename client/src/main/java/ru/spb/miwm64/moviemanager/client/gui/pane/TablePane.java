@@ -1,5 +1,6 @@
 package ru.spb.miwm64.moviemanager.client.gui.pane;
 
+import ru.spb.miwm64.moviemanager.client.collectionmanager.ObservableCollection;
 import ru.spb.miwm64.moviemanager.client.gui.util.Helper;
 import ru.spb.miwm64.moviemanager.client.gui.util.I18N;
 import ru.spb.miwm64.moviemanager.client.gui.widgets.TableEntry;
@@ -16,17 +17,28 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
+import ru.spb.miwm64.moviemanager.common.entities.Movie;
+import ru.spb.miwm64.moviemanager.common.net.VersionedObject;
+
+import java.util.Collections;
 
 public class TablePane extends VBox {
-//    private final ObservableList<String> tableEntries;
-//    private final ListChangeListener<String> tableEntryListChangeListener;
+    private final ObservableList<VersionedObject<Movie>> tableEntries;
+    private final ListChangeListener<VersionedObject<Movie>> tableEntryListChangeListener;
+
     private final Label titleLabel;
     private final TableEntry columnRow;
     private final VBox entriesVBox;
     private final ScrollPane entriesScrollPane;
     private final Button createButton = new Button();
 
-    public TablePane() {
+    public TablePane(ObservableCollection collectionManager) {
+        tableEntries = collectionManager.getRawAll();
+        tableEntryListChangeListener = change -> {
+            System.out.println("Changed list change");
+        };
+        tableEntries.addListener(tableEntryListChangeListener);
         entriesScrollPane = new ScrollPane();
         entriesVBox = new VBox();
         entriesScrollPane.setContent(entriesVBox);

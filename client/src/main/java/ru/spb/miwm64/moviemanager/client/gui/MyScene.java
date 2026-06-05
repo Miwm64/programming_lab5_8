@@ -1,5 +1,7 @@
 package ru.spb.miwm64.moviemanager.client.gui;
 
+import ru.spb.miwm64.moviemanager.client.collectionmanager.BatchRemoteCollectionManager;
+import ru.spb.miwm64.moviemanager.client.collectionmanager.ObservableCollection;
 import ru.spb.miwm64.moviemanager.client.command.Command;
 import ru.spb.miwm64.moviemanager.client.command.CommandFactory;
 import ru.spb.miwm64.moviemanager.client.gui.pane.*;
@@ -37,7 +39,7 @@ public class MyScene extends Scene {
 
     private int footerClickedCount = 0;
 
-    public MyScene(Stage primaryStage, CollectionManager collectionManager, XMLParser xmlParser,
+    public MyScene(Stage primaryStage, BatchRemoteCollectionManager collectionManager, XMLParser xmlParser,
                    JsonRpcClient jsonRpcClient) {
         super(new Label(I18N.get("my_scene.label.loading")));
         this.readers = new LinkedList<>();
@@ -48,7 +50,7 @@ public class MyScene extends Scene {
         this.mainPane = new BorderPane();
         this.loginPane = new LoginPane();
         this.registerPane = new RegisterPane();
-        this.tablePane = new TablePane();
+        this.tablePane = new TablePane(collectionManager);
         this.headerPane = new HeaderPane(primaryStage);
         this.footerLabel = new FooterLabel();
 
