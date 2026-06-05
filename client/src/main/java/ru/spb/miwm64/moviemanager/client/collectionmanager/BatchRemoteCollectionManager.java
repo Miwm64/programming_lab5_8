@@ -1,7 +1,7 @@
 package ru.spb.miwm64.moviemanager.client.collectionmanager;
 
 import ru.spb.miwm64.moviemanager.common.net.Batch;
-import ru.spb.miwm64.moviemanager.client.PendingChangeQueue;
+import ru.spb.miwm64.moviemanager.client.sync.PendingChangeQueue;
 import ru.spb.miwm64.moviemanager.common.net.VersionedObject;
 import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
 import ru.spb.miwm64.moviemanager.common.entities.Movie;

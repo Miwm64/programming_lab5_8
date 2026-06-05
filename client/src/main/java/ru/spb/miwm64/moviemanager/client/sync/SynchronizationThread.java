@@ -1,4 +1,4 @@
-package ru.spb.miwm64.moviemanager.client;
+package ru.spb.miwm64.moviemanager.client.sync;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.slf4j.Logger;
