@@ -1,5 +1,6 @@
 package ru.spb.miwm64.moviemanager.client.gui.widgets;
 
+import ru.spb.miwm64.moviemanager.client.gui.dialog.MyDialog;
 import ru.spb.miwm64.moviemanager.client.gui.util.Helper;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -67,18 +68,15 @@ public class TableEntry extends HBox {
     }
 
     private TableEntry() {
-        this.getChildren().add(editButton);
-        this.getChildren().add(id);
-        this.getChildren().add(title);
-        this.getChildren().add(coordinate);
-        this.getChildren().add(creationDate);
-        this.getChildren().add(oscars);
-        this.getChildren().add(goldenPalm);
-        this.getChildren().add(genre);
-        this.getChildren().add(MPAA_RATING);
-        this.getChildren().add(person);
-        this.getChildren().add(deleteButton);
+        editButton.setMinWidth(Button.USE_PREF_SIZE);
+        deleteButton.setMinWidth(Button.USE_PREF_SIZE);
+        editButton.setMaxWidth(Double.MAX_VALUE);
+        deleteButton.setMaxWidth(Double.MAX_VALUE);
 
+        this.getChildren().addAll(editButton, id, title, coordinate, creationDate,
+                oscars, goldenPalm, genre, MPAA_RATING, person, deleteButton);
+
+        // 3. Bind label widths (unchanged)
         title.prefWidthProperty().bind(titleWidth);
         id.prefWidthProperty().bind(idWidth);
         coordinate.prefWidthProperty().bind(coordWidth);
@@ -98,9 +96,18 @@ public class TableEntry extends HBox {
         HBox.setHgrow(genre, Priority.NEVER);
         HBox.setHgrow(MPAA_RATING, Priority.NEVER);
         HBox.setHgrow(person, Priority.NEVER);
+        HBox.setHgrow(editButton, Priority.NEVER);
+        HBox.setHgrow(deleteButton, Priority.NEVER);
 
         id.setMinWidth(30);
         HBox.setMargin(editButton, new Insets(0, 10, 0, 0));
+        HBox.setMargin(deleteButton, new Insets(0, 0, 0, 10));
+        setMinWidth(800);
+
+        editButton.setOnMouseClicked(event -> {
+            MyDialog dialog = new MyDialog();
+            dialog.showAndWait();
+        });
     }
 
     private static Label createLabel(String text) {

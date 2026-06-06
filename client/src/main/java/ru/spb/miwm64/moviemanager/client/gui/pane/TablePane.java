@@ -28,7 +28,7 @@ import ru.spb.miwm64.moviemanager.common.net.VersionedObject;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
+// todo animations
 public class TablePane extends VBox {
     private final ObservableList<VersionedObject<Movie>> tableEntries;
     private final ListChangeListener<VersionedObject<Movie>> tableEntryListChangeListener;
