@@ -1,6 +1,8 @@
 package ru.spb.miwm64.moviemanager.client.gui.widgets;
 
+import ru.spb.miwm64.moviemanager.client.gui.dialog.CreateDialog;
 import ru.spb.miwm64.moviemanager.client.gui.dialog.MyDialog;
+import ru.spb.miwm64.moviemanager.client.gui.dialog.UpdateDialog;
 import ru.spb.miwm64.moviemanager.client.gui.util.Helper;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -27,6 +29,7 @@ public class TableEntry extends HBox {
     private Label MPAA_RATING = createLabel("MPAA");
     private Label person =  createLabel("Person");
     private Button deleteButton = new Button("Delete");
+    private Movie movie;
 
     private static final DoubleProperty titleWidth = new SimpleDoubleProperty(100);
     private static final DoubleProperty idWidth = new SimpleDoubleProperty(30);
@@ -53,6 +56,7 @@ public class TableEntry extends HBox {
     }
 
     public void setMovie(Movie movie) {
+        this.movie = movie;
         this.id.setText(""+movie.getId());
         this.title.setText(movie.getName());
         this.coordinate.setText("(" + movie.getCoordinates().getX() + ", " + movie.getCoordinates().getY() + ")");
@@ -105,7 +109,7 @@ public class TableEntry extends HBox {
         setMinWidth(800);
 
         editButton.setOnMouseClicked(event -> {
-            MyDialog dialog = new MyDialog();
+            MyDialog dialog = new UpdateDialog(movie);
             dialog.showAndWait();
         });
     }

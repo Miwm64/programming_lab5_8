@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.spb.miwm64.moviemanager.client.Main;
 import ru.spb.miwm64.moviemanager.client.collectionmanager.ObservableCollection;
+import ru.spb.miwm64.moviemanager.client.gui.dialog.CreateDialog;
 import ru.spb.miwm64.moviemanager.client.gui.util.Helper;
 import ru.spb.miwm64.moviemanager.client.gui.util.I18N;
 import ru.spb.miwm64.moviemanager.client.gui.widgets.TableEntry;
@@ -77,8 +78,8 @@ public class TablePane extends VBox {
         this.setStyle("-fx-background-color: #DAC0A7; -fx-background-radius: 20px;");
         this.getChildren().add(createButton);
         createButton.setOnAction(e -> {
-            CreatePane createPane = new CreatePane();
-            createPane.show();
+            CreateDialog createPane = new CreateDialog();
+            createPane.showAndWait();
         });
 
         createButton.textProperty().bind(I18N.createBinding("table_pane.button.create"));

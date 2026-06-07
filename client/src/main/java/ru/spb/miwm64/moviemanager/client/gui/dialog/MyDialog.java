@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MyDialog extends Dialog{
+public sealed class MyDialog extends Dialog permits CreateDialog, UpdateDialog{
     protected final DialogPane dialogPane;
     protected final VBox mainPane;
     private final ScrollPane scrollPane;
@@ -45,6 +45,7 @@ public class MyDialog extends Dialog{
         titleLabel.setPrefWidth(200);
         titleLabel.setAlignment(Pos.CENTER);
         mainPane.getChildren().add(titleLabel);
+        mainPane.setMargin(titleLabel, new Insets(0, 0, 60, 0));
     }
 
     protected void addField(Parameter<?> parameter) {
@@ -65,10 +66,10 @@ public class MyDialog extends Dialog{
             if (!newValue) {
                 try {
                     parameter.fromString(field.getText());
-                    field.setStyle("-fx-text-fill: black;");
+                    field.setStyle("-fx-background-color: #E7B36F; -fx-background-radius: 24;-fx-border-color: E7B36F; -fx-border-width: 1; -fx-border-radius: 24;-fx-text-fill: black; -fx-prompt-text-fill: black;");
                 }
                 catch (Exception e) {
-                    field.setStyle("-fx-text-fill: red;");
+                    field.setStyle("-fx-background-color: #E7B36F; -fx-background-radius: 24;-fx-border-color: E7B36F; -fx-border-width: 1; -fx-border-radius: 24;-fx-text-fill: red; -fx-prompt-text-fill: red;");
                 }
             }
         });
