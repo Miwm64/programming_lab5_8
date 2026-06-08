@@ -1,13 +1,26 @@
 package ru.spb.miwm64.moviemanager.client.gui.dialog;
 
+import javafx.application.Platform;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Control;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextField;
+import ru.spb.miwm64.moviemanager.client.command.Command;
 import ru.spb.miwm64.moviemanager.client.command.Parameter;
 import ru.spb.miwm64.moviemanager.client.commands.AddCommand;
+import ru.spb.miwm64.moviemanager.client.commands.UpdateByIDCommand;
+import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
 import ru.spb.miwm64.moviemanager.common.entities.*;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+
 public final class UpdateDialog extends MyDialog {
-    public UpdateDialog(Movie movie) {
+    private Movie movie;
+    private final CollectionManager collectionManager;
+    public UpdateDialog(Movie movie, CollectionManager collectionManager) {
         super();
+        this.collectionManager = collectionManager;
         titleLabel.setText("Update Movie");
         parameterList = new AddCommand(null).getParams();
 
@@ -18,13 +31,24 @@ public final class UpdateDialog extends MyDialog {
     }
 
     private void setFields(Movie movie) {
+        this.movie = movie;
         for (Parameter<?> param : parameterList) {
             String paramName = param.getName();
-            TextField field = fieldMap.get(paramName);
-            if (field == null) continue;
+            Control control = fieldMap.get(paramName);
+            if (control == null) continue;
 
             Object value = getMovieFieldValue(movie, paramName);
-            field.setText(value != null ? value.toString() : "");
+
+            if (control instanceof TextField) {
+                TextField field = (TextField) control;
+                field.setText(value != null ? value.toString() : "");
+                param.fromString(field.getText());
+            }
+            else if (control instanceof ComboBox) {
+                ComboBox<Object> combo = (ComboBox<Object>) control;
+                combo.setValue(value);
+                param.fromString(combo.getValue().toString());
+            }
         }
     }
 
@@ -56,4 +80,16 @@ public final class UpdateDialog extends MyDialog {
                 return null;
         }
     }
+    @Override
+    protected void execute(){
+        Platform.runLater(() -> {
+            Command updateCommand = new UpdateByIDCommand(collectionManager);
+            updateCommand.setParams(parameterList);
+            Parameter<?> param = updateCommand.getRemainingRequiredParams().get(0);
+            param.fromString(this.movie.getId() + "");
+            updateCommand.setParam(param);
+            updateCommand.execute();
+        });
+    }
+    // TODO no permission err
 }

@@ -42,9 +42,9 @@ public class TablePane extends VBox {
     private final Button createButton = new Button();
 
     private final Logger log = LoggerFactory.getLogger(TablePane.class);
+    private final CollectionManager cm;
 
-
-    public TablePane(ObservableCollection collectionManager) {
+    public TablePane(ObservableCollection collectionManager, CollectionManager cm) {
         tableEntryMap = new ConcurrentHashMap<>();
         tableEntries = collectionManager.getRawAll();
         tableEntryListChangeListener = change -> {
@@ -53,6 +53,7 @@ public class TablePane extends VBox {
         tableEntries.addListener(tableEntryListChangeListener);
 
 
+        this.cm = cm;
         entriesScrollPane = new ScrollPane();
         entriesVBox = new VBox();
         entriesScrollPane.setContent(entriesVBox);
@@ -61,7 +62,7 @@ public class TablePane extends VBox {
         titleLabel.setFont(Helper.getBoldFont(18));
         titleLabel.setStyle("-fx-background-color: #EEDEC5;" +
                 "-fx-background-radius: 24px;  -fx-border-radius: 24;");
-        columnRow = new TableEntry(false);
+        columnRow = new TableEntry(false, cm);
         titleLabel.setPrefWidth(300);
         titleLabel.setAlignment(Pos.CENTER);
         this.setAlignment(Pos.TOP_CENTER);
@@ -85,9 +86,9 @@ public class TablePane extends VBox {
         createButton.textProperty().bind(I18N.createBinding("table_pane.button.create"));
     }
 
-    private void addEntry(VersionedObject<Movie> movie) {
+    private void addEntry(VersionedObject<Movie> movie, CollectionManager cm) {
         Platform.runLater(() -> {
-            TableEntry entry = new TableEntry(movie.data);
+            TableEntry entry = new TableEntry(movie.data, cm);
             entriesVBox.getChildren().add(entry);
             VBox.setMargin(entry, new Insets(0, 0, 5, 0));
             tableEntryMap.put(movie.data.getId(), entry);
@@ -125,7 +126,7 @@ public class TablePane extends VBox {
             else if (change.wasAdded()) {
                 for (VersionedObject<Movie> item : change.getAddedSubList()) {
                     log.info("created - id: " + item.data.getId());
-                    addEntry(item);
+                    addEntry(item, cm);
                 }
             }
         }

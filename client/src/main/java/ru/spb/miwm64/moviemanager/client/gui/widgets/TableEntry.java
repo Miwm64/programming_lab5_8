@@ -12,6 +12,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
 import ru.spb.miwm64.moviemanager.common.entities.Movie;
 
 import java.time.format.DateTimeFormatter;
@@ -30,6 +31,8 @@ public class TableEntry extends HBox {
     private Label person =  createLabel("Person");
     private Button deleteButton = new Button("Delete");
     private Movie movie;
+    private CollectionManager collectionManager;
+
 
     private static final DoubleProperty titleWidth = new SimpleDoubleProperty(100);
     private static final DoubleProperty idWidth = new SimpleDoubleProperty(30);
@@ -41,18 +44,20 @@ public class TableEntry extends HBox {
     private static final DoubleProperty ratingWidth = new SimpleDoubleProperty(50);
     private static final DoubleProperty personWidth = new SimpleDoubleProperty(100);
 
-    public TableEntry(boolean showButtons) {
+    public TableEntry(boolean showButtons, CollectionManager collectionManager) {
         this();
         if (!showButtons) {
             editButton.setVisible(false);
             id.setVisible(false);
             deleteButton.setVisible(false);
         }
+        this.collectionManager = collectionManager;
     }
 
-    public TableEntry(Movie movie) {
+    public TableEntry(Movie movie, CollectionManager collectionManager) {
         this();
         setMovie(movie);
+        this.collectionManager = collectionManager;
     }
 
     public void setMovie(Movie movie) {
@@ -109,7 +114,7 @@ public class TableEntry extends HBox {
         setMinWidth(800);
 
         editButton.setOnMouseClicked(event -> {
-            MyDialog dialog = new UpdateDialog(movie);
+            MyDialog dialog = new UpdateDialog(movie, collectionManager);
             dialog.showAndWait();
         });
     }

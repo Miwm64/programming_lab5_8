@@ -50,7 +50,7 @@ public class MyScene extends Scene {
         this.mainPane = new BorderPane();
         this.loginPane = new LoginPane();
         this.registerPane = new RegisterPane();
-        this.tablePane = new TablePane(collectionManager);
+        this.tablePane = new TablePane(collectionManager, collectionManager);
         this.headerPane = new HeaderPane(primaryStage);
         this.footerLabel = new FooterLabel();
 
@@ -104,6 +104,7 @@ public class MyScene extends Scene {
             }
         }
         catch (Exception e) {
+            System.out.println(e.getMessage());
             GuiFactory.createErrorPopup("Err").show();
         }
     }
