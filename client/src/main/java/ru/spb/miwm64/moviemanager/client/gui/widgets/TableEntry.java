@@ -1,6 +1,8 @@
 package ru.spb.miwm64.moviemanager.client.gui.widgets;
 
 import javafx.application.Platform;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import ru.spb.miwm64.moviemanager.client.command.Command;
 import ru.spb.miwm64.moviemanager.client.command.Parameter;
 import ru.spb.miwm64.moviemanager.client.commands.RemoveByIDCommand;
@@ -26,7 +28,7 @@ import java.util.function.Consumer;
 
 // TODO i18n
 public class TableEntry extends HBox {
-    private Button editButton = new Button("Edit");
+    private Button editButton = new Button();
     private Label title = createLabel("Title");
     private Label id = createLabel("ID");
     private Label coordinate = createLabel("Coordinates");
@@ -36,7 +38,7 @@ public class TableEntry extends HBox {
     private Label genre = createLabel("Genre");
     private Label MPAA_RATING = createLabel("MPAA");
     private Label person =  createLabel("Person");
-    private Button deleteButton = new Button("Delete");
+    private Button deleteButton = new Button();
     private Movie movie;
     private CollectionManager collectionManager;
     private Consumer<SortColumn> sortHandler;
@@ -124,6 +126,27 @@ public class TableEntry extends HBox {
         HBox.setMargin(editButton, new Insets(0, 10, 0, 0));
         HBox.setMargin(deleteButton, new Insets(0, 0, 0, 10));
         setMinWidth(800);
+
+        String resourcePath = "/images/edit.png";
+        var resourceUrl = getClass().getResourceAsStream(resourcePath);
+        Image icon = new Image(resourceUrl);
+        ImageView imageView = new ImageView(icon);
+        imageView.setFitWidth(24);
+        imageView.setFitHeight(24);
+        imageView.setPreserveRatio(true);
+        editButton.setStyle("-fx-background-color: transparent;");
+        editButton.setGraphic(imageView);
+
+
+        String resourcePath2 = "/images/delete.png";
+        var resourceUrl2 = getClass().getResourceAsStream(resourcePath2);
+        Image icon2 = new Image(resourceUrl2);
+        ImageView imageView2 = new ImageView(icon2);
+        imageView2.setFitWidth(24);
+        imageView2.setFitHeight(24);
+        imageView2.setPreserveRatio(true);
+        deleteButton.setStyle("-fx-background-color: transparent;");
+        deleteButton.setGraphic(imageView2);
 
         editButton.setOnMouseClicked(event -> {
             MyDialog dialog = new UpdateDialog(movie, collectionManager);
