@@ -1,5 +1,6 @@
 package ru.spb.miwm64.moviemanager.client.gui.pane;
 
+import javafx.animation.*;
 import javafx.application.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,15 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-// todo animations
+
+import javafx.scene.Node;
+import javafx.geometry.Point2D;
+
+import javafx.util.Duration;
+
+import java.util.HashMap;
+
+
 public class TablePane extends VBox {
     private final ObservableList<VersionedObject<Movie>> tableEntries;
     private final ListChangeListener<VersionedObject<Movie>> tableEntryListChangeListener;
@@ -47,6 +56,7 @@ public class TablePane extends VBox {
 
     private SortColumn currentSortColumn = SortColumn.ID;
     private boolean ascending = true;
+    private boolean sorting = false;
 
     public TablePane(ObservableCollection collectionManager, CollectionManager cm) {
         tableEntryMap = new ConcurrentHashMap<>();
@@ -91,18 +101,47 @@ public class TablePane extends VBox {
     }
 
     private void addEntry(VersionedObject<Movie> movie, CollectionManager cm) {
+
         Platform.runLater(() -> {
-            TableEntry entry = new TableEntry(movie.data, cm);
-            entriesVBox.getChildren().add(entry);
-            VBox.setMargin(entry, new Insets(0, 0, 5, 0));
-            tableEntryMap.put(movie.data.getId(), entry);
+
+            TableEntry entry =
+                    new TableEntry(
+                            movie.data,
+                            cm
+                    );
+
+            tableEntryMap.put(
+                    movie.data.getId(),
+                    entry
+            );
+
+            rebuildTable();
+
+            animateCreate(entry);
         });
     }
 
-    private void removeEntry(VersionedObject<Movie> movie) {
+    private void removeEntry(
+            VersionedObject<Movie> movie
+    ) {
+
         Platform.runLater(() -> {
-            TableEntry entry = tableEntryMap.remove(movie.data.getId());
-            entriesVBox.getChildren().remove(entry);
+
+            TableEntry entry =
+                    tableEntryMap.remove(
+                            movie.data.getId()
+                    );
+
+            if (entry == null) {
+                return;
+            }
+
+            animateDelete(
+                    entry,
+                    () -> entriesVBox
+                            .getChildren()
+                            .remove(entry)
+            );
         });
     }
 
@@ -113,13 +152,15 @@ public class TablePane extends VBox {
         });
     }
 
+
     private void handleUpdate(ListChangeListener.Change<? extends VersionedObject<Movie>> change) {
         boolean shouldSort = false;
-
+        if (sorting) {
+            return;
+        }
         while (change.next()) {
 
             if (change.wasPermutated()) {
-                refreshTable();
                 continue;
             }
 
@@ -165,10 +206,25 @@ public class TablePane extends VBox {
     }
 
     private void applyCurrentSorting() {
-        FXCollections.sort(
-                tableEntries,
-                createComparator(currentSortColumn, ascending)
-        );
+
+        if (sorting) {
+            return;
+        }
+
+        sorting = true;
+
+        try {
+            FXCollections.sort(
+                    tableEntries,
+                    createComparator(
+                            currentSortColumn,
+                            ascending
+                    )
+            );
+        }
+        finally {
+            sorting = false;
+        }
     }
 
     private Comparator<VersionedObject<Movie>> createComparator( SortColumn column, boolean ascending) {
@@ -225,30 +281,34 @@ public class TablePane extends VBox {
                 : comparator.reversed();
     }
 
-    private void refreshTable() {
+    private void rebuildTable() {
 
-        Platform.runLater(() -> {
+        entriesVBox
+                .getChildren()
+                .clear();
 
-            entriesVBox.getChildren().clear();
+        for (VersionedObject<Movie> movie :
+                tableEntries) {
 
-            for (VersionedObject<Movie> movie : tableEntries) {
-
-                TableEntry entry =
-                        tableEntryMap.get(movie.data.getId());
-
-                if (entry != null) {
-
-                    VBox.setMargin(
-                            entry,
-                            new Insets(0, 0, 5, 0)
+            TableEntry entry =
+                    tableEntryMap.get(
+                            movie.data.getId()
                     );
 
-                    entriesVBox.getChildren().add(entry);
-                }
+            if (entry == null) {
+                continue;
             }
-        });
-    }
 
+            VBox.setMargin(
+                    entry,
+                    new Insets(0,0,5,0)
+            );
+
+            entriesVBox
+                    .getChildren()
+                    .add(entry);
+        }
+    }
     private void sortBy(SortColumn column) {
 
         if (currentSortColumn == column) {
@@ -258,9 +318,152 @@ public class TablePane extends VBox {
             ascending = true;
         }
 
-        FXCollections.sort(
-                tableEntries,
-                createComparator(currentSortColumn, ascending)
+        animateSort();
+    }
+
+    private void animateSort() {
+        Map<Node, Double> oldY = new HashMap<>();
+
+        for (Node node : entriesVBox.getChildren()) {
+            oldY.put(
+                    node,
+                    node.getBoundsInParent().getMinY()
+            );
+        }
+
+        sorting = true;
+
+        try {
+
+            FXCollections.sort(
+                    tableEntries,
+                    createComparator(
+                            currentSortColumn,
+                            ascending
+                    )
+            );
+
+            rebuildTable();
+
+            entriesVBox.applyCss();
+            entriesVBox.layout();
+
+            Platform.runLater(() -> {
+
+                try {
+
+                    for (Node node : entriesVBox.getChildren()) {
+
+                        double newY =
+                                node.getBoundsInParent()
+                                        .getMinY();
+
+                        double previousY =
+                                oldY.getOrDefault(
+                                        node,
+                                        newY
+                                );
+
+                        double delta =
+                                previousY - newY;
+
+
+                        if (Math.abs(delta) < 1) {
+                            continue;
+                        }
+
+                        node.setTranslateY(0);
+                        node.setTranslateY(delta);
+
+                        TranslateTransition tt =
+                                new TranslateTransition(
+                                        Duration.millis(500),
+                                        node
+                                );
+
+                        tt.setInterpolator(
+                                Interpolator.EASE_BOTH
+                        );
+
+                        tt.setToY(0);
+
+                        tt.play();
+                    }
+
+                } finally {
+                    sorting = false;
+                }
+            });
+
+        } catch (Exception e) {
+
+            sorting = false;
+            throw e;
+        }
+    }
+
+    private void animateCreate(TableEntry entry) {
+
+        entry.setOpacity(0);
+        entry.setScaleY(0.8);
+
+        FadeTransition fade =
+                new FadeTransition(
+                        Duration.millis(250),
+                        entry
+                );
+
+        fade.setFromValue(0);
+        fade.setToValue(1);
+
+        ScaleTransition scale =
+                new ScaleTransition(
+                        Duration.millis(250),
+                        entry
+                );
+
+        scale.setFromY(0.8);
+        scale.setToY(1);
+
+        new ParallelTransition(
+                fade,
+                scale
+        ).play();
+    }
+
+    private void animateDelete(
+            TableEntry entry,
+            Runnable after
+    ) {
+
+        FadeTransition fade =
+                new FadeTransition(
+                        Duration.millis(250),
+                        entry
+                );
+
+        fade.setFromValue(1);
+        fade.setToValue(0);
+
+        ScaleTransition scale =
+                new ScaleTransition(
+                        Duration.millis(250),
+                        entry
+                );
+
+        scale.setFromY(1);
+        scale.setToY(0.8);
+
+        ParallelTransition pt =
+                new ParallelTransition(
+                        fade,
+                        scale
+                );
+
+        pt.setOnFinished(
+                e -> after.run()
         );
+
+        pt.play();
     }
 }

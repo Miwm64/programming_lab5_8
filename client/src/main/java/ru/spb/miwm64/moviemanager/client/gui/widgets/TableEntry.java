@@ -137,7 +137,6 @@ public class TableEntry extends HBox {
                     if (!result) {
                         return;
                     }
-                    System.out.println("Delete button pressed");
 
                     Command deleteCommand = new RemoveByIDCommand(collectionManager);
                     Parameter param = deleteCommand.getParams().get(0);
