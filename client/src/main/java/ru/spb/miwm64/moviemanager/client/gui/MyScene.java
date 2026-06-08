@@ -4,6 +4,7 @@ import ru.spb.miwm64.moviemanager.client.collectionmanager.BatchRemoteCollection
 import ru.spb.miwm64.moviemanager.client.collectionmanager.ObservableCollection;
 import ru.spb.miwm64.moviemanager.client.command.Command;
 import ru.spb.miwm64.moviemanager.client.command.CommandFactory;
+import ru.spb.miwm64.moviemanager.client.commands.LogoutCommand;
 import ru.spb.miwm64.moviemanager.client.gui.pane.*;
 import ru.spb.miwm64.moviemanager.client.gui.util.GuiFactory;
 import ru.spb.miwm64.moviemanager.client.gui.util.I18N;
@@ -80,10 +81,23 @@ public class MyScene extends Scene {
         loginPane.getSwitchButton().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {mainPane.setCenter(registerPane);});
         registerPane.getSwitchButton().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {mainPane.setCenter(loginPane);});
         loginPane.getLoginButton().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-            login(loginPane.getData());
+            var data = loginPane.getData();
+            login(data);
+            headerPane.setNickname(data.get("username"));
+            headerPane.showTop();
         });
         registerPane.getRegisterButton().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-            register(registerPane.getData());
+            var data = registerPane.getData();
+            register(data);
+            headerPane.setNickname(data.get("username"));
+            headerPane.showTop();
+        });
+        headerPane.hideTop();
+        headerPane.getLogoutButton().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+            Command logoutcommand = new LogoutCommand(collectionManager);
+            logoutcommand.execute();
+            mainPane.setCenter(loginPane);
+            headerPane.hideTop();
         });
     }
 

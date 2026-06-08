@@ -26,7 +26,7 @@ import java.time.format.DateTimeFormatter;
 public class TableEntry extends HBox {
     private Button editButton = new Button("Edit");
     private Label title = createLabel("Title");
-    private Label id = createLabel("");
+    private Label id = createLabel("ID");
     private Label coordinate = createLabel("Coordinates");
     private Label creationDate = createLabel("Creation date");
     private Label oscars = createLabel("Oscars");
@@ -53,7 +53,6 @@ public class TableEntry extends HBox {
         this();
         if (!showButtons) {
             editButton.setVisible(false);
-            id.setVisible(false);
             deleteButton.setVisible(false);
         }
         this.collectionManager = collectionManager;
@@ -114,6 +113,7 @@ public class TableEntry extends HBox {
         HBox.setHgrow(deleteButton, Priority.NEVER);
 
         id.setMinWidth(30);
+        id.setMaxWidth(50);
         HBox.setMargin(editButton, new Insets(0, 10, 0, 0));
         HBox.setMargin(deleteButton, new Insets(0, 0, 0, 10));
         setMinWidth(800);

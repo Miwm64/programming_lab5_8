@@ -1,94 +1,124 @@
 package ru.spb.miwm64.moviemanager.client.gui.pane;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableArray;
-import javafx.collections.ObservableList;
-import javafx.scene.control.ComboBox;
-import javafx.scene.layout.*;
-import ru.spb.miwm64.moviemanager.client.gui.util.Helper;
-import ru.spb.miwm64.moviemanager.client.gui.util.I18N;
 import javafx.geometry.Insets;
+import javafx.geometry.NodeOrientation;
 import javafx.geometry.Pos;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
+import ru.spb.miwm64.moviemanager.client.gui.util.Helper;
+import ru.spb.miwm64.moviemanager.client.gui.util.I18N;
 import ru.spb.miwm64.moviemanager.client.gui.widgets.LanguageSelector;
 
-import java.util.Locale;
-
 public class HeaderPane extends StackPane {
+
     private final Label title;
-    private final HBox menu;
-
-    private final Button closeButton;
-    private final Button hideButton;
-    private final Button fullscreenButton;
-
-    private boolean isFullscreen = false;
-    private BorderPane mainPane;
-    private ComboBox<String> changeLocalization;
+    private final LanguageSelector languageSelector;
+    private final HBox leftLayout;
+    private final HBox rightLayout;
+    private final Button switchButton;
+    private final Button logoutButton;
+    private final Label nicknameLabel;
 
     public HeaderPane(Stage primaryStage) {
-        menu = new HBox();
-        closeButton = new Button();
-        fullscreenButton = new Button();
-        hideButton = new Button();
         title = new Label();
-        mainPane = new BorderPane();
-        changeLocalization = new LanguageSelector();
+        languageSelector = new LanguageSelector();
+        leftLayout = new HBox();
+        rightLayout = new HBox();
+        switchButton = new Button();
+        logoutButton = new Button();
+        nicknameLabel = new Label();
 
-        elementInit(primaryStage);
-
-        menu.getChildren().addAll(closeButton, fullscreenButton, hideButton);
-        mainPane.setTop(title);
-        BorderPane.setAlignment(title, Pos.CENTER);
-        mainPane.setRight(changeLocalization);
-        this.getChildren().add(mainPane);
-        VBox.setVgrow(this, Priority.ALWAYS);
-        HBox.setHgrow(this, Priority.ALWAYS);
+        initLayout();
+        bindTitleText();
+        applyStyles();
     }
 
-    private void elementInit(Stage primaryStage) {
+    private void initLayout() {
+        BorderPane headerLayout = new BorderPane();
+
+        // Left: empty region that will mirror the width of the language selector
+        headerLayout.setLeft(leftLayout);
+        // Center: title (perfectly centered due to left/right width equality)
+        headerLayout.setCenter(title);
+        // Right: language selector
+        headerLayout.setRight(rightLayout);
+
+        // Bind left region width to the right region's width -> absolute centering
+        rightLayout.prefWidthProperty().bind(leftLayout.widthProperty());
+        rightLayout.minWidthProperty().bind(leftLayout.widthProperty());
+
+        // Make the header fill available space
+        VBox.setVgrow(this, Priority.ALWAYS);
+        HBox.setHgrow(this, Priority.ALWAYS);
+
+        this.getChildren().add(headerLayout);
+
+        switchButton.setStyle("-fx-background-color: #DAC0A7; -fx-background-radius: 24px;");
+        rightLayout.setStyle("-fx-background-color: #DAC0A7;-fx-background-radius: 20px;");
+        rightLayout.setAlignment(Pos.CENTER);
+        switchButton.setFont(Helper.getFont(18));
+        switchButton.setTextFill(Color.BLACK);
+        switchButton.textProperty().bind(I18N.createBinding("login_pane.button.switch_to_registration"));
+
+//        setMargin(switchButton, new Insets(0, 0, 20, 0));
+        rightLayout.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
+        leftLayout.getChildren().add(switchButton);
+        rightLayout.getChildren().add(languageSelector);
+        rightLayout.getChildren().add(nicknameLabel);
+        rightLayout.getChildren().add(logoutButton);
+        nicknameLabel.setFont(Helper.getBoldFont(18));
+
+        String resourcePath = "/images/logout.png";
+
+        var resourceUrl = getClass().getResourceAsStream(resourcePath);
+        Image icon = new Image(resourceUrl);
+        ImageView imageView = new ImageView(icon);
+        imageView.setFitWidth(24);
+        imageView.setFitHeight(24);
+        imageView.setPreserveRatio(true);
+        logoutButton.setStyle("-fx-background-color: transparent;");
+        logoutButton.setGraphic(imageView);
+
+        HBox.setMargin(leftLayout, new Insets(0,0,0, 10));
+        HBox.setMargin(rightLayout, new Insets(0,10,0, 0));
+        HBox.setMargin(nicknameLabel, new Insets(0,10,0,0));
+        rightLayout.setPadding(new Insets(0, 10, 0, 10));
+        leftLayout.setPadding(new Insets(0, 10, 0, 10));
+    }
+
+    private void bindTitleText() {
+        title.textProperty().bind(I18N.createBinding("header_pane.label.title"));
+    }
+
+    private void applyStyles() {
         title.setStyle("-fx-background-color: #DAC0A7; -fx-background-radius: 20px;");
         title.setTextFill(Color.web("#A100FF"));
         title.setFont(Helper.getBoldFont(20));
         title.setPadding(new Insets(0, 100, 0, 100));
-        title.textProperty().bind(I18N.createBinding("header_pane.label.title"));
+        BorderPane.setAlignment(title, Pos.CENTER);
+    }
 
-        menu.setAlignment(Pos.CENTER_LEFT);
+    public Button getLogoutButton() {
+        return logoutButton;
+    }
 
-        closeButton.setStyle("-fx-background-color: transparent;");
-        closeButton.textProperty().bind(I18N.createBinding("header_pane.button.close"));
+    public void hideTop(){
+        leftLayout.setVisible(false);
+        rightLayout.setVisible(false);
+    }
 
-        fullscreenButton.setStyle("-fx-background-color: transparent;");
-        fullscreenButton.textProperty().bind(I18N.createBinding("header_pane.button.fullscreen"));
+    public void showTop(){
+        leftLayout.setVisible(true);
+        rightLayout.setVisible(true);
+    }
 
-        hideButton.setStyle("-fx-background-color: transparent;");
-        hideButton.textProperty().bind(I18N.createBinding("header_pane.button.hide"));
 
-        closeButton.setOnMouseClicked(event -> {
-            primaryStage.close();
-        });
-        fullscreenButton.setOnMouseClicked(event -> {
-            if (isFullscreen) {
-                Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
-                primaryStage.setFullScreen(false);
-                primaryStage.setWidth(primaryScreenBounds.getWidth()/1.5);
-                primaryStage.setHeight(primaryScreenBounds.getHeight()/1.5);
-            }
-            else{
-                Rectangle2D primaryScreenBounds = Screen.getPrimary().getBounds();
-                primaryStage.setFullScreen(true);
-                primaryStage.setWidth(primaryScreenBounds.getWidth());
-                primaryStage.setHeight(primaryScreenBounds.getHeight());
-            }
-            isFullscreen = !isFullscreen;
-        });
-        hideButton.setOnMouseClicked(event -> {
-            primaryStage.setIconified(true);
-        });
+    public void setNickname(String nickname) {
+        nicknameLabel.setText(nickname);
     }
 }
