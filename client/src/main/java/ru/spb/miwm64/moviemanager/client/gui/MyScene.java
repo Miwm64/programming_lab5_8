@@ -104,7 +104,6 @@ public class MyScene extends Scene {
             }
         }
         catch (Exception e) {
-            System.out.println(e.getMessage());
             GuiFactory.createErrorPopup("Err").show();
         }
     }
@@ -122,12 +121,10 @@ public class MyScene extends Scene {
                 login(data);
             }
             else{
-                System.out.println(res.getMessage());
                 GuiFactory.createErrorPopup("Internal server error").show();
             }
         }
         catch (Exception e) {
-            System.out.println(e.getMessage());
             GuiFactory.createErrorPopup("Err").show();
         }
     }

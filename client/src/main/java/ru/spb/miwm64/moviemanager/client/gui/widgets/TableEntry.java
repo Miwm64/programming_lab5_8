@@ -1,5 +1,10 @@
 package ru.spb.miwm64.moviemanager.client.gui.widgets;
 
+import javafx.application.Platform;
+import ru.spb.miwm64.moviemanager.client.command.Command;
+import ru.spb.miwm64.moviemanager.client.command.Parameter;
+import ru.spb.miwm64.moviemanager.client.commands.RemoveByIDCommand;
+import ru.spb.miwm64.moviemanager.client.gui.dialog.ConfirmationDialog;
 import ru.spb.miwm64.moviemanager.client.gui.dialog.CreateDialog;
 import ru.spb.miwm64.moviemanager.client.gui.dialog.MyDialog;
 import ru.spb.miwm64.moviemanager.client.gui.dialog.UpdateDialog;
@@ -116,6 +121,24 @@ public class TableEntry extends HBox {
         editButton.setOnMouseClicked(event -> {
             MyDialog dialog = new UpdateDialog(movie, collectionManager);
             dialog.showAndWait();
+        });
+        deleteButton.setOnMouseClicked(event -> {
+            Platform.runLater(() -> {
+                ConfirmationDialog dialog = new ConfirmationDialog("Do you really want to delete this movie?",
+                        "Movie deletion");
+                dialog.showAndWait().ifPresent(result -> {
+                    if (!result) {
+                        return;
+                    }
+                    System.out.println("Delete button pressed");
+
+                    Command deleteCommand = new RemoveByIDCommand(collectionManager);
+                    Parameter param = deleteCommand.getParams().get(0);
+                    param.fromString(movie.getId()+"");
+                    deleteCommand.setParam(param);
+                    deleteCommand.execute();
+                });
+            });
         });
     }
 
