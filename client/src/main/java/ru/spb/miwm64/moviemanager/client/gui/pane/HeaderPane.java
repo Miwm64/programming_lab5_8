@@ -63,7 +63,7 @@ public class HeaderPane extends StackPane {
         rightLayout.setAlignment(Pos.CENTER);
         switchButton.setFont(Helper.getFont(18));
         switchButton.setTextFill(Color.BLACK);
-        switchButton.textProperty().bind(I18N.createBinding("login_pane.button.switch_to_registration"));
+        switchButton.textProperty().bind(I18N.createBinding("Switch to map"));
 
 //        setMargin(switchButton, new Insets(0, 0, 20, 0));
         rightLayout.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);

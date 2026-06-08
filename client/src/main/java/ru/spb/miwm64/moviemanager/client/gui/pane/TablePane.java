@@ -66,6 +66,9 @@ public class TablePane extends VBox {
         };
         tableEntries.addListener(tableEntryListChangeListener);
 
+        createButton.setStyle("-fx-background-color: #EEDEC5;" +
+                "-fx-background-radius: 24px;  -fx-border-radius: 24;");
+        createButton.setFont(Helper.getBoldFont(18));
 
         this.cm = cm;
         entriesScrollPane = new ScrollPane();
