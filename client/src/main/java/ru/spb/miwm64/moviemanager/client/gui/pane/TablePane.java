@@ -79,7 +79,7 @@ public class TablePane extends VBox {
         this.setStyle("-fx-background-color: #DAC0A7; -fx-background-radius: 20px;");
         this.getChildren().add(createButton);
         createButton.setOnAction(e -> {
-            CreateDialog createPane = new CreateDialog();
+            CreateDialog createPane = new CreateDialog(cm);
             createPane.showAndWait();
         });
 
