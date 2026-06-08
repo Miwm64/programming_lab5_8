@@ -8,6 +8,7 @@ import ru.spb.miwm64.moviemanager.client.gui.dialog.ConfirmationDialog;
 import ru.spb.miwm64.moviemanager.client.gui.dialog.CreateDialog;
 import ru.spb.miwm64.moviemanager.client.gui.dialog.MyDialog;
 import ru.spb.miwm64.moviemanager.client.gui.dialog.UpdateDialog;
+import ru.spb.miwm64.moviemanager.client.gui.pane.SortColumn;
 import ru.spb.miwm64.moviemanager.client.gui.util.Helper;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -21,6 +22,7 @@ import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
 import ru.spb.miwm64.moviemanager.common.entities.Movie;
 
 import java.time.format.DateTimeFormatter;
+import java.util.function.Consumer;
 
 // TODO i18n
 public class TableEntry extends HBox {
@@ -37,7 +39,7 @@ public class TableEntry extends HBox {
     private Button deleteButton = new Button("Delete");
     private Movie movie;
     private CollectionManager collectionManager;
-
+    private Consumer<SortColumn> sortHandler;
 
     private static final DoubleProperty titleWidth = new SimpleDoubleProperty(100);
     private static final DoubleProperty idWidth = new SimpleDoubleProperty(30);
@@ -49,15 +51,20 @@ public class TableEntry extends HBox {
     private static final DoubleProperty ratingWidth = new SimpleDoubleProperty(50);
     private static final DoubleProperty personWidth = new SimpleDoubleProperty(100);
 
-    public TableEntry(boolean showButtons, CollectionManager collectionManager) {
+    public TableEntry(boolean showButtons, CollectionManager collectionManager,
+                      Consumer<SortColumn> sortHandler) {
         this();
+        this.sortHandler = sortHandler;
+
         if (!showButtons) {
             editButton.setVisible(false);
             deleteButton.setVisible(false);
+
+            makeHeaderClickable();
         }
+
         this.collectionManager = collectionManager;
     }
-
     public TableEntry(Movie movie, CollectionManager collectionManager) {
         this();
         setMovie(movie);
@@ -176,5 +183,32 @@ public class TableEntry extends HBox {
 
     private double computeWidth(Label label) {
         return label.prefWidth(-1) + 20;
+    }
+
+    private void makeHeaderClickable() {
+
+        id.setOnMouseClicked(e ->
+                sortHandler.accept(SortColumn.ID));
+
+        title.setOnMouseClicked(e ->
+                sortHandler.accept(SortColumn.TITLE));
+
+        coordinate.setOnMouseClicked(e ->
+                sortHandler.accept(SortColumn.COORDINATES));
+
+        creationDate.setOnMouseClicked(e ->
+                sortHandler.accept(SortColumn.CREATION_DATE));
+
+        oscars.setOnMouseClicked(e ->
+                sortHandler.accept(SortColumn.OSCARS));
+
+        goldenPalm.setOnMouseClicked(e ->
+                sortHandler.accept(SortColumn.GOLDEN_PALM));
+
+        genre.setOnMouseClicked(e ->
+                sortHandler.accept(SortColumn.GENRE));
+
+        MPAA_RATING.setOnMouseClicked(e ->
+                sortHandler.accept(SortColumn.MPAA));
     }
 }

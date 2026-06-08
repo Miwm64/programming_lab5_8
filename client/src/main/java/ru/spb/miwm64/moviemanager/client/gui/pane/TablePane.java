@@ -27,6 +27,7 @@ import ru.spb.miwm64.moviemanager.common.entities.Movie;
 import ru.spb.miwm64.moviemanager.common.net.VersionedObject;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 // todo animations
@@ -43,6 +44,9 @@ public class TablePane extends VBox {
 
     private final Logger log = LoggerFactory.getLogger(TablePane.class);
     private final CollectionManager cm;
+
+    private SortColumn currentSortColumn = SortColumn.ID;
+    private boolean ascending = true;
 
     public TablePane(ObservableCollection collectionManager, CollectionManager cm) {
         tableEntryMap = new ConcurrentHashMap<>();
@@ -62,7 +66,7 @@ public class TablePane extends VBox {
         titleLabel.setFont(Helper.getBoldFont(18));
         titleLabel.setStyle("-fx-background-color: #EEDEC5;" +
                 "-fx-background-radius: 24px;  -fx-border-radius: 24;");
-        columnRow = new TableEntry(false, cm);
+        columnRow = new TableEntry(false, cm, this::sortBy);
         titleLabel.setPrefWidth(300);
         titleLabel.setAlignment(Pos.CENTER);
         this.setAlignment(Pos.TOP_CENTER);
@@ -109,26 +113,154 @@ public class TablePane extends VBox {
         });
     }
 
-    private void handleUpdate(ListChangeListener.Change<? extends VersionedObject<Movie>> change){
+    private void handleUpdate(ListChangeListener.Change<? extends VersionedObject<Movie>> change) {
+        boolean shouldSort = false;
+
         while (change.next()) {
-            if (change.wasRemoved() && change.wasAdded()) {
-                for (VersionedObject<Movie> item : change.getAddedSubList()) {
-                    log.info("updated - id: " + item.data.getId());
-                    updateEntry(item);
-                }
+
+            if (change.wasPermutated()) {
+                refreshTable();
+                continue;
             }
-            else if (change.wasRemoved()) {
+
+            if (change.wasRemoved() && change.wasAdded()) {
+
+                for (VersionedObject<Movie> item : change.getAddedSubList()) {
+                    log.info("updated - id: {}", item.data.getId());
+
+                    updateEntry(item);
+
+                    if (item.data.getId() != -1) {
+                        shouldSort = true;
+                    }
+                }
+
+            } else if (change.wasRemoved()) {
+
                 for (VersionedObject<Movie> item : change.getRemoved()) {
-                    log.info("deleted - id: " + item.data.getId());
+                    log.info("deleted - id: {}", item.data.getId());
+
                     removeEntry(item);
                 }
-            }
-            else if (change.wasAdded()) {
+
+                shouldSort = true;
+
+            } else if (change.wasAdded()) {
+
                 for (VersionedObject<Movie> item : change.getAddedSubList()) {
-                    log.info("created - id: " + item.data.getId());
+                    log.info("created - id: {}", item.data.getId());
+
                     addEntry(item, cm);
+
+                    if (item.data.getId() != -1) {
+                        shouldSort = true;
+                    }
                 }
             }
         }
+
+        if (shouldSort) {
+            applyCurrentSorting();
+        }
+    }
+
+    private void applyCurrentSorting() {
+        FXCollections.sort(
+                tableEntries,
+                createComparator(currentSortColumn, ascending)
+        );
+    }
+
+    private Comparator<VersionedObject<Movie>> createComparator( SortColumn column, boolean ascending) {
+        Comparator<Movie> movieComparator = switch (column) {
+
+            case ID ->
+                    Comparator.comparing(Movie::getId);
+
+            case TITLE ->
+                    Comparator.comparing(
+                            Movie::getName,
+                            String.CASE_INSENSITIVE_ORDER
+                    );
+
+            case COORDINATES ->
+                    Comparator.comparing(
+                            m -> m.getCoordinates().getX()
+                    );
+
+            case CREATION_DATE ->
+                    Comparator.comparing(
+                            Movie::getCreationDate
+                    );
+
+            case OSCARS ->
+                    Comparator.comparing(
+                            Movie::getOscarsCount
+                    );
+
+            case GOLDEN_PALM ->
+                    Comparator.comparing(
+                            Movie::getGoldenPalmCount
+                    );
+
+            case GENRE ->
+                    Comparator.comparing(
+                            m -> m.getGenre().name()
+                    );
+
+            case MPAA ->
+                    Comparator.comparing(
+                            m -> m.getMpaaRating().name()
+                    );
+        };
+
+        Comparator<VersionedObject<Movie>> comparator =
+                Comparator.comparing(
+                        vo -> vo.data,
+                        movieComparator.thenComparing(Movie::getId)
+                );
+
+        return ascending
+                ? comparator
+                : comparator.reversed();
+    }
+
+    private void refreshTable() {
+
+        Platform.runLater(() -> {
+
+            entriesVBox.getChildren().clear();
+
+            for (VersionedObject<Movie> movie : tableEntries) {
+
+                TableEntry entry =
+                        tableEntryMap.get(movie.data.getId());
+
+                if (entry != null) {
+
+                    VBox.setMargin(
+                            entry,
+                            new Insets(0, 0, 5, 0)
+                    );
+
+                    entriesVBox.getChildren().add(entry);
+                }
+            }
+        });
+    }
+
+    private void sortBy(SortColumn column) {
+
+        if (currentSortColumn == column) {
+            ascending = !ascending;
+        } else {
+            currentSortColumn = column;
+            ascending = true;
+        }
+
+        FXCollections.sort(
+                tableEntries,
+                createComparator(currentSortColumn, ascending)
+        );
     }
 }
