@@ -38,14 +38,15 @@ public final class UpdateDialog extends MyDialog {
             if (control == null) continue;
 
             Object value = getMovieFieldValue(movie, paramName);
-
             if (control instanceof TextField) {
                 TextField field = (TextField) control;
+                if  (value == null) continue;
                 field.setText(value != null ? value.toString() : "");
                 param.fromString(field.getText());
             }
             else if (control instanceof ComboBox) {
                 ComboBox<Object> combo = (ComboBox<Object>) control;
+                if (value == null) continue;
                 combo.setValue(value);
                 param.fromString(combo.getValue().toString());
             }
