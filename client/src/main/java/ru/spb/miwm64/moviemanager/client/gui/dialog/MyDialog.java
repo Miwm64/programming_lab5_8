@@ -46,6 +46,8 @@ public abstract sealed class MyDialog extends Dialog permits CreateDialog, Updat
         scrollPane.setFitToWidth(true);
         dialogPane.setContent(scrollPane);
         scrollPane.setContent(mainPane);
+        scrollPane.setPrefViewportWidth(600);
+        scrollPane.setPrefViewportHeight(700);
 
         titleLabel = new Label();
         titleLabel.setFont(Helper.getBoldFont(14));
