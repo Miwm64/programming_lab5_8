@@ -1,6 +1,7 @@
 package ru.spb.miwm64.moviemanager.client.sync;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import javafx.collections.ObservableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -33,7 +34,7 @@ public class SynchronizationThread extends Thread {
 
 
     public SynchronizationThread(JsonRpcClient jsonRpcClient, PendingChangeQueue pendingChangeQueue,
-                                 BatchRemoteCollectionManager collectionManager, List<String> messages) {
+                                 BatchRemoteCollectionManager collectionManager, ObservableList<String> messages) {
         this.jsonRpcClient = jsonRpcClient;
         this.pendingChangeQueue = pendingChangeQueue;
         this.messages = messages;

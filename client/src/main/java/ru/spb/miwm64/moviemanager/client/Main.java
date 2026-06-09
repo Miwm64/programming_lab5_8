@@ -1,6 +1,7 @@
 package ru.spb.miwm64.moviemanager.client;
 
 import javafx.application.Application;
+import javafx.collections.FXCollections;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.stage.Screen;
@@ -38,7 +39,8 @@ public class Main extends Application {
         Scene scene = new MyScene(primaryStage, collectionManager, xmlParser, jsonRpcClient);
         stageInit(primaryStage, scene);
 
-        SynchronizationThread thread = new SynchronizationThread(jsonRpcClient, queue, collectionManager, messages);
+        SynchronizationThread thread = new SynchronizationThread(jsonRpcClient, queue, collectionManager,
+                FXCollections.observableArrayList(messages));
         thread.start();
 
         return;
