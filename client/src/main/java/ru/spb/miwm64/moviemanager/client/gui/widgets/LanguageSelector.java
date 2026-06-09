@@ -18,7 +18,7 @@ public class LanguageSelector extends ComboBox<String> {
     public LanguageSelector() {
         this.setMaxWidth(30);
         langs = FXCollections.observableArrayList();
-        langs.addAll("English", "Français", "Svenska", "Español (Spain)");
+        langs.addAll("English", "Français", "Svenska", "Español (Spain)", "Русский");
         this.setItems(langs);
 
         // Assign a unique style class to avoid affecting other standard ComboBoxes
@@ -116,6 +116,9 @@ public class LanguageSelector extends ComboBox<String> {
                 case "Español (Spain)": {
                     I18N.setLocale(new Locale("es", "ES"));
                     break;
+                }
+                case "Русский": {
+                    I18N.setLocale(new Locale("ru"));
                 }
                 default: {
                     I18N.setLocale(Locale.ENGLISH);
