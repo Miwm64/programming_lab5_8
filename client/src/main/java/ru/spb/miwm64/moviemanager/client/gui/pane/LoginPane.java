@@ -14,6 +14,9 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class LoginPane extends VBox {
     private final Label titleLabel;
     private final TextField nicknameEdit;
@@ -85,5 +88,12 @@ public class LoginPane extends VBox {
 
     public Button getLoginButton() {
         return enterButton;
+    }
+
+    public Map<String, String> getData() {
+        Map<String, String> data = new HashMap<>();
+        data.put("username", nicknameEdit.getText());
+        data.put("password", passwordEdit.getText());
+        return data;
     }
 }
