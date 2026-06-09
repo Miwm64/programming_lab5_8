@@ -2,222 +2,218 @@ package ru.spb.miwm64.moviemanager.client.gui.pane;
 
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import ru.spb.miwm64.moviemanager.client.collectionmanager.ObservableCollection;
-import ru.spb.miwm64.moviemanager.client.gui.dialog.MyDialog;
 import ru.spb.miwm64.moviemanager.client.gui.dialog.UpdateDialog;
 import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
 import ru.spb.miwm64.moviemanager.common.entities.Movie;
 import ru.spb.miwm64.moviemanager.common.net.VersionedObject;
 
 public class MapPane extends VBox {
+
     private static final double DOT_RADIUS = 5;
+    private static final double ZOOM_STEP = 1.1;
+    private static final double MIN_SCALE = 0.1;
+    private static final double MAX_SCALE = 20.0;
+
+    private double scale = 1.0;
 
     private final Canvas canvas;
     private final Tooltip tooltip;
 
     private final CollectionManager collectionManager;
     private final ObservableList<VersionedObject<Movie>> mapEntries;
-    private final ListChangeListener<VersionedObject<Movie>> mapEntryListChangeListener;
+    private final ListChangeListener<VersionedObject<Movie>> listener;
 
-    private double offsetX;
-    private double offsetY;
+    private double offsetX = 0;
+    private double offsetY = 0;
 
     private double lastMouseX;
     private double lastMouseY;
 
     public MapPane(ObservableCollection collection, CollectionManager collectionManager) {
+
         this.collectionManager = collectionManager;
         this.setStyle("-fx-background-color: white;");
-        mapEntries = collection.getRawAll();
-        mapEntryListChangeListener = change -> {
-            redraw();
-        };
-        mapEntries.addListener(mapEntryListChangeListener);
 
+        this.mapEntries = collection.getRawAll();
 
-        canvas = new Canvas();
-        canvas.setStyle("-fx-background-color: blue;");
+        this.listener = c -> redraw();
+        this.mapEntries.addListener(listener);
 
-        getChildren().add(canvas);
+        this.canvas = new Canvas();
 
-        widthProperty().addListener((obs, oldVal, newVal) -> {
-            canvas.setWidth(newVal.doubleValue());
-            redraw();
-        });
-
-        heightProperty().addListener((obs, oldVal, newVal) -> {
-            canvas.setHeight(newVal.doubleValue());
-            redraw();
-        });
-        canvas.setOnMousePressed(event -> {
-            lastMouseX = event.getX();
-            lastMouseY = event.getY();
-        });
-
-        canvas.setOnMouseDragged(event -> {
-
-            double dx = event.getX() - lastMouseX;
-            double dy = event.getY() - lastMouseY;
-
-            offsetX -= dx;
-            offsetY -= dy;
-
-            lastMouseX = event.getX();
-            lastMouseY = event.getY();
-
-            redraw();
-        });
-
-        canvas.setOnMouseMoved(event -> handleHover(
-                event
-        ));
-
-        canvas.setOnMouseClicked(event -> handleClick(
-                event.getX(),
-                event.getY()
-        ));
-
-        tooltip = new Tooltip();
+        this.tooltip = new Tooltip();
         tooltip.setAutoHide(true);
-        tooltip.setAutoFix(true);
+
+        Button zoomIn = new Button("+");
+        Button zoomOut = new Button("-");
+
+        zoomIn.setFocusTraversable(false);
+        zoomOut.setFocusTraversable(false);
+
+        zoomIn.setOnAction(e -> {
+            scale = Math.min(MAX_SCALE, scale * ZOOM_STEP);
+            redraw();
+        });
+
+        zoomOut.setOnAction(e -> {
+            scale = Math.max(MIN_SCALE, scale / ZOOM_STEP);
+            redraw();
+        });
+
+        HBox zoomBox = new HBox(6, zoomIn, zoomOut);
+        zoomBox.setPickOnBounds(false);
+
+        StackPane root = new StackPane(canvas, zoomBox);
+        StackPane.setAlignment(zoomBox, Pos.TOP_RIGHT);
+
+        getChildren().add(root);
+
+        widthProperty().addListener((obs, o, n) -> {
+            canvas.setWidth(n.doubleValue());
+            redraw();
+        });
+
+        heightProperty().addListener((obs, o, n) -> {
+            canvas.setHeight(n.doubleValue());
+            redraw();
+        });
+
+        canvas.setOnMousePressed(e -> {
+            lastMouseX = e.getX();
+            lastMouseY = e.getY();
+        });
+
+        canvas.setOnMouseDragged(e -> {
+
+            double dx = e.getX() - lastMouseX;
+            double dy = e.getY() - lastMouseY;
+
+            offsetX -= dx / scale;
+            offsetY -= dy / scale;
+
+            lastMouseX = e.getX();
+            lastMouseY = e.getY();
+
+            redraw();
+        });
+
+        canvas.setOnScroll(e -> {
+
+            double oldScale = scale;
+
+            if (e.getDeltaY() > 0) scale *= ZOOM_STEP;
+            else scale /= ZOOM_STEP;
+
+            scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale));
+
+            double mx = e.getX();
+            double my = e.getY();
+
+            offsetX = mx / oldScale + offsetX - mx / scale;
+            offsetY = my / oldScale + offsetY - my / scale;
+
+            redraw();
+        });
+
+        canvas.setOnMouseMoved(this::handleHover);
+        canvas.setOnMouseClicked(e -> handleClick(e.getX(), e.getY()));
 
         redraw();
+    }
+
+    private double worldToScreenX(double x) {
+        return (x - offsetX) * scale;
+    }
+
+    private double worldToScreenY(double y) {
+        return (y - offsetY) * scale;
     }
 
     private void redraw() {
 
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
-        gc.clearRect(
-                0,
-                0,
-                canvas.getWidth(),
-                canvas.getHeight()
-        );
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
-        double originScreenX = -offsetX;
-        double originScreenY = -offsetY;
+        gc.setStroke(Color.LIGHTGRAY);
+        gc.setLineWidth(1);
 
-        gc.strokeLine(
-                0,
-                originScreenY,
-                canvas.getWidth(),
-                originScreenY
-        );
+        double originX = worldToScreenX(0);
+        double originY = worldToScreenY(0);
 
-        gc.strokeLine(
-                originScreenX,
-                0,
-                originScreenX,
-                canvas.getHeight()
-        );
+        gc.strokeLine(0, originY, canvas.getWidth(), originY);
+        gc.strokeLine(originX, 0, originX, canvas.getHeight());
 
-        gc.strokeLine(
-                canvas.getWidth() - 10,
-                originScreenY - 5,
-                canvas.getWidth(),
-                originScreenY
-        );
-
-        gc.strokeLine(
-                canvas.getWidth() - 10,
-                originScreenY + 5,
-                canvas.getWidth(),
-                originScreenY
-        );
-
-        gc.strokeLine(
-                originScreenX - 5,
-                10,
-                originScreenX,
-                0
-        );
-
-        gc.strokeLine(
-                originScreenX + 5,
-                10,
-                originScreenX,
-                0
-        );
-
+        gc.setFill(Color.RED);
 
         for (VersionedObject<Movie> movie : mapEntries) {
 
-            double worldX =
-                    movie.data.getCoordinates().getX();
-
-            double worldY =
-                    movie.data.getCoordinates().getY();
-
-            double screenX = worldX - offsetX;
-            double screenY = worldY - offsetY;
+            double x = worldToScreenX(movie.data.getCoordinates().getX());
+            double y = worldToScreenY(movie.data.getCoordinates().getY());
 
             gc.fillOval(
-                    screenX - 5,
-                    screenY - 5,
-                    10,
-                    10
+                    x - DOT_RADIUS,
+                    y - DOT_RADIUS,
+                    DOT_RADIUS * 2,
+                    DOT_RADIUS * 2
             );
         }
     }
 
-    private void handleHover(MouseEvent event) {
+    private void handleHover(MouseEvent e) {
 
-        VersionedObject<Movie> movie =
-                findMovieAt(event.getX(), event.getY());
+        VersionedObject<Movie> movie = findMovieAt(e.getX(), e.getY());
 
-        if (movie != null) {
-
-            tooltip.setText(movie.data.toString());
-
-            double screenX = event.getScreenX() + 10;
-            double screenY = event.getScreenY() + 10;
-
-            if (!tooltip.isShowing()) {
-                tooltip.show(canvas, screenX, screenY);
-            } else {
-                tooltip.setAnchorX(screenX);
-                tooltip.setAnchorY(screenY);
-            }
-
-        } else {
+        if (movie == null) {
             tooltip.hide();
+            return;
+        }
+
+        tooltip.setText(movie.data.toString());
+
+        double sx = e.getScreenX() + 10;
+        double sy = e.getScreenY() + 10;
+
+        if (!tooltip.isShowing()) {
+            tooltip.show(canvas, sx, sy);
+        } else {
+            tooltip.setAnchorX(sx);
+            tooltip.setAnchorY(sy);
         }
     }
 
-    private void handleClick(double mouseX, double mouseY) {
-        VersionedObject<Movie> movie =
-                findMovieAt(mouseX, mouseY);
+    private void handleClick(double x, double y) {
+
+        VersionedObject<Movie> movie = findMovieAt(x, y);
 
         if (movie != null) {
-            MyDialog dialog = new UpdateDialog(movie.data, collectionManager);
-            dialog.showAndWait();
+            new UpdateDialog(movie.data, collectionManager).showAndWait();
         }
     }
 
-    private VersionedObject<Movie> findMovieAt(
-            double mouseX,
-            double mouseY
-    ) {
+    private VersionedObject<Movie> findMovieAt(double mx, double my) {
 
-        for (VersionedObject<Movie> movie : mapEntries) {
+        for (VersionedObject<Movie> m : mapEntries) {
 
-            double screenX =
-                    movie.data.getCoordinates().getX() - offsetX;
+            double sx = worldToScreenX(m.data.getCoordinates().getX());
+            double sy = worldToScreenY(m.data.getCoordinates().getY());
 
-            double screenY =
-                    movie.data.getCoordinates().getY() - offsetY;
-
-            double dx = mouseX - screenX;
-            double dy = mouseY - screenY;
+            double dx = mx - sx;
+            double dy = my - sy;
 
             if (dx * dx + dy * dy <= DOT_RADIUS * DOT_RADIUS) {
-                return movie;
+                return m;
             }
         }
 
