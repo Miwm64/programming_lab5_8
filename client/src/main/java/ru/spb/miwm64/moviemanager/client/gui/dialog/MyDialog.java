@@ -55,6 +55,7 @@ public abstract sealed class MyDialog extends Dialog permits CreateDialog, Updat
         titleLabel.setPrefWidth(200);
         titleLabel.setAlignment(Pos.CENTER);
         mainPane.getChildren().add(titleLabel);
+        mainPane.setAlignment(Pos.CENTER);
         mainPane.setMargin(titleLabel, new Insets(0, 0, 60, 0));
 
         // Button setup – correct way
