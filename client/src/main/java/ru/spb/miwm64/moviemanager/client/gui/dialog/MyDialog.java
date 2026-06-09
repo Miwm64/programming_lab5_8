@@ -6,6 +6,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.StageStyle;
 import ru.spb.miwm64.moviemanager.client.command.Parameter;
 import ru.spb.miwm64.moviemanager.client.commands.AddCommand;
 import ru.spb.miwm64.moviemanager.client.gui.util.Helper;
@@ -33,6 +34,7 @@ public abstract sealed class MyDialog extends Dialog permits CreateDialog, Updat
 
 
     public MyDialog() {
+        initStyle(StageStyle.UTILITY);
         dialogPane = this.getDialogPane();
         mainPane = new VBox();
         fieldMap = new HashMap<>();
