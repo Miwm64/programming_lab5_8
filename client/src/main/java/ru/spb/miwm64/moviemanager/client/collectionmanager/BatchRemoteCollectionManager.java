@@ -1,9 +1,7 @@
 package ru.spb.miwm64.moviemanager.client.collectionmanager;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import ru.spb.miwm64.moviemanager.common.net.Batch;
-import ru.spb.miwm64.moviemanager.client.sync.PendingChangeQueue;
+import ru.spb.miwm64.moviemanager.client.PendingChangeQueue;
 import ru.spb.miwm64.moviemanager.common.net.VersionedObject;
 import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
 import ru.spb.miwm64.moviemanager.common.entities.Movie;
@@ -14,8 +12,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class BatchRemoteCollectionManager implements CollectionManager, ObservableCollection {
-    private final ObservableList<VersionedObject<Movie>> movies = FXCollections.observableArrayList();
+public class BatchRemoteCollectionManager implements CollectionManager {
+    private final List<VersionedObject<Movie>> movies = new ArrayList<>();
     private final Map<Long, Boolean> currentIDs = new HashMap<>();
     private long lastAssignedId = 1L;
 
@@ -246,10 +244,5 @@ public class BatchRemoteCollectionManager implements CollectionManager, Observab
             map.put(vm.data.getId(), vm.version);
         }
         return map;
-    }
-
-    @Override
-    public ObservableList<VersionedObject<Movie>> getRawAll() {
-        return movies;
     }
 }

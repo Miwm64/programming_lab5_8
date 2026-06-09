@@ -1,4 +1,4 @@
-package ru.spb.miwm64.moviemanager.client.sync;
+package ru.spb.miwm64.moviemanager.client;
 
 import ru.spb.miwm64.moviemanager.common.entities.Movie;
 import ru.spb.miwm64.moviemanager.common.net.Batch;
