@@ -32,6 +32,7 @@ public class MyScene extends Scene {
     private final RegisterPane registerPane;
     private final FooterLabel footerLabel;
     private final TablePane tablePane;
+    private final MapPane mapPane;
 
     private final List<Reader> readers;
     private Set<String> openedFilesSet;
@@ -39,6 +40,8 @@ public class MyScene extends Scene {
     private final CommandFactory commandFactory;
 
     private int footerClickedCount = 0;
+
+    private boolean isTable = true;
 
     public MyScene(Stage primaryStage, BatchRemoteCollectionManager collectionManager, XMLParser xmlParser,
                    JsonRpcClient jsonRpcClient) {
@@ -52,6 +55,7 @@ public class MyScene extends Scene {
         this.loginPane = new LoginPane();
         this.registerPane = new RegisterPane();
         this.tablePane = new TablePane(collectionManager, collectionManager);
+        this.mapPane = new MapPane(collectionManager, collectionManager);
         this.headerPane = new HeaderPane(primaryStage);
         this.footerLabel = new FooterLabel();
 
@@ -88,6 +92,18 @@ public class MyScene extends Scene {
             var data = registerPane.getData();
             register(data);
         });
+
+        headerPane.getSwitchButton().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+            if (isTable){
+                mainPane.setCenter(mapPane);
+                headerPane.getSwitchButton().setText("Switch to table");
+            }
+            else {
+                mainPane.setCenter(tablePane);
+                headerPane.getSwitchButton().setText("Switch to map");
+            }
+            isTable = !isTable;
+        });
         headerPane.hideTop();
         headerPane.getLogoutButton().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             Command logoutcommand = new LogoutCommand(collectionManager);
@@ -96,7 +112,7 @@ public class MyScene extends Scene {
             headerPane.hideTop();
         });
     }
-
+    // TODO popup in new window
     private void login(Map<String, String> data) {
         try {
             Command command = commandFactory.newCommand("login");
@@ -108,6 +124,8 @@ public class MyScene extends Scene {
             var res = command.execute();
             if (res.isSuccess()){
                 mainPane.setCenter(tablePane);
+                isTable = true;
+                headerPane.getSwitchButton().setText("Switch to map");
                 headerPane.setNickname(data.get("username"));
                 headerPane.showTop();
             }

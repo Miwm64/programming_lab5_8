@@ -39,7 +39,9 @@ import javafx.util.Duration;
 
 import java.util.HashMap;
 
-
+// TODO in fullscreen small columns
+// TODO help
+// TODO command
 public class TablePane extends VBox {
     private final ObservableList<VersionedObject<Movie>> tableEntries;
     private final ListChangeListener<VersionedObject<Movie>> tableEntryListChangeListener;

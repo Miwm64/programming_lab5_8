@@ -19,7 +19,7 @@ import ru.spb.miwm64.moviemanager.common.entities.MpaaRating;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
+// TODO center title
 public abstract sealed class MyDialog extends Dialog permits CreateDialog, UpdateDialog{
     protected final DialogPane dialogPane;
     protected final VBox mainPane;
@@ -55,6 +55,7 @@ public abstract sealed class MyDialog extends Dialog permits CreateDialog, Updat
         titleLabel.setPrefWidth(200);
         titleLabel.setAlignment(Pos.CENTER);
         mainPane.getChildren().add(titleLabel);
+        mainPane.setAlignment(Pos.CENTER);
         mainPane.setMargin(titleLabel, new Insets(0, 0, 60, 0));
 
         // Button setup – correct way
