@@ -1,9 +1,9 @@
-FROM maven:3.9.4-eclipse-temurin-17 AS build
+FROM maven:3.9.16-eclipse-temurin-21 AS build
 WORKDIR /app
 COPY . .
-RUN mvn clean install -DskipTests
+RUN mvn clean install -DskipTests -pl common,server -am
 
-FROM amazoncorretto:17-alpine
+FROM amazoncorretto:21-alpine
 WORKDIR /app
 
 # Set environment variables

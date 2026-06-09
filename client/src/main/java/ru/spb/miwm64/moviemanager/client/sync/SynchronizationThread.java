@@ -1,4 +1,4 @@
-package ru.spb.miwm64.moviemanager.client;
+package ru.spb.miwm64.moviemanager.client.sync;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.slf4j.Logger;
@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class SynchronizationThread extends Thread {
-    private static final long NORMAL_SYNC_INTERVAL_MS = 15_000L;
+    private static final long NORMAL_SYNC_INTERVAL_MS = 2_000L;
     private static final long BASE_RETRY_MS = 1_000L;
     private static final long MAX_RETRY_MS = 64_000L;
 
