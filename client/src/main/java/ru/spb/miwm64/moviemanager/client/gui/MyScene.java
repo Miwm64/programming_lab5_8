@@ -83,14 +83,10 @@ public class MyScene extends Scene {
         loginPane.getLoginButton().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             var data = loginPane.getData();
             login(data);
-            headerPane.setNickname(data.get("username"));
-            headerPane.showTop();
         });
         registerPane.getRegisterButton().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             var data = registerPane.getData();
             register(data);
-            headerPane.setNickname(data.get("username"));
-            headerPane.showTop();
         });
         headerPane.hideTop();
         headerPane.getLogoutButton().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
@@ -112,8 +108,11 @@ public class MyScene extends Scene {
             var res = command.execute();
             if (res.isSuccess()){
                 mainPane.setCenter(tablePane);
+                headerPane.setNickname(data.get("username"));
+                headerPane.showTop();
             }
             else{
+                System.out.println(res.getMessage());
                 GuiFactory.createErrorPopup("Internal server error").show();
             }
         }
