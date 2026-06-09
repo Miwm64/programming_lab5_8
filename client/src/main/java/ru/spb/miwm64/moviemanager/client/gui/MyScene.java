@@ -96,9 +96,11 @@ public class MyScene extends Scene {
         headerPane.getSwitchButton().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             if (isTable){
                 mainPane.setCenter(mapPane);
+                headerPane.getSwitchButton().setText("Switch to table");
             }
             else {
                 mainPane.setCenter(tablePane);
+                headerPane.getSwitchButton().setText("Switch to map");
             }
             isTable = !isTable;
         });
@@ -123,6 +125,7 @@ public class MyScene extends Scene {
             if (res.isSuccess()){
                 mainPane.setCenter(tablePane);
                 isTable = true;
+                headerPane.getSwitchButton().setText("Switch to map");
                 headerPane.setNickname(data.get("username"));
                 headerPane.showTop();
             }
