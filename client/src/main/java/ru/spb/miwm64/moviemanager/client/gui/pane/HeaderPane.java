@@ -122,4 +122,8 @@ public class HeaderPane extends StackPane {
     public void setNickname(String nickname) {
         nicknameLabel.setText(nickname);
     }
+
+    public Button getSwitchButton() {
+        return switchButton;
+    }
 }

@@ -32,6 +32,7 @@ public class MyScene extends Scene {
     private final RegisterPane registerPane;
     private final FooterLabel footerLabel;
     private final TablePane tablePane;
+    private final MapPane mapPane;
 
     private final List<Reader> readers;
     private Set<String> openedFilesSet;
@@ -52,6 +53,7 @@ public class MyScene extends Scene {
         this.loginPane = new LoginPane();
         this.registerPane = new RegisterPane();
         this.tablePane = new TablePane(collectionManager, collectionManager);
+        this.mapPane = new MapPane(collectionManager, collectionManager);
         this.headerPane = new HeaderPane(primaryStage);
         this.footerLabel = new FooterLabel();
 
@@ -87,6 +89,10 @@ public class MyScene extends Scene {
         registerPane.getRegisterButton().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             var data = registerPane.getData();
             register(data);
+        });
+
+        headerPane.getSwitchButton().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+            mainPane.setCenter(mapPane);
         });
         headerPane.hideTop();
         headerPane.getLogoutButton().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
