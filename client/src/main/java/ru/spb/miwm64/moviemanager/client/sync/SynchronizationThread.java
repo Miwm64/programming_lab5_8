@@ -72,7 +72,6 @@ public class SynchronizationThread extends Thread {
         mutex.lock();
         try {
             if (JsonRpcRequest.token == null || JsonRpcRequest.token.isEmpty()) {
-                messages.add("You need to login first");
                 return true;
             }
             LOG.info("Synchronization started");
@@ -81,8 +80,6 @@ public class SynchronizationThread extends Thread {
             syncRequest.put("pendingBatch", localBatch);
             syncRequest.put("clientVersions", collectionManager.getVersionMap());
             Batch serverBatch = callRpc("sync", syncRequest, new TypeReference<Batch>() {});
-
-            LOG.info("Synchronization successful");
 
             if (localBatch != null) {
                 pendingChangeQueue.removeFirstBatch();
@@ -97,9 +94,8 @@ public class SynchronizationThread extends Thread {
                 messages.add(message.toString());
             }
 
-            ownerships.setAll(serverBatch.ownerships);
-
             collectionManager.applyRemoteBatch(serverBatch);
+            LOG.info("Synchronization successful");
             return true;
         } catch (Exception e) {
             LOG.error("Synchronization failed", e);

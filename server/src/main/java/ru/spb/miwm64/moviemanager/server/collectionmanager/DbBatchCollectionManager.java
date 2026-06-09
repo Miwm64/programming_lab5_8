@@ -170,7 +170,7 @@ public class DbBatchCollectionManager {
         }
         ArrayList<Ownership> ownerships = new ArrayList<>();
         try {
-            repo.getAllOwnerships();
+            ownerships = repo.getAllOwnerships();
         }
         catch (SQLException e) {
             messages.add("Failed to fetch ownerships");

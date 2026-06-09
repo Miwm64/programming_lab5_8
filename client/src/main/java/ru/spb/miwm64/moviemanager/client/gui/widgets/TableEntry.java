@@ -25,6 +25,7 @@ import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
 import ru.spb.miwm64.moviemanager.common.entities.Movie;
 import ru.spb.miwm64.moviemanager.common.net.JsonRpcRequest;
 import ru.spb.miwm64.moviemanager.common.net.Ownership;
+import ru.spb.miwm64.moviemanager.common.net.OwnershipType;
 
 import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
@@ -90,7 +91,7 @@ public class TableEntry extends HBox {
         this.goldenPalm.setText(""+movie.getGoldenPalmCount());
         this.genre.setText(movie.getGenre().toString());
         this.MPAA_RATING.setText(movie.getMpaaRating().toString());
-//        this.person.setText(movie.getOperator().toString());
+//        this.person.setText(movie.getOperator().toString()); // TODO show person
         updateWidths();
     }
 
@@ -154,26 +155,30 @@ public class TableEntry extends HBox {
         deleteButton.setGraphic(imageView2);
 
         editButton.setOnMouseClicked(event -> {
-//            if (this.ownerships.contains(new Ownership(JsonRpcRequest.)))
-            MyDialog dialog = new UpdateDialog(movie, collectionManager);
-            dialog.showAndWait();
+            if (this.ownerships.contains(new Ownership(JsonRpcRequest.userId, this.movie.getId(), OwnershipType.edit))
+            || this.ownerships.contains(new Ownership(JsonRpcRequest.userId, this.movie.getId(), OwnershipType.owner ))){
+                MyDialog dialog = new UpdateDialog(movie, collectionManager);
+                dialog.showAndWait();
+            }
         });
         deleteButton.setOnMouseClicked(event -> {
-            Platform.runLater(() -> {
-                ConfirmationDialog dialog = new ConfirmationDialog("Do you really want to delete this movie?",
-                        "Movie deletion");
-                dialog.showAndWait().ifPresent(result -> {
-                    if (!result) {
-                        return;
-                    }
+            if (this.ownerships.contains(new Ownership(JsonRpcRequest.userId, this.movie.getId(), OwnershipType.owner))){
+                Platform.runLater(() -> {
+                    ConfirmationDialog dialog = new ConfirmationDialog("Do you really want to delete this movie?",
+                            "Movie deletion");
+                    dialog.showAndWait().ifPresent(result -> {
+                        if (!result) {
+                            return;
+                        }
 
-                    Command deleteCommand = new RemoveByIDCommand(collectionManager);
-                    Parameter param = deleteCommand.getParams().get(0);
-                    param.fromString(movie.getId()+"");
-                    deleteCommand.setParam(param);
-                    deleteCommand.execute();
+                        Command deleteCommand = new RemoveByIDCommand(collectionManager);
+                        Parameter param = deleteCommand.getParams().get(0);
+                        param.fromString(movie.getId()+"");
+                        deleteCommand.setParam(param);
+                        deleteCommand.execute();
+                    });
                 });
-            });
+            }
         });
     }
 

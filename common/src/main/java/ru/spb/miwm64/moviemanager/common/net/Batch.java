@@ -30,5 +30,6 @@ public class Batch {
         this.creates = creates;
         this.deletes = deletes;
         this.messages = messages;
+        this.ownerships = ownerships;
     }
 }
