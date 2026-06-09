@@ -18,4 +18,18 @@ public class GuiFactory {
         popup.setContentText(text);
         return popup;
     }
+
+    public static Alert createInfoPopupWithProperty(String text) {
+        Alert popup = new Alert(Alert.AlertType.INFORMATION);
+        popup.initStyle(StageStyle.UTILITY);
+        popup.contentTextProperty().bind(I18N.createBinding(text));
+        return popup;
+    }
+
+    public static Alert createErrorPopupWithProperty(String text) {
+        Alert popup = new Alert(Alert.AlertType.ERROR);
+        popup.initStyle(StageStyle.UTILITY);
+        popup.contentTextProperty().bind(I18N.createBinding(text));
+        return popup;
+    }
 }

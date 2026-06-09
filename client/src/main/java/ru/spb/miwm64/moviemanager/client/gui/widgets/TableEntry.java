@@ -12,6 +12,7 @@ import ru.spb.miwm64.moviemanager.client.gui.dialog.CreateDialog;
 import ru.spb.miwm64.moviemanager.client.gui.dialog.MyDialog;
 import ru.spb.miwm64.moviemanager.client.gui.dialog.UpdateDialog;
 import ru.spb.miwm64.moviemanager.client.gui.pane.SortColumn;
+import ru.spb.miwm64.moviemanager.client.gui.util.GuiFactory;
 import ru.spb.miwm64.moviemanager.client.gui.util.Helper;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -160,6 +161,9 @@ public class TableEntry extends HBox {
                 MyDialog dialog = new UpdateDialog(movie, collectionManager);
                 dialog.showAndWait();
             }
+            else {
+                GuiFactory.createErrorPopupWithProperty("error.no_permission").showAndWait();
+            }
         });
         deleteButton.setOnMouseClicked(event -> {
             if (this.ownerships.contains(new Ownership(JsonRpcRequest.userId, this.movie.getId(), OwnershipType.owner))){
@@ -178,6 +182,9 @@ public class TableEntry extends HBox {
                         deleteCommand.execute();
                     });
                 });
+            }
+            else {
+                GuiFactory.createErrorPopupWithProperty("error.no_permission").showAndWait();
             }
         });
     }
