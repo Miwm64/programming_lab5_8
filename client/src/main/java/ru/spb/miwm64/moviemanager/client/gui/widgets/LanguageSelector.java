@@ -11,7 +11,7 @@ import javafx.scene.image.ImageView;
 import ru.spb.miwm64.moviemanager.client.gui.util.I18N;
 
 import java.util.Locale;
-
+// TODO combobox option bg
 public class LanguageSelector extends ComboBox<String> {
     private final ObservableList<String> langs;
 

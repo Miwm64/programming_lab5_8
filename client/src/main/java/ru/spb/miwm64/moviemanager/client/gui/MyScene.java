@@ -102,7 +102,7 @@ public class MyScene extends Scene {
             headerPane.hideTop();
         });
     }
-
+    // TODO popup in new window
     private void login(Map<String, String> data) {
         try {
             Command command = commandFactory.newCommand("login");
