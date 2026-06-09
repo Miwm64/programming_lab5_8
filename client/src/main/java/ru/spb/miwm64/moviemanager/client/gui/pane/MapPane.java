@@ -18,9 +18,12 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import ru.spb.miwm64.moviemanager.client.collectionmanager.ObservableCollection;
 import ru.spb.miwm64.moviemanager.client.gui.dialog.UpdateDialog;
+import ru.spb.miwm64.moviemanager.client.gui.util.GuiFactory;
 import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
 import ru.spb.miwm64.moviemanager.common.entities.Movie;
+import ru.spb.miwm64.moviemanager.common.net.JsonRpcRequest;
 import ru.spb.miwm64.moviemanager.common.net.Ownership;
+import ru.spb.miwm64.moviemanager.common.net.OwnershipType;
 import ru.spb.miwm64.moviemanager.common.net.VersionedObject;
 
 import java.util.ArrayList;
@@ -273,11 +276,18 @@ public class MapPane extends VBox {
     }
 
     private void handleClick(double x, double y) {
-
         VersionedObject<Movie> movie = findMovieAt(x, y);
-
         if (movie != null) {
-            new UpdateDialog(movie.data, collectionManager).showAndWait();
+            boolean hasPermission = ownerships.stream().anyMatch(ow ->
+                    ow.userId().equals(JsonRpcRequest.userId) &&
+                            ow.movieId().equals(movie.data.getId()) &&
+                            (ow.type() == OwnershipType.edit || ow.type() == OwnershipType.owner)
+            );
+            if (hasPermission) {
+                new UpdateDialog(movie.data, collectionManager).showAndWait();
+            } else {
+                GuiFactory.createErrorPopupWithProperty("error.no_permission").showAndWait();
+            }
         }
     }
 

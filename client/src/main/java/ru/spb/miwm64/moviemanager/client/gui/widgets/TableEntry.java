@@ -156,17 +156,25 @@ public class TableEntry extends HBox {
         deleteButton.setGraphic(imageView2);
 
         editButton.setOnMouseClicked(event -> {
-            if (this.ownerships.contains(new Ownership(JsonRpcRequest.userId, this.movie.getId(), OwnershipType.edit))
-            || this.ownerships.contains(new Ownership(JsonRpcRequest.userId, this.movie.getId(), OwnershipType.owner ))){
+            boolean hasPermission = ownerships.stream().anyMatch(ow ->
+                    ow.userId().equals(JsonRpcRequest.userId) &&
+                            ow.movieId().equals(this.movie.getId()) &&
+                            (ow.type() == OwnershipType.edit || ow.type() == OwnershipType.owner)
+            );
+            if (hasPermission) {
                 MyDialog dialog = new UpdateDialog(movie, collectionManager);
                 dialog.showAndWait();
-            }
-            else {
+            } else {
                 GuiFactory.createErrorPopupWithProperty("error.no_permission").showAndWait();
             }
         });
         deleteButton.setOnMouseClicked(event -> {
-            if (this.ownerships.contains(new Ownership(JsonRpcRequest.userId, this.movie.getId(), OwnershipType.owner))){
+            boolean isOwner = ownerships.stream().anyMatch(ow ->
+                    ow.userId().equals(JsonRpcRequest.userId) &&
+                            ow.movieId().equals(this.movie.getId()) &&
+                            ow.type() == OwnershipType.owner
+            );
+            if (isOwner) {
                 Platform.runLater(() -> {
                     ConfirmationDialog dialog = new ConfirmationDialog("Do you really want to delete this movie?",
                             "Movie deletion");
@@ -177,13 +185,12 @@ public class TableEntry extends HBox {
 
                         Command deleteCommand = new RemoveByIDCommand(collectionManager);
                         Parameter param = deleteCommand.getParams().get(0);
-                        param.fromString(movie.getId()+"");
+                        param.fromString(movie.getId() + "");
                         deleteCommand.setParam(param);
                         deleteCommand.execute();
                     });
                 });
-            }
-            else {
+            } else {
                 GuiFactory.createErrorPopupWithProperty("error.no_permission").showAndWait();
             }
         });
