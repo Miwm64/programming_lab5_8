@@ -93,7 +93,7 @@ public class SynchronizationThread extends Thread {
                 }
                 messages.add(message.toString());
             }
-
+            ownerships.setAll(serverBatch.ownerships);
             collectionManager.applyRemoteBatch(serverBatch);
             LOG.info("Synchronization successful");
             return true;

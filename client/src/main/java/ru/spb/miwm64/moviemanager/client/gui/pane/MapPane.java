@@ -46,6 +46,7 @@ public class MapPane extends VBox {
     private final CollectionManager collectionManager;
     private final ObservableList<VersionedObject<Movie>> mapEntries;
     private final ListChangeListener<VersionedObject<Movie>> listener;
+    private final ObservableList<Ownership> ownerships;
 
     private double offsetX = 0;
     private double offsetY = 0;
@@ -92,6 +93,7 @@ public class MapPane extends VBox {
     public MapPane(ObservableCollection collection, CollectionManager collectionManager,
                    ObservableList<Ownership> ownerships) {
 
+        this.ownerships = ownerships;
         this.collectionManager = collectionManager;
 
         this.setStyle("-fx-background-color: transparent;");
@@ -243,8 +245,6 @@ public class MapPane extends VBox {
         gc.strokeLine(0, originY, canvas.getWidth(), originY);
         gc.strokeLine(originX, 0, originX, canvas.getHeight());
 
-        gc.setFill(Color.RED);
-
         for (AnimatedDot dot : animatedDots.values()) {
             dot.draw(gc, this);
         }
@@ -300,6 +300,43 @@ public class MapPane extends VBox {
         return null;
     }
 
+    /**
+     * Generates a color based on the user's UUID using a hex color formula.
+     */
+    private Color getColorForUser(String userId) {
+        if (userId == null) return Color.RED;
+
+        // Formula to get a hex color string from the UUID's hash code
+        int hash = userId.hashCode();
+        String hexColor = String.format("#%06x", hash & 0xFFFFFF);
+        Color color = Color.web(hexColor);
+
+        // Ensure the color is visible (not too dark against the background)
+        double brightness = (color.getRed() * 0.299 + color.getGreen() * 0.587 + color.getBlue() * 0.114);
+        if (brightness < 0.3) {
+            color = color.brighter().brighter();
+        }
+
+        return color;
+    }
+
+    /**
+     * Finds the ownership for a movie and returns the corresponding user color.
+     */
+    private Color getColorForMovie(VersionedObject<Movie> movie) {
+        // Note: Assuming Movie has a getId() method returning Long.
+        // If Movie is implemented as a record, you may need to use movie.data.id() instead.
+        Long movieId = movie.data.getId();
+
+        for (Ownership o : ownerships) {
+            if (o.movieId().equals(movieId)) {
+                return getColorForUser(o.userId());
+            }
+        }
+
+        return Color.RED; // Fallback color if no ownership is found
+    }
+
     private void syncAnimatedDots() {
         Set<Object> currentMovies = new HashSet<>();
         for (VersionedObject<Movie> movie : mapEntries) {
@@ -319,7 +356,7 @@ public class MapPane extends VBox {
         for (VersionedObject<Movie> movie : mapEntries) {
             AnimatedDot dot = animatedDots.get(movie.data);
             if (dot == null) {
-                dot = new AnimatedDot(movie, State.CREATING);
+                dot = new AnimatedDot(movie, State.CREATING, getColorForMovie(movie));
                 animatedDots.put(movie.data, dot);
             } else {
                 double newX = movie.data.getCoordinates().getX();
@@ -351,6 +388,7 @@ public class MapPane extends VBox {
 
     private static class AnimatedDot {
         VersionedObject<Movie> movie;
+        Color color;
         double startX, startY;
         double targetX, targetY;
         double currentX, currentY;
@@ -364,9 +402,10 @@ public class MapPane extends VBox {
 
         java.util.List<double[]> particles = new ArrayList<>();
 
-        AnimatedDot(VersionedObject<Movie> movie, State initialState) {
+        AnimatedDot(VersionedObject<Movie> movie, State initialState, Color color) {
             this.movie = movie;
             this.state = initialState;
+            this.color = color;
             this.startTime = System.nanoTime();
 
             this.targetX = movie.data.getCoordinates().getX();
@@ -448,7 +487,7 @@ public class MapPane extends VBox {
 
             gc.save();
             gc.setGlobalAlpha(alpha);
-            gc.setFill(Color.RED);
+            gc.setFill(color); // Use the dynamically assigned color
 
             if (state == State.DELETING) {
                 gc.fillOval(sx - radius, sy - radius, radius * 2, radius * 2);
