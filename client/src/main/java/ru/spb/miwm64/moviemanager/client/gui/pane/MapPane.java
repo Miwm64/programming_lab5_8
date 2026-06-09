@@ -2,6 +2,7 @@ package ru.spb.miwm64.moviemanager.client.gui.pane;
 
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -9,9 +10,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import ru.spb.miwm64.moviemanager.client.collectionmanager.ObservableCollection;
 import ru.spb.miwm64.moviemanager.client.gui.dialog.UpdateDialog;
 import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
@@ -24,6 +27,7 @@ public class MapPane extends VBox {
     private static final double ZOOM_STEP = 1.1;
     private static final double MIN_SCALE = 0.1;
     private static final double MAX_SCALE = 20.0;
+    private static final double CORNER_RADIUS = 24.0;
 
     private double scale = 1.0;
 
@@ -40,17 +44,52 @@ public class MapPane extends VBox {
     private double lastMouseX;
     private double lastMouseY;
 
+    private static class ResizableCanvas extends Canvas {
+        @Override
+        public boolean isResizable() {
+            return true;
+        }
+
+        @Override
+        public double minWidth(double height) {
+            return 1.0;
+        }
+
+        @Override
+        public double minHeight(double width) {
+            return 1.0;
+        }
+
+        @Override
+        public double maxWidth(double height) {
+            return Double.MAX_VALUE;
+        }
+
+        @Override
+        public double maxHeight(double width) {
+            return Double.MAX_VALUE;
+        }
+
+        @Override
+        public void resize(double width, double height) {
+            super.setWidth(width);
+            super.setHeight(height);
+        }
+    }
+
     public MapPane(ObservableCollection collection, CollectionManager collectionManager) {
 
         this.collectionManager = collectionManager;
-        this.setStyle("-fx-background-color: white;");
+
+        this.setStyle("-fx-background-color: transparent;");
+        this.setPadding(new Insets(10));
 
         this.mapEntries = collection.getRawAll();
 
         this.listener = c -> redraw();
         this.mapEntries.addListener(listener);
 
-        this.canvas = new Canvas();
+        this.canvas = new ResizableCanvas();
 
         this.tooltip = new Tooltip();
         tooltip.setAutoHide(true);
@@ -77,17 +116,23 @@ public class MapPane extends VBox {
         StackPane root = new StackPane(canvas, zoomBox);
         StackPane.setAlignment(zoomBox, Pos.TOP_RIGHT);
 
+        // Margins to shift the buttons away from the top-right corner curve
+        StackPane.setMargin(zoomBox, new Insets(12, 16, 0, 0));
+
+        root.setStyle("-fx-background-color: #DAC0A7; -fx-background-radius: " + CORNER_RADIUS + "; -fx-border-radius: " + CORNER_RADIUS + ";");
+
+        Rectangle clip = new Rectangle();
+        clip.setArcWidth(CORNER_RADIUS * 2);
+        clip.setArcHeight(CORNER_RADIUS * 2);
+        clip.widthProperty().bind(root.widthProperty());
+        clip.heightProperty().bind(root.heightProperty());
+        root.setClip(clip);
+
+        VBox.setVgrow(root, Priority.ALWAYS);
         getChildren().add(root);
 
-        widthProperty().addListener((obs, o, n) -> {
-            canvas.setWidth(n.doubleValue());
-            redraw();
-        });
-
-        heightProperty().addListener((obs, o, n) -> {
-            canvas.setHeight(n.doubleValue());
-            redraw();
-        });
+        canvas.widthProperty().addListener(evt -> redraw());
+        canvas.heightProperty().addListener(evt -> redraw());
 
         canvas.setOnMousePressed(e -> {
             lastMouseX = e.getX();

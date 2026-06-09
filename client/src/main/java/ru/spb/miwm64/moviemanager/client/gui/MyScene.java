@@ -41,6 +41,8 @@ public class MyScene extends Scene {
 
     private int footerClickedCount = 0;
 
+    private boolean isTable = true;
+
     public MyScene(Stage primaryStage, BatchRemoteCollectionManager collectionManager, XMLParser xmlParser,
                    JsonRpcClient jsonRpcClient) {
         super(new Label(I18N.get("my_scene.label.loading")));
@@ -92,7 +94,13 @@ public class MyScene extends Scene {
         });
 
         headerPane.getSwitchButton().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-            mainPane.setCenter(mapPane);
+            if (isTable){
+                mainPane.setCenter(mapPane);
+            }
+            else {
+                mainPane.setCenter(tablePane);
+            }
+            isTable = !isTable;
         });
         headerPane.hideTop();
         headerPane.getLogoutButton().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
@@ -114,6 +122,7 @@ public class MyScene extends Scene {
             var res = command.execute();
             if (res.isSuccess()){
                 mainPane.setCenter(tablePane);
+                isTable = true;
                 headerPane.setNickname(data.get("username"));
                 headerPane.showTop();
             }
