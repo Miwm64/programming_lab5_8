@@ -9,6 +9,7 @@ public class Batch {
     public ArrayList<VersionedObject<Movie>> creates;
     public ArrayList<Long> deletes;
     public ArrayList<String> messages; // optional
+    public ArrayList<Ownership> ownerships; // only from server
 
     public Batch(){};
 
@@ -23,7 +24,8 @@ public class Batch {
     public Batch(ArrayList<VersionedObject<Movie>> creates,
                  ArrayList<VersionedObject<Movie>> updates,
                  ArrayList<Long> deletes,
-                 ArrayList<String> messages) {
+                 ArrayList<String> messages,
+                 ArrayList<Ownership> ownerships) {
         this.updates = updates;
         this.creates = creates;
         this.deletes = deletes;

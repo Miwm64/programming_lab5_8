@@ -3,6 +3,7 @@ package ru.spb.miwm64.moviemanager.server.collectionmanager;
 import ru.spb.miwm64.moviemanager.common.entities.Movie;
 import ru.spb.miwm64.moviemanager.common.exceptions.InvalidValueException;
 import ru.spb.miwm64.moviemanager.common.net.Batch;
+import ru.spb.miwm64.moviemanager.common.net.Ownership;
 import ru.spb.miwm64.moviemanager.common.net.VersionedObject;
 import ru.spb.miwm64.moviemanager.server.db.SQLRepository;
 
@@ -167,7 +168,14 @@ public class DbBatchCollectionManager {
                 }
             }
         }
+        ArrayList<Ownership> ownerships = new ArrayList<>();
+        try {
+            repo.getAllOwnerships();
+        }
+        catch (SQLException e) {
+            messages.add("Failed to fetch ownerships");
+        }
 
-        return new Batch(deltaCreates, deltaUpdates, deltaDeletes, messages);
+        return new Batch(deltaCreates, deltaUpdates, deltaDeletes, messages, ownerships);
     }
 }
