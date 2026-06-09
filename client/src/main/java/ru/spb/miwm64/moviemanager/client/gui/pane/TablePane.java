@@ -25,6 +25,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
 import ru.spb.miwm64.moviemanager.common.entities.Movie;
+import ru.spb.miwm64.moviemanager.common.net.Ownership;
 import ru.spb.miwm64.moviemanager.common.net.VersionedObject;
 
 import java.util.Collections;
@@ -52,6 +53,7 @@ public class TablePane extends VBox {
     private final VBox entriesVBox;
     private final ScrollPane entriesScrollPane;
     private final Button createButton = new Button();
+    private final ObservableList<Ownership> ownerships;
 
     private final Logger log = LoggerFactory.getLogger(TablePane.class);
     private final CollectionManager cm;
@@ -60,13 +62,15 @@ public class TablePane extends VBox {
     private boolean ascending = true;
     private boolean sorting = false;
 
-    public TablePane(ObservableCollection collectionManager, CollectionManager cm) {
+    public TablePane(ObservableCollection collectionManager, CollectionManager cm,
+                     ObservableList<Ownership> ownerships) {
         tableEntryMap = new ConcurrentHashMap<>();
         tableEntries = collectionManager.getRawAll();
         tableEntryListChangeListener = change -> {
             handleUpdate(change);
         };
         tableEntries.addListener(tableEntryListChangeListener);
+        this.ownerships = ownerships;
 
         createButton.setStyle("-fx-background-color: #EEDEC5;" +
                 "-fx-background-radius: 24px;  -fx-border-radius: 24;");
@@ -112,7 +116,8 @@ public class TablePane extends VBox {
             TableEntry entry =
                     new TableEntry(
                             movie.data,
-                            cm
+                            cm,
+                            this.ownerships
                     );
 
             tableEntryMap.put(

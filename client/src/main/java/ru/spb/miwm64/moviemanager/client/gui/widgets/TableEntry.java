@@ -1,6 +1,7 @@
 package ru.spb.miwm64.moviemanager.client.gui.widgets;
 
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import ru.spb.miwm64.moviemanager.client.command.Command;
@@ -22,6 +23,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
 import ru.spb.miwm64.moviemanager.common.entities.Movie;
+import ru.spb.miwm64.moviemanager.common.net.JsonRpcRequest;
+import ru.spb.miwm64.moviemanager.common.net.Ownership;
 
 import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
@@ -42,6 +45,7 @@ public class TableEntry extends HBox {
     private Movie movie;
     private CollectionManager collectionManager;
     private Consumer<SortColumn> sortHandler;
+    private ObservableList<Ownership> ownerships;
 
     private static final DoubleProperty titleWidth = new SimpleDoubleProperty(100);
     private static final DoubleProperty idWidth = new SimpleDoubleProperty(30);
@@ -67,8 +71,9 @@ public class TableEntry extends HBox {
 
         this.collectionManager = collectionManager;
     }
-    public TableEntry(Movie movie, CollectionManager collectionManager) {
+    public TableEntry(Movie movie, CollectionManager collectionManager, ObservableList<Ownership> ownerships) {
         this();
+        this.ownerships = ownerships;
         setMovie(movie);
         this.collectionManager = collectionManager;
     }
@@ -149,6 +154,7 @@ public class TableEntry extends HBox {
         deleteButton.setGraphic(imageView2);
 
         editButton.setOnMouseClicked(event -> {
+//            if (this.ownerships.contains(new Ownership(JsonRpcRequest.)))
             MyDialog dialog = new UpdateDialog(movie, collectionManager);
             dialog.showAndWait();
         });

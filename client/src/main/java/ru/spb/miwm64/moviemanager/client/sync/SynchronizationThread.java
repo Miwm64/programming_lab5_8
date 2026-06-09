@@ -10,6 +10,7 @@ import ru.spb.miwm64.moviemanager.client.net.JsonRpcClient;
 import ru.spb.miwm64.moviemanager.common.io.Writer;
 import ru.spb.miwm64.moviemanager.common.net.Batch;
 import ru.spb.miwm64.moviemanager.common.net.JsonRpcRequest;
+import ru.spb.miwm64.moviemanager.common.net.Ownership;
 
 import java.util.HashMap;
 import java.util.List;
@@ -29,12 +30,15 @@ public class SynchronizationThread extends Thread {
     private final PendingChangeQueue pendingChangeQueue;
     private final List<String> messages;
     private final BatchRemoteCollectionManager collectionManager;
+    private final ObservableList<Ownership> ownerships;
 
     private static final ReentrantLock mutex = new ReentrantLock();
 
 
     public SynchronizationThread(JsonRpcClient jsonRpcClient, PendingChangeQueue pendingChangeQueue,
-                                 BatchRemoteCollectionManager collectionManager, ObservableList<String> messages) {
+                                 BatchRemoteCollectionManager collectionManager, ObservableList<String> messages,
+                                 ObservableList<Ownership> ownerships) {
+        this.ownerships = ownerships;
         this.jsonRpcClient = jsonRpcClient;
         this.pendingChangeQueue = pendingChangeQueue;
         this.messages = messages;
@@ -92,6 +96,8 @@ public class SynchronizationThread extends Thread {
                 }
                 messages.add(message.toString());
             }
+
+            ownerships.setAll(serverBatch.ownerships);
 
             collectionManager.applyRemoteBatch(serverBatch);
             return true;

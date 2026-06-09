@@ -20,6 +20,7 @@ import ru.spb.miwm64.moviemanager.client.collectionmanager.ObservableCollection;
 import ru.spb.miwm64.moviemanager.client.gui.dialog.UpdateDialog;
 import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
 import ru.spb.miwm64.moviemanager.common.entities.Movie;
+import ru.spb.miwm64.moviemanager.common.net.Ownership;
 import ru.spb.miwm64.moviemanager.common.net.VersionedObject;
 
 import java.util.ArrayList;
@@ -88,7 +89,8 @@ public class MapPane extends VBox {
         }
     }
 
-    public MapPane(ObservableCollection collection, CollectionManager collectionManager) {
+    public MapPane(ObservableCollection collection, CollectionManager collectionManager,
+                   ObservableList<Ownership> ownerships) {
 
         this.collectionManager = collectionManager;
 
