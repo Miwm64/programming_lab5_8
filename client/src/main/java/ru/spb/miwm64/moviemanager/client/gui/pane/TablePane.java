@@ -2,11 +2,14 @@ package ru.spb.miwm64.moviemanager.client.gui.pane;
 
 import javafx.animation.*;
 import javafx.application.Platform;
+import javafx.scene.layout.HBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.spb.miwm64.moviemanager.client.Main;
 import ru.spb.miwm64.moviemanager.client.collectionmanager.ObservableCollection;
 import ru.spb.miwm64.moviemanager.client.gui.dialog.CreateDialog;
+import ru.spb.miwm64.moviemanager.client.gui.dialog.MyDialog;
+import ru.spb.miwm64.moviemanager.client.gui.dialog.PermissionDialog;
 import ru.spb.miwm64.moviemanager.client.gui.util.Helper;
 import ru.spb.miwm64.moviemanager.client.gui.util.I18N;
 import ru.spb.miwm64.moviemanager.client.gui.widgets.TableEntry;
@@ -23,6 +26,7 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import ru.spb.miwm64.moviemanager.client.net.JsonRpcClient;
 import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
 import ru.spb.miwm64.moviemanager.common.entities.Movie;
 import ru.spb.miwm64.moviemanager.common.net.Ownership;
@@ -53,7 +57,10 @@ public class TablePane extends VBox {
     private final VBox entriesVBox;
     private final ScrollPane entriesScrollPane;
     private final Button createButton = new Button();
+    private final Button revokeAccessButton = new Button();
+    private final Button grantAccessButton = new Button();
     private final ObservableList<Ownership> ownerships;
+    private final JsonRpcClient rpcClient;
 
     private final Logger log = LoggerFactory.getLogger(TablePane.class);
     private final CollectionManager cm;
@@ -63,7 +70,7 @@ public class TablePane extends VBox {
     private boolean sorting = false;
 
     public TablePane(ObservableCollection collectionManager, CollectionManager cm,
-                     ObservableList<Ownership> ownerships) {
+                     ObservableList<Ownership> ownerships, JsonRpcClient rpcClient) {
         tableEntryMap = new ConcurrentHashMap<>();
         tableEntries = collectionManager.getRawAll();
         tableEntryListChangeListener = change -> {
@@ -71,10 +78,19 @@ public class TablePane extends VBox {
         };
         tableEntries.addListener(tableEntryListChangeListener);
         this.ownerships = ownerships;
+        this.rpcClient = rpcClient;
 
         createButton.setStyle("-fx-background-color: #EEDEC5;" +
                 "-fx-background-radius: 24px;  -fx-border-radius: 24;");
         createButton.setFont(Helper.getBoldFont(18));
+
+        grantAccessButton.setStyle("-fx-background-color: #EEDEC5;" +
+                "-fx-background-radius: 24px;  -fx-border-radius: 24;");
+        grantAccessButton.setFont(Helper.getBoldFont(18));
+
+        revokeAccessButton.setStyle("-fx-background-color: #EEDEC5;" +
+                "-fx-background-radius: 24px;  -fx-border-radius: 24;");
+        revokeAccessButton.setFont(Helper.getBoldFont(18));
 
         this.cm = cm;
         entriesScrollPane = new ScrollPane();
@@ -100,13 +116,32 @@ public class TablePane extends VBox {
         entriesScrollPane.setStyle("-fx-background: #DAC0A7;");
         this.setPadding(new Insets(10, 10, 10, 10));
         this.setStyle("-fx-background-color: #DAC0A7; -fx-background-radius: 20px;");
-        this.getChildren().add(createButton);
+
+        HBox buttonBox = new HBox();
+        buttonBox.setAlignment(Pos.CENTER);
+        buttonBox.setSpacing(10);
+        buttonBox.getChildren().add(revokeAccessButton);
+        buttonBox.getChildren().add(createButton);
+        buttonBox.getChildren().add(grantAccessButton);
+
+        this.getChildren().add(buttonBox);
+
         createButton.setOnAction(e -> {
             CreateDialog createPane = new CreateDialog(cm);
             createPane.showAndWait();
         });
+        grantAccessButton.setOnAction(e -> {
+            MyDialog dialog = new PermissionDialog(true, rpcClient);
+            dialog.showAndWait();
+        });
+        revokeAccessButton.setOnAction(e -> {
+            MyDialog dialog = new PermissionDialog(false, rpcClient);
+            dialog.showAndWait();
+        });
 
         createButton.textProperty().bind(I18N.createBinding("table_pane.button.create"));
+        grantAccessButton.textProperty().bind(I18N.createBinding("table_pane.button.grant_access"));
+        revokeAccessButton.textProperty().bind(I18N.createBinding("table_pane.button.revoke_access"));
     }
 
     private void addEntry(VersionedObject<Movie> movie, CollectionManager cm) {
