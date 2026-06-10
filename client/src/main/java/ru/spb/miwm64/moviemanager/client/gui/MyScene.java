@@ -56,7 +56,8 @@ public class MyScene extends Scene {
         this.mainPane = new BorderPane();
         this.loginPane = new LoginPane();
         this.registerPane = new RegisterPane();
-        this.tablePane = new TablePane(collectionManager, collectionManager, ownerships, jsonRpcClient);
+        this.tablePane = new TablePane(collectionManager, collectionManager, ownerships, jsonRpcClient,
+                readers, openedFilesSet, commandFactory);
         this.mapPane = new MapPane(collectionManager, collectionManager, ownerships);
         this.headerPane = new HeaderPane(primaryStage);
         this.footerLabel = new FooterLabel();

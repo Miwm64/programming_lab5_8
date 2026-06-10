@@ -3,18 +3,21 @@ package ru.spb.miwm64.moviemanager.client.gui.pane;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.scene.layout.HBox;
+import javafx.stage.FileChooser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.spb.miwm64.moviemanager.client.Main;
 import ru.spb.miwm64.moviemanager.client.collectionmanager.ObservableCollection;
 import ru.spb.miwm64.moviemanager.client.command.Command;
+import ru.spb.miwm64.moviemanager.client.command.CommandFactory;
 import ru.spb.miwm64.moviemanager.client.command.Parameter;
 import ru.spb.miwm64.moviemanager.client.commands.ClearCommand;
-import ru.spb.miwm64.moviemanager.client.commands.RemoveByIDCommand;
+import ru.spb.miwm64.moviemanager.client.commands.ExecuteScriptCommand;
+import ru.spb.miwm64.moviemanager.client.commands.InfoCommand;
 import ru.spb.miwm64.moviemanager.client.gui.dialog.ConfirmationDialog;
 import ru.spb.miwm64.moviemanager.client.gui.dialog.CreateDialog;
 import ru.spb.miwm64.moviemanager.client.gui.dialog.MyDialog;
 import ru.spb.miwm64.moviemanager.client.gui.dialog.PermissionDialog;
+import ru.spb.miwm64.moviemanager.client.gui.util.GuiFactory;
 import ru.spb.miwm64.moviemanager.client.gui.util.Helper;
 import ru.spb.miwm64.moviemanager.client.gui.util.I18N;
 import ru.spb.miwm64.moviemanager.client.gui.widgets.TableEntry;
@@ -26,30 +29,22 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.stage.Stage;
 import ru.spb.miwm64.moviemanager.client.net.JsonRpcClient;
 import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
 import ru.spb.miwm64.moviemanager.common.entities.Movie;
+import ru.spb.miwm64.moviemanager.common.io.Reader;
 import ru.spb.miwm64.moviemanager.common.net.Ownership;
 import ru.spb.miwm64.moviemanager.common.net.VersionedObject;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Map;
+import java.io.File;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javafx.scene.Node;
-import javafx.geometry.Point2D;
 
 import javafx.util.Duration;
 
-import java.util.HashMap;
-
-// TODO command
 public class TablePane extends VBox {
     private final ObservableList<VersionedObject<Movie>> tableEntries;
     private final ListChangeListener<VersionedObject<Movie>> tableEntryListChangeListener;
@@ -64,6 +59,8 @@ public class TablePane extends VBox {
     private final Button revokeAccessButton = new Button();
     private final Button grantAccessButton = new Button();
     private final Button clearAllButton = new Button();
+    private final Button infoButton = new Button();
+    private final Button execScriptButton = new Button();
 
     private final ObservableList<Ownership> ownerships;
     private final JsonRpcClient rpcClient;
@@ -75,8 +72,13 @@ public class TablePane extends VBox {
     private boolean ascending = true;
     private boolean sorting = false;
 
+    private final List<Reader> readerList;
+    private final Set<String> openedFilesSet;
+    private final CommandFactory commandFactory;
+
     public TablePane(ObservableCollection collectionManager, CollectionManager cm,
-                     ObservableList<Ownership> ownerships, JsonRpcClient rpcClient) {
+                     ObservableList<Ownership> ownerships, JsonRpcClient rpcClient,
+                     List<Reader> readersList, Set<String> openedFilesSet, CommandFactory commandFactory) {
         tableEntryMap = new ConcurrentHashMap<>();
         tableEntries = collectionManager.getRawAll();
         tableEntryListChangeListener = change -> {
@@ -85,6 +87,9 @@ public class TablePane extends VBox {
         tableEntries.addListener(tableEntryListChangeListener);
         this.ownerships = ownerships;
         this.rpcClient = rpcClient;
+        this.readerList = readersList;
+        this.openedFilesSet = openedFilesSet;
+        this.commandFactory = commandFactory;
 
         createButton.setStyle("-fx-background-color: #EEDEC5;" +
                 "-fx-background-radius: 24px;  -fx-border-radius: 24;");
@@ -101,6 +106,14 @@ public class TablePane extends VBox {
         clearAllButton.setStyle("-fx-background-color: #EEDEC5;" +
                 "-fx-background-radius: 24px;  -fx-border-radius: 24;");
         clearAllButton.setFont(Helper.getBoldFont(14));
+
+        infoButton.setStyle("-fx-background-color: #EEDEC5;" +
+                "-fx-background-radius: 24px;  -fx-border-radius: 24;");
+        infoButton.setFont(Helper.getBoldFont(14));
+
+        execScriptButton.setStyle("-fx-background-color: #EEDEC5;" +
+                "-fx-background-radius: 24px;  -fx-border-radius: 24;");
+        execScriptButton.setFont(Helper.getBoldFont(14));
 
 
         this.cm = cm;
@@ -131,10 +144,12 @@ public class TablePane extends VBox {
         HBox buttonBox = new HBox();
         buttonBox.setAlignment(Pos.CENTER);
         buttonBox.setSpacing(10);
+        buttonBox.getChildren().add(infoButton);
         buttonBox.getChildren().add(revokeAccessButton);
         buttonBox.getChildren().add(clearAllButton);
         buttonBox.getChildren().add(createButton);
         buttonBox.getChildren().add(grantAccessButton);
+        buttonBox.getChildren().add(execScriptButton);
 
         this.getChildren().add(buttonBox);
 
@@ -166,10 +181,34 @@ public class TablePane extends VBox {
             });
         });
 
+        infoButton.setOnAction(e -> {
+            Command infoCommand = new InfoCommand(cm);
+            GuiFactory.createInfoPopup(infoCommand.execute().getMessage()).showAndWait();
+        });
+
+        execScriptButton.setOnAction(e -> {
+            Command command = commandFactory.newCommand("execute_script");
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Select a file");
+            fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+
+            File selectedFile = fileChooser.showOpenDialog(null);
+            if (selectedFile != null) {
+                String filePath = selectedFile.getAbsolutePath();
+                System.out.println("Selected: " + filePath);
+                Parameter param = command.getParams().get(0);
+                param.fromString(filePath);
+                command.setParam(param);
+                command.execute();
+            };
+        });
+
         createButton.textProperty().bind(I18N.createBinding("table_pane.button.create"));
         grantAccessButton.textProperty().bind(I18N.createBinding("table_pane.button.grant_access"));
         revokeAccessButton.textProperty().bind(I18N.createBinding("table_pane.button.revoke_access"));
         clearAllButton.textProperty().bind(I18N.createBinding("table_pane.button.clear_all"));
+        infoButton.textProperty().bind(I18N.createBinding("table_pane.button.info"));
+        execScriptButton.textProperty().bind(I18N.createBinding("table_pane.button.execute_script"));
     }
 
     private void addEntry(VersionedObject<Movie> movie, CollectionManager cm) {
