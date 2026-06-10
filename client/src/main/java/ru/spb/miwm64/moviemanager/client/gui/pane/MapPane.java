@@ -19,6 +19,7 @@ import javafx.scene.shape.Rectangle;
 import ru.spb.miwm64.moviemanager.client.collectionmanager.ObservableCollection;
 import ru.spb.miwm64.moviemanager.client.gui.dialog.UpdateDialog;
 import ru.spb.miwm64.moviemanager.client.gui.util.GuiFactory;
+import ru.spb.miwm64.moviemanager.client.gui.util.I18N;
 import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
 import ru.spb.miwm64.moviemanager.common.entities.Movie;
 import ru.spb.miwm64.moviemanager.common.net.JsonRpcRequest;
@@ -115,8 +116,10 @@ public class MapPane extends VBox {
         this.tooltip = new Tooltip();
         tooltip.setAutoHide(true);
 
-        Button zoomIn = new Button("+");
-        Button zoomOut = new Button("-");
+        Button zoomIn = new Button();
+        zoomIn.textProperty().bind(I18N.createBinding("map_pane.button.zoom_in"));
+        Button zoomOut = new Button();
+        zoomOut.textProperty().bind(I18N.createBinding("map_pane.button.zoom_out"));
 
         zoomIn.setFocusTraversable(false);
         zoomOut.setFocusTraversable(false);
@@ -286,7 +289,7 @@ public class MapPane extends VBox {
             if (hasPermission) {
                 new UpdateDialog(movie.data, collectionManager).showAndWait();
             } else {
-                GuiFactory.createErrorPopupWithProperty("error.no_permission").showAndWait();
+                GuiFactory.createErrorPopupWithProperty("map_pane.error.no_permission").showAndWait();
             }
         }
     }

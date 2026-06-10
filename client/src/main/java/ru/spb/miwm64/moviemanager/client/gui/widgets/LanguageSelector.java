@@ -119,6 +119,7 @@ public class LanguageSelector extends ComboBox<String> {
                 }
                 case "Русский": {
                     I18N.setLocale(new Locale("ru"));
+                    break;
                 }
                 default: {
                     I18N.setLocale(Locale.ENGLISH);

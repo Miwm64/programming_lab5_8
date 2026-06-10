@@ -7,6 +7,7 @@ import ru.spb.miwm64.moviemanager.client.command.Parameter;
 import ru.spb.miwm64.moviemanager.client.commands.AddCommand;
 import ru.spb.miwm64.moviemanager.client.commands.UpdateByIDCommand;
 import ru.spb.miwm64.moviemanager.client.gui.util.GuiFactory;
+import ru.spb.miwm64.moviemanager.client.gui.util.I18N;
 import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
 
 public final class CreateDialog extends MyDialog {
@@ -14,7 +15,7 @@ public final class CreateDialog extends MyDialog {
     public CreateDialog(CollectionManager collectionManager) {
         super();
         this.collectionManager = collectionManager;
-        titleLabel.setText("Create Movie");
+        titleLabel.setText(I18N.get("create_dialog.title"));
         parameterList = new AddCommand(null).getParams();
 
         for (var param : parameterList) {
@@ -30,7 +31,7 @@ public final class CreateDialog extends MyDialog {
             createCommand.setParams(parameterList);
             var res = createCommand.execute();
             if (!res.isSuccess()) {
-                GuiFactory.createErrorPopup("Couldn't create movie");
+                GuiFactory.createErrorPopupWithProperty("create_dialog.error.could_not_create").show();
             }
         });
     }

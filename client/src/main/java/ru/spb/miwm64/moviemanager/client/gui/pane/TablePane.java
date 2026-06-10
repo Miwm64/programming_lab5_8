@@ -168,8 +168,9 @@ public class TablePane extends VBox {
 
         clearAllButton.setOnAction(e -> {
             Platform.runLater(() -> {
-                ConfirmationDialog dialog = new ConfirmationDialog("Do you really want to clear collection?",
-                        "Clear collection");
+                ConfirmationDialog dialog = new ConfirmationDialog(
+                        I18N.get("table_pane.confirmation.clear.message"),
+                        I18N.get("table_pane.confirmation.clear.title"));
                 dialog.showAndWait().ifPresent(result -> {
                     if (!result) {
                         return;
@@ -189,7 +190,7 @@ public class TablePane extends VBox {
         execScriptButton.setOnAction(e -> {
             Command command = commandFactory.newCommand("execute_script");
             FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Select a file");
+            fileChooser.setTitle(I18N.get("table_pane.filechooser.select_file"));
             fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
 
             File selectedFile = fileChooser.showOpenDialog(null);

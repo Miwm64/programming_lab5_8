@@ -105,13 +105,12 @@ public class MyScene extends Scene {
         });
 
         headerPane.getSwitchButton().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-            if (isTable){
+            if (isTable) {
                 mainPane.setCenter(mapPane);
-                headerPane.getSwitchButton().setText("Switch to table");
-            }
-            else {
+                headerPane.setMapView(true);
+            } else {
                 mainPane.setCenter(tablePane);
-                headerPane.getSwitchButton().setText("Switch to map");
+                headerPane.setMapView(false);
             }
             isTable = !isTable;
         });
@@ -138,28 +137,27 @@ public class MyScene extends Scene {
             if (res.isSuccess()){
                 mainPane.setCenter(tablePane);
                 isTable = true;
-                headerPane.getSwitchButton().setText("Switch to map");
+                headerPane.getSwitchButton().textProperty().bind(I18N.createBinding("my_scene.header.switch_to_map"));
                 headerPane.setNickname(data.get("username"));
                 headerPane.showTop();
                 syncLabel.setVisible(true);
             }
             else{
                 if (res.getMessage().contains("UDP")) {
-                    GuiFactory.createErrorPopup("Server unavailable, try later").show();
+                    GuiFactory.createErrorPopupWithProperty("my_scene.error.server_unavailable").show();
                 }
                 else{
                     if (isReg){
-                        GuiFactory.createErrorPopup("User with this name/email already exists").show();
+                        GuiFactory.createErrorPopupWithProperty("my_scene.error.user_already_exists").show();
                     }
                     else{
-                        GuiFactory.createErrorPopup("Wrong credentials").show();
-
+                        GuiFactory.createErrorPopupWithProperty("my_scene.error.wrong_credentials").show();
                     }
                 }
             }
         }
         catch (Exception e) {
-            GuiFactory.createErrorPopup("Internal server error").show();
+            GuiFactory.createErrorPopupWithProperty("my_scene.error.internal_server").show();
         }
     }
 
@@ -176,15 +174,15 @@ public class MyScene extends Scene {
             }
             else{
                 if (res.getMessage().contains("UDP")) {
-                    GuiFactory.createErrorPopup("Server unavailable, try later").show();
+                    GuiFactory.createErrorPopupWithProperty("my_scene.error.server_unavailable").show();
                 }
                 else{
-                    GuiFactory.createErrorPopup("User with this name/email already exists").show();
+                    GuiFactory.createErrorPopupWithProperty("my_scene.error.user_already_exists").show();
                 }
             }
         }
         catch (Exception e) {
-            GuiFactory.createErrorPopup("Internal server error").show();
+            GuiFactory.createErrorPopupWithProperty("my_scene.error.internal_server").show();
         }
     }
 

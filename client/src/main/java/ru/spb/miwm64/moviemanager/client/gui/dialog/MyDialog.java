@@ -70,8 +70,8 @@ public abstract sealed class MyDialog extends Dialog permits CreateDialog, Updat
         mainPane.setMargin(titleLabel, new Insets(0, 0, 60, 0));
 
         // Button setup – correct way
-        applyButton = new ButtonType("Apply", ButtonBar.ButtonData.APPLY);
-        cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        applyButton = new ButtonType(I18N.get("my_dialog.button.apply"), ButtonBar.ButtonData.APPLY);
+        cancelButton = new ButtonType(I18N.get("my_dialog.button.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
         dialogPane.getButtonTypes().addAll(applyButton, cancelButton);
 
         Platform.runLater(() -> {

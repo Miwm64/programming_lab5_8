@@ -1,5 +1,8 @@
 package ru.spb.miwm64.moviemanager.client.gui.pane;
 
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.NodeOrientation;
 import javafx.geometry.Pos;
@@ -23,6 +26,7 @@ public class HeaderPane extends StackPane {
     private final Button switchButton;
     private final Button logoutButton;
     private final Label nicknameLabel;
+    private final BooleanProperty isMapView = new SimpleBooleanProperty(false);
 
     public HeaderPane(Stage primaryStage) {
         title = new Label();
@@ -33,6 +37,14 @@ public class HeaderPane extends StackPane {
         logoutButton = new Button();
         nicknameLabel = new Label();
 
+        // Bind button text dynamically
+        switchButton.textProperty().bind(Bindings.createStringBinding(
+                () -> isMapView.get()
+                        ? I18N.get("header_pane.button.switch_to_table")
+                        : I18N.get("header_pane.button.switch_to_map"),
+                isMapView, I18N.localeProperty()
+        ));
+
         initLayout();
         bindTitleText();
         applyStyles();
@@ -41,18 +53,13 @@ public class HeaderPane extends StackPane {
     private void initLayout() {
         BorderPane headerLayout = new BorderPane();
 
-        // Left: empty region that will mirror the width of the language selector
         headerLayout.setLeft(leftLayout);
-        // Center: title (perfectly centered due to left/right width equality)
         headerLayout.setCenter(title);
-        // Right: language selector
         headerLayout.setRight(rightLayout);
 
-        // Bind left region width to the right region's width -> absolute centering
         rightLayout.prefWidthProperty().bind(leftLayout.widthProperty());
         rightLayout.minWidthProperty().bind(leftLayout.widthProperty());
 
-        // Make the header fill available space
         VBox.setVgrow(this, Priority.ALWAYS);
         HBox.setHgrow(this, Priority.ALWAYS);
 
@@ -63,10 +70,7 @@ public class HeaderPane extends StackPane {
         rightLayout.setAlignment(Pos.CENTER);
         switchButton.setFont(Helper.getFont(18));
         switchButton.setTextFill(Color.BLACK);
-        switchButton.setText("Switch to map");
-//        switchButton.textProperty().bind(I18N.createBinding("Switch to map"));
 
-//        setMargin(switchButton, new Insets(0, 0, 20, 0));
         rightLayout.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
         leftLayout.getChildren().add(switchButton);
         rightLayout.getChildren().add(languageSelector);
@@ -75,7 +79,6 @@ public class HeaderPane extends StackPane {
         nicknameLabel.setFont(Helper.getBoldFont(18));
 
         String resourcePath = "/images/logout.png";
-
         var resourceUrl = getClass().getResourceAsStream(resourcePath);
         Image icon = new Image(resourceUrl);
         ImageView imageView = new ImageView(icon);
@@ -118,12 +121,15 @@ public class HeaderPane extends StackPane {
         rightLayout.setVisible(true);
     }
 
-
     public void setNickname(String nickname) {
         nicknameLabel.setText(nickname);
     }
 
     public Button getSwitchButton() {
         return switchButton;
+    }
+
+    public void setMapView(boolean isMap) {
+        isMapView.set(isMap);
     }
 }

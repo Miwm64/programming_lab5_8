@@ -10,6 +10,7 @@ import ru.spb.miwm64.moviemanager.client.command.Parameter;
 import ru.spb.miwm64.moviemanager.client.commands.AddCommand;
 import ru.spb.miwm64.moviemanager.client.commands.UpdateByIDCommand;
 import ru.spb.miwm64.moviemanager.client.gui.util.GuiFactory;
+import ru.spb.miwm64.moviemanager.client.gui.util.I18N;
 import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
 import ru.spb.miwm64.moviemanager.common.entities.*;
 
@@ -22,7 +23,7 @@ public final class UpdateDialog extends MyDialog {
     public UpdateDialog(Movie movie, CollectionManager collectionManager) {
         super();
         this.collectionManager = collectionManager;
-        titleLabel.setText("Update Movie");
+        titleLabel.setText(I18N.get("update_dialog.title"));
         parameterList = new AddCommand(null).getParams();
 
         for (var param : parameterList) {
@@ -92,7 +93,7 @@ public final class UpdateDialog extends MyDialog {
             updateCommand.setParam(param);
             var res = updateCommand.execute();
             if (!res.isSuccess()) {
-                GuiFactory.createErrorPopup("Couldn't update movie");
+                GuiFactory.createErrorPopupWithProperty("update_dialog.error.could_not_update").show();
             }
         });
     }

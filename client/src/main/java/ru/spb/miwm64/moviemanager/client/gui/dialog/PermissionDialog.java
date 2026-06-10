@@ -6,6 +6,7 @@ import ru.spb.miwm64.moviemanager.client.commands.AddCommand;
 import ru.spb.miwm64.moviemanager.client.commands.GrantAccessCommand;
 import ru.spb.miwm64.moviemanager.client.commands.RevokeAccessCommand;
 import ru.spb.miwm64.moviemanager.client.gui.util.GuiFactory;
+import ru.spb.miwm64.moviemanager.client.gui.util.I18N;
 import ru.spb.miwm64.moviemanager.client.net.JsonRpcClient;
 
 public final class PermissionDialog extends MyDialog {
@@ -17,10 +18,9 @@ public final class PermissionDialog extends MyDialog {
         this.rpcClient = client;
 
         if (isGrant) {
-            titleLabel.setText("Access grant");
-        }
-        else {
-            titleLabel.setText("Access revoke");
+            titleLabel.setText(I18N.get("permission_dialog.title.grant"));
+        } else {
+            titleLabel.setText(I18N.get("permission_dialog.title.revoke"));
         }
         parameterList = new GrantAccessCommand(null).getParams();
 
@@ -33,17 +33,15 @@ public final class PermissionDialog extends MyDialog {
     protected void execute() {
         Platform.runLater(() -> {
             Command command;
-            if  (isGrant) {
+            if (isGrant) {
                 command = new GrantAccessCommand(this.rpcClient);
-            }
-            else {
+            } else {
                 command = new RevokeAccessCommand(this.rpcClient);
-
             }
             command.setParams(parameterList);
             var res = command.execute();
             if (!res.isSuccess()) {
-                GuiFactory.createErrorPopup("Internet connection error");
+                GuiFactory.createErrorPopupWithProperty("permission_dialog.error.connection").show();
             }
         });
     }
