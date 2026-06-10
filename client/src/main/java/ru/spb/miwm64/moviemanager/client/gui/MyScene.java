@@ -1,5 +1,6 @@
 package ru.spb.miwm64.moviemanager.client.gui;
 
+import javafx.collections.ObservableList;
 import ru.spb.miwm64.moviemanager.client.collectionmanager.BatchRemoteCollectionManager;
 import ru.spb.miwm64.moviemanager.client.collectionmanager.ObservableCollection;
 import ru.spb.miwm64.moviemanager.client.command.Command;
@@ -20,6 +21,7 @@ import ru.spb.miwm64.moviemanager.client.net.JsonRpcClient;
 import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
 import ru.spb.miwm64.moviemanager.common.io.Reader;
 import ru.spb.miwm64.moviemanager.common.io.XMLParser;
+import ru.spb.miwm64.moviemanager.common.net.Ownership;
 
 import java.util.*;
 
@@ -44,7 +46,7 @@ public class MyScene extends Scene {
     private boolean isTable = true;
 
     public MyScene(Stage primaryStage, BatchRemoteCollectionManager collectionManager, XMLParser xmlParser,
-                   JsonRpcClient jsonRpcClient) {
+                   JsonRpcClient jsonRpcClient, ObservableList<Ownership> ownerships) {
         super(new Label(I18N.get("my_scene.label.loading")));
         this.readers = new LinkedList<>();
         this.openedFilesSet = new HashSet<>();
@@ -54,8 +56,9 @@ public class MyScene extends Scene {
         this.mainPane = new BorderPane();
         this.loginPane = new LoginPane();
         this.registerPane = new RegisterPane();
-        this.tablePane = new TablePane(collectionManager, collectionManager);
-        this.mapPane = new MapPane(collectionManager, collectionManager);
+        this.tablePane = new TablePane(collectionManager, collectionManager, ownerships, jsonRpcClient,
+                readers, openedFilesSet, commandFactory);
+        this.mapPane = new MapPane(collectionManager, collectionManager, ownerships);
         this.headerPane = new HeaderPane(primaryStage);
         this.footerLabel = new FooterLabel();
 

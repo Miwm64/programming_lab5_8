@@ -1,6 +1,7 @@
 package ru.spb.miwm64.moviemanager.client.gui.widgets;
 
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import ru.spb.miwm64.moviemanager.client.command.Command;
@@ -11,6 +12,7 @@ import ru.spb.miwm64.moviemanager.client.gui.dialog.CreateDialog;
 import ru.spb.miwm64.moviemanager.client.gui.dialog.MyDialog;
 import ru.spb.miwm64.moviemanager.client.gui.dialog.UpdateDialog;
 import ru.spb.miwm64.moviemanager.client.gui.pane.SortColumn;
+import ru.spb.miwm64.moviemanager.client.gui.util.GuiFactory;
 import ru.spb.miwm64.moviemanager.client.gui.util.Helper;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -22,6 +24,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
 import ru.spb.miwm64.moviemanager.common.entities.Movie;
+import ru.spb.miwm64.moviemanager.common.net.JsonRpcRequest;
+import ru.spb.miwm64.moviemanager.common.net.Ownership;
+import ru.spb.miwm64.moviemanager.common.net.OwnershipType;
 
 import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
@@ -42,6 +47,7 @@ public class TableEntry extends HBox {
     private Movie movie;
     private CollectionManager collectionManager;
     private Consumer<SortColumn> sortHandler;
+    private ObservableList<Ownership> ownerships;
 
     private static final DoubleProperty titleWidth = new SimpleDoubleProperty(100);
     private static final DoubleProperty idWidth = new SimpleDoubleProperty(30);
@@ -67,8 +73,9 @@ public class TableEntry extends HBox {
 
         this.collectionManager = collectionManager;
     }
-    public TableEntry(Movie movie, CollectionManager collectionManager) {
+    public TableEntry(Movie movie, CollectionManager collectionManager, ObservableList<Ownership> ownerships) {
         this();
+        this.ownerships = ownerships;
         setMovie(movie);
         this.collectionManager = collectionManager;
     }
@@ -85,7 +92,7 @@ public class TableEntry extends HBox {
         this.goldenPalm.setText(""+movie.getGoldenPalmCount());
         this.genre.setText(movie.getGenre().toString());
         this.MPAA_RATING.setText(movie.getMpaaRating().toString());
-//        this.person.setText(movie.getOperator().toString());
+//        this.person.setText(movie.getOperator().toString()); // TODO show person
         updateWidths();
     }
 
@@ -149,25 +156,43 @@ public class TableEntry extends HBox {
         deleteButton.setGraphic(imageView2);
 
         editButton.setOnMouseClicked(event -> {
-            MyDialog dialog = new UpdateDialog(movie, collectionManager);
-            dialog.showAndWait();
+            boolean hasPermission = ownerships.stream().anyMatch(ow ->
+                    ow.userId().equals(JsonRpcRequest.userId) &&
+                            ow.movieId().equals(this.movie.getId()) &&
+                            (ow.type() == OwnershipType.edit || ow.type() == OwnershipType.owner)
+            );
+            if (hasPermission) {
+                MyDialog dialog = new UpdateDialog(movie, collectionManager);
+                dialog.showAndWait();
+            } else {
+                GuiFactory.createErrorPopupWithProperty("error.no_permission").showAndWait();
+            }
         });
         deleteButton.setOnMouseClicked(event -> {
-            Platform.runLater(() -> {
-                ConfirmationDialog dialog = new ConfirmationDialog("Do you really want to delete this movie?",
-                        "Movie deletion");
-                dialog.showAndWait().ifPresent(result -> {
-                    if (!result) {
-                        return;
-                    }
+            boolean isOwner = ownerships.stream().anyMatch(ow ->
+                    ow.userId().equals(JsonRpcRequest.userId) &&
+                            ow.movieId().equals(this.movie.getId()) &&
+                            ow.type() == OwnershipType.owner
+            );
+            if (isOwner) {
+                Platform.runLater(() -> {
+                    ConfirmationDialog dialog = new ConfirmationDialog("Do you really want to delete this movie?",
+                            "Movie deletion");
+                    dialog.showAndWait().ifPresent(result -> {
+                        if (!result) {
+                            return;
+                        }
 
-                    Command deleteCommand = new RemoveByIDCommand(collectionManager);
-                    Parameter param = deleteCommand.getParams().get(0);
-                    param.fromString(movie.getId()+"");
-                    deleteCommand.setParam(param);
-                    deleteCommand.execute();
+                        Command deleteCommand = new RemoveByIDCommand(collectionManager);
+                        Parameter param = deleteCommand.getParams().get(0);
+                        param.fromString(movie.getId() + "");
+                        deleteCommand.setParam(param);
+                        deleteCommand.execute();
+                    });
                 });
-            });
+            } else {
+                GuiFactory.createErrorPopupWithProperty("error.no_permission").showAndWait();
+            }
         });
     }
 

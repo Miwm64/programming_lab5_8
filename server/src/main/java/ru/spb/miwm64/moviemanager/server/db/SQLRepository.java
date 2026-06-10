@@ -1,8 +1,13 @@
 package ru.spb.miwm64.moviemanager.server.db;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.spb.miwm64.moviemanager.common.entities.*;
+import ru.spb.miwm64.moviemanager.common.net.Ownership;
+import ru.spb.miwm64.moviemanager.common.net.OwnershipType;
 import ru.spb.miwm64.moviemanager.common.net.VersionedObject;
 import ru.spb.miwm64.moviemanager.server.io.DatabaseProvider;
+import ru.spb.miwm64.moviemanager.server.net.UDPServer;
 
 import java.sql.*;
 import java.time.ZoneId;
@@ -13,6 +18,7 @@ public class SQLRepository {
     // Match PostgreSQL enum access_level values (lowercase)
     private static final String ACCESS_OWNER = "owner";
     private static final String ACCESS_EDIT = "edit";
+    private static final Logger LOG = LoggerFactory.getLogger(SQLRepository.class);
 
     public SQLRepository(DatabaseProvider db) {
         this.db = db;
@@ -212,6 +218,23 @@ public class SQLRepository {
         return list;
     }
 
+    // Find all movies – no access check (public read)
+    public ArrayList<Ownership> getAllOwnerships() throws SQLException {
+        String sql = "SELECT * FROM user_movie_access;";
+        ArrayList<Ownership> list = new ArrayList<>();
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                list.add(mapOwnership(rs));
+            }
+        }
+        catch (Exception e) {
+            LOG.error(e.getMessage());
+        }
+        return list;
+    }
+
     // Clear all movies and persons (admin only – no access check)
     public void clearAll() throws SQLException {
         try (Connection conn = db.getConnection()) {
@@ -301,6 +324,14 @@ public class SQLRepository {
             m.setOperator(p);
         }
         return new VersionedObject<>(rs.getInt("version"), m);
+    }
+
+    private Ownership mapOwnership(ResultSet rs) throws SQLException {
+        return new Ownership(
+                rs.getString("user_id"),
+                rs.getLong("movie_id"),
+                OwnershipType.valueOf(rs.getString("access"))
+        );
     }
 
     // Inside SQLRepository

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import ru.spb.miwm64.moviemanager.client.command.*;
 import ru.spb.miwm64.moviemanager.client.net.JsonRpcClient;
 import ru.spb.miwm64.moviemanager.common.net.JsonRpcRequest;
+import ru.spb.miwm64.moviemanager.common.net.LoginResult;
 
 import java.util.HashMap;
 
@@ -47,11 +48,13 @@ public final class LoginCommand extends AbstractCommand {
             HashMap<String, String> params = new HashMap<>();
             params.put("username", username);
             params.put("password", password);
-            String token = jsonRpcClient.call("login", params, new TypeReference<String>(){});
-            JsonRpcRequest.token = token;
-            if (token != null) {
+            LoginResult res = jsonRpcClient.call("login", params, new TypeReference<LoginResult>() {});
+            JsonRpcRequest.token = res.token();
+            JsonRpcRequest.userId = res.userId();
+
+            if (res != null) {
                 return new CommandResultSuccess(
-                        token,
+                        res,
                         "Login successful. Welcome, " + username + "!"
                 );
             } else {

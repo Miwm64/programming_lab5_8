@@ -1,6 +1,8 @@
 package ru.spb.miwm64.moviemanager.client;
 
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.stage.Screen;
@@ -18,6 +20,8 @@ import ru.spb.miwm64.moviemanager.common.io.Reader;
 import ru.spb.miwm64.moviemanager.common.io.Writer;
 import ru.spb.miwm64.moviemanager.common.io.XMLParser;
 import ru.spb.miwm64.moviemanager.client.sync.*;
+import ru.spb.miwm64.moviemanager.common.net.Ownership;
+
 import java.net.InetSocketAddress;
 import java.util.*;
 
@@ -29,16 +33,19 @@ public class Main extends Application {
         UDPClient udpClient = new UDPClient(new InetSocketAddress("localhost", 7878));
         JsonRpcClient jsonRpcClient = new JsonRpcClient(udpClient);
 
+        ObservableList<Ownership> ownerships = FXCollections.observableArrayList();
+
         PendingChangeQueue queue = new PendingChangeQueue();
         BatchRemoteCollectionManager collectionManager = new BatchRemoteCollectionManager(queue);
 
         XMLParser xmlParser = new XMLParser();
         List<String> messages = Collections.synchronizedList(new ArrayList<String>());
 
-        Scene scene = new MyScene(primaryStage, collectionManager, xmlParser, jsonRpcClient);
+        Scene scene = new MyScene(primaryStage, collectionManager, xmlParser, jsonRpcClient, ownerships);
         stageInit(primaryStage, scene);
 
-        SynchronizationThread thread = new SynchronizationThread(jsonRpcClient, queue, collectionManager, messages);
+        SynchronizationThread thread = new SynchronizationThread(jsonRpcClient, queue, collectionManager,
+                FXCollections.observableArrayList(messages), ownerships);
         thread.start();
 
         return;

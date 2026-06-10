@@ -21,6 +21,7 @@ public final class LogoutCommand extends AbstractCommand {
     public CommandResult execute() {
         try {
             JsonRpcRequest.token = null;
+            JsonRpcRequest.userId = null;
             collectionManager.clear();
             return new CommandResultSuccess(null, "Successfully logged out");
 
