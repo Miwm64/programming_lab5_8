@@ -7,6 +7,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.spb.miwm64.moviemanager.client.Main;
 import ru.spb.miwm64.moviemanager.client.collectionmanager.ObservableCollection;
+import ru.spb.miwm64.moviemanager.client.command.Command;
+import ru.spb.miwm64.moviemanager.client.command.Parameter;
+import ru.spb.miwm64.moviemanager.client.commands.ClearCommand;
+import ru.spb.miwm64.moviemanager.client.commands.RemoveByIDCommand;
+import ru.spb.miwm64.moviemanager.client.gui.dialog.ConfirmationDialog;
 import ru.spb.miwm64.moviemanager.client.gui.dialog.CreateDialog;
 import ru.spb.miwm64.moviemanager.client.gui.dialog.MyDialog;
 import ru.spb.miwm64.moviemanager.client.gui.dialog.PermissionDialog;
@@ -44,8 +49,6 @@ import javafx.util.Duration;
 
 import java.util.HashMap;
 
-// TODO in fullscreen small columns
-// TODO help
 // TODO command
 public class TablePane extends VBox {
     private final ObservableList<VersionedObject<Movie>> tableEntries;
@@ -56,9 +59,12 @@ public class TablePane extends VBox {
     private final TableEntry columnRow;
     private final VBox entriesVBox;
     private final ScrollPane entriesScrollPane;
+
     private final Button createButton = new Button();
     private final Button revokeAccessButton = new Button();
     private final Button grantAccessButton = new Button();
+    private final Button clearAllButton = new Button();
+
     private final ObservableList<Ownership> ownerships;
     private final JsonRpcClient rpcClient;
 
@@ -82,15 +88,20 @@ public class TablePane extends VBox {
 
         createButton.setStyle("-fx-background-color: #EEDEC5;" +
                 "-fx-background-radius: 24px;  -fx-border-radius: 24;");
-        createButton.setFont(Helper.getBoldFont(18));
+        createButton.setFont(Helper.getBoldFont(14));
 
         grantAccessButton.setStyle("-fx-background-color: #EEDEC5;" +
                 "-fx-background-radius: 24px;  -fx-border-radius: 24;");
-        grantAccessButton.setFont(Helper.getBoldFont(18));
+        grantAccessButton.setFont(Helper.getBoldFont(14));
 
         revokeAccessButton.setStyle("-fx-background-color: #EEDEC5;" +
                 "-fx-background-radius: 24px;  -fx-border-radius: 24;");
-        revokeAccessButton.setFont(Helper.getBoldFont(18));
+        revokeAccessButton.setFont(Helper.getBoldFont(14));
+
+        clearAllButton.setStyle("-fx-background-color: #EEDEC5;" +
+                "-fx-background-radius: 24px;  -fx-border-radius: 24;");
+        clearAllButton.setFont(Helper.getBoldFont(14));
+
 
         this.cm = cm;
         entriesScrollPane = new ScrollPane();
@@ -121,6 +132,7 @@ public class TablePane extends VBox {
         buttonBox.setAlignment(Pos.CENTER);
         buttonBox.setSpacing(10);
         buttonBox.getChildren().add(revokeAccessButton);
+        buttonBox.getChildren().add(clearAllButton);
         buttonBox.getChildren().add(createButton);
         buttonBox.getChildren().add(grantAccessButton);
 
@@ -139,9 +151,25 @@ public class TablePane extends VBox {
             dialog.showAndWait();
         });
 
+        clearAllButton.setOnAction(e -> {
+            Platform.runLater(() -> {
+                ConfirmationDialog dialog = new ConfirmationDialog("Do you really want to clear collection?",
+                        "Clear collection");
+                dialog.showAndWait().ifPresent(result -> {
+                    if (!result) {
+                        return;
+                    }
+
+                    Command command = new ClearCommand(cm);
+                    command.execute();
+                });
+            });
+        });
+
         createButton.textProperty().bind(I18N.createBinding("table_pane.button.create"));
         grantAccessButton.textProperty().bind(I18N.createBinding("table_pane.button.grant_access"));
         revokeAccessButton.textProperty().bind(I18N.createBinding("table_pane.button.revoke_access"));
+        clearAllButton.textProperty().bind(I18N.createBinding("table_pane.button.clear_all"));
     }
 
     private void addEntry(VersionedObject<Movie> movie, CollectionManager cm) {

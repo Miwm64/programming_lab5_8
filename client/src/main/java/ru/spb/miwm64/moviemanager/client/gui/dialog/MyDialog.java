@@ -20,7 +20,6 @@ import ru.spb.miwm64.moviemanager.common.entities.MpaaRating;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-// TODO center title
 public abstract sealed class MyDialog extends Dialog permits CreateDialog, UpdateDialog, PermissionDialog{
     protected final DialogPane dialogPane;
     protected final VBox mainPane;

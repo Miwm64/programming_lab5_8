@@ -154,12 +154,15 @@ public class BatchRemoteCollectionManager implements CollectionManager, Observab
 
     @Override
     public void removeAll() {
-        List<Long> ids = movies.stream()
-                .map(vm -> vm.data.getId())
-                .collect(Collectors.toList());
-        ids.forEach(this::removeById);
-        currentIDs.clear();
-        lastAssignedId = 1L;
+        for  (int i = 0; i < movies.size(); i++) {
+            queue.addDelete(movies.get(i).data.getId());
+        }
+//        List<Long> ids = movies.stream()
+//                .map(vm -> vm.data.getId())
+//                .collect(Collectors.toList());
+//        ids.forEach(this::removeById);
+//        currentIDs.clear();
+//        lastAssignedId = 1L;
     }
 
     @Override

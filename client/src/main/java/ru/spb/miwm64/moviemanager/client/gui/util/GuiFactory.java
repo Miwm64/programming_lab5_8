@@ -3,7 +3,6 @@ package ru.spb.miwm64.moviemanager.client.gui.util;
 import javafx.scene.control.Alert;
 import javafx.stage.StageStyle;
 
-// TODO translations
 public class GuiFactory {
     public static Alert createInfoPopup(String text) {
         Alert popup = new Alert(Alert.AlertType.INFORMATION);

@@ -92,5 +92,4 @@ public final class UpdateDialog extends MyDialog {
             updateCommand.execute();
         });
     }
-    // TODO no permission err
 }
