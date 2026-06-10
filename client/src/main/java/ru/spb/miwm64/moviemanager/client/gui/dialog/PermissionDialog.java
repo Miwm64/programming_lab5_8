@@ -5,6 +5,7 @@ import ru.spb.miwm64.moviemanager.client.command.Command;
 import ru.spb.miwm64.moviemanager.client.commands.AddCommand;
 import ru.spb.miwm64.moviemanager.client.commands.GrantAccessCommand;
 import ru.spb.miwm64.moviemanager.client.commands.RevokeAccessCommand;
+import ru.spb.miwm64.moviemanager.client.gui.util.GuiFactory;
 import ru.spb.miwm64.moviemanager.client.net.JsonRpcClient;
 
 public final class PermissionDialog extends MyDialog {
@@ -40,7 +41,10 @@ public final class PermissionDialog extends MyDialog {
 
             }
             command.setParams(parameterList);
-            command.execute();
+            var res = command.execute();
+            if (!res.isSuccess()) {
+                GuiFactory.createErrorPopup("Internet connection error");
+            }
         });
     }
 }

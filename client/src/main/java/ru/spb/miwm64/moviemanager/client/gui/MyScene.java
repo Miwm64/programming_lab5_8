@@ -97,7 +97,7 @@ public class MyScene extends Scene {
         registerPane.getSwitchButton().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {mainPane.setCenter(loginPane);});
         loginPane.getLoginButton().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             var data = loginPane.getData();
-            login(data);
+            login(data, false);
         });
         registerPane.getRegisterButton().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             var data = registerPane.getData();
@@ -126,7 +126,7 @@ public class MyScene extends Scene {
         });
     }
 
-    private void login(Map<String, String> data) {
+    private void login(Map<String, String> data, boolean isReg) {
         try {
             Command command = commandFactory.newCommand("login");
 
@@ -144,11 +144,22 @@ public class MyScene extends Scene {
                 syncLabel.setVisible(true);
             }
             else{
-                GuiFactory.createErrorPopup("Internal server error").show();
+                if (res.getMessage().contains("UDP")) {
+                    GuiFactory.createErrorPopup("Server unavailable, try later").show();
+                }
+                else{
+                    if (isReg){
+                        GuiFactory.createErrorPopup("User with this name/email already exists").show();
+                    }
+                    else{
+                        GuiFactory.createErrorPopup("Wrong credentials").show();
+
+                    }
+                }
             }
         }
         catch (Exception e) {
-            GuiFactory.createErrorPopup("Err").show();
+            GuiFactory.createErrorPopup("Internal server error").show();
         }
     }
 
@@ -161,15 +172,19 @@ public class MyScene extends Scene {
             }
             var res = command.execute();
             if (res.isSuccess()){
-                GuiFactory.createInfoPopup("Successfull registration").show();
-                login(data);
+                login(data, true);
             }
             else{
-                GuiFactory.createErrorPopup("Internal server error").show();
+                if (res.getMessage().contains("UDP")) {
+                    GuiFactory.createErrorPopup("Server unavailable, try later").show();
+                }
+                else{
+                    GuiFactory.createErrorPopup("User with this name/email already exists").show();
+                }
             }
         }
         catch (Exception e) {
-            GuiFactory.createErrorPopup("Err").show();
+            GuiFactory.createErrorPopup("Internal server error").show();
         }
     }
 
