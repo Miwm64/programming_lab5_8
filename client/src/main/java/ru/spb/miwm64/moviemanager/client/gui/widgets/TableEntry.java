@@ -92,7 +92,7 @@ public class TableEntry extends HBox {
         this.goldenPalm.setText(""+movie.getGoldenPalmCount());
         this.genre.setText(movie.getGenre().toString());
         this.MPAA_RATING.setText(movie.getMpaaRating().toString());
-//        this.person.setText(movie.getOperator().toString()); // TODO show person
+        this.person.setText(movie.getOperator() == null ? "None" : movie.getOperator().toString());
         updateWidths();
     }
 

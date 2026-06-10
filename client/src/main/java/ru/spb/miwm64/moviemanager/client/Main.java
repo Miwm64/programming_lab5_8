@@ -1,6 +1,8 @@
 package ru.spb.miwm64.moviemanager.client;
 
 import javafx.application.Application;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Rectangle2D;
@@ -41,11 +43,12 @@ public class Main extends Application {
         XMLParser xmlParser = new XMLParser();
         List<String> messages = Collections.synchronizedList(new ArrayList<String>());
 
-        Scene scene = new MyScene(primaryStage, collectionManager, xmlParser, jsonRpcClient, ownerships);
+        MyScene scene = new MyScene(primaryStage, collectionManager, xmlParser, jsonRpcClient, ownerships);
         stageInit(primaryStage, scene);
+        StringProperty syncLabel = scene.getSyncProperty();
 
         SynchronizationThread thread = new SynchronizationThread(jsonRpcClient, queue, collectionManager,
-                FXCollections.observableArrayList(messages), ownerships);
+                FXCollections.observableArrayList(messages), ownerships, syncLabel);
         thread.start();
 
         return;

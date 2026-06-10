@@ -1,6 +1,8 @@
 package ru.spb.miwm64.moviemanager.client.gui;
 
+import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
+import javafx.scene.layout.*;
 import ru.spb.miwm64.moviemanager.client.collectionmanager.BatchRemoteCollectionManager;
 import ru.spb.miwm64.moviemanager.client.collectionmanager.ObservableCollection;
 import ru.spb.miwm64.moviemanager.client.command.Command;
@@ -15,7 +17,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import ru.spb.miwm64.moviemanager.client.net.JsonRpcClient;
 import ru.spb.miwm64.moviemanager.common.collection.CollectionManager;
@@ -40,6 +41,7 @@ public class MyScene extends Scene {
     private Set<String> openedFilesSet;
 
     private final CommandFactory commandFactory;
+    private final Label syncLabel;
 
     private int footerClickedCount = 0;
 
@@ -61,6 +63,8 @@ public class MyScene extends Scene {
         this.mapPane = new MapPane(collectionManager, collectionManager, ownerships);
         this.headerPane = new HeaderPane(primaryStage);
         this.footerLabel = new FooterLabel();
+        this.syncLabel = new Label();
+        this.syncLabel.textProperty().bind(I18N.createBinding("footer.label.sync_label.true"));
 
         footerLabel.setOnMouseClicked(event -> {
             footerClickedCount++;
@@ -82,8 +86,12 @@ public class MyScene extends Scene {
         BorderPane.setMargin(tablePane, new Insets(10, 10, 10, 10));
         this.mainPane.setCenter(loginPane);
         this.mainPane.setTop(headerPane);
-        this.mainPane.setBottom(footerLabel);
-        BorderPane.setAlignment(footerLabel, Pos.CENTER);
+
+        StackPane bottomStack = new StackPane();
+        StackPane.setAlignment(syncLabel, Pos.CENTER_LEFT);
+        StackPane.setAlignment(footerLabel, Pos.CENTER);
+        bottomStack.getChildren().addAll(syncLabel, footerLabel);
+        this.mainPane.setBottom(bottomStack);
 
         loginPane.getSwitchButton().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {mainPane.setCenter(registerPane);});
         registerPane.getSwitchButton().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {mainPane.setCenter(loginPane);});
@@ -108,14 +116,16 @@ public class MyScene extends Scene {
             isTable = !isTable;
         });
         headerPane.hideTop();
+        syncLabel.setVisible(false);
         headerPane.getLogoutButton().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             Command logoutcommand = new LogoutCommand(collectionManager);
             logoutcommand.execute();
             mainPane.setCenter(loginPane);
             headerPane.hideTop();
+            syncLabel.setVisible(false);
         });
     }
-    // TODO popup in new window
+
     private void login(Map<String, String> data) {
         try {
             Command command = commandFactory.newCommand("login");
@@ -131,9 +141,9 @@ public class MyScene extends Scene {
                 headerPane.getSwitchButton().setText("Switch to map");
                 headerPane.setNickname(data.get("username"));
                 headerPane.showTop();
+                syncLabel.setVisible(true);
             }
             else{
-                System.out.println(res.getMessage());
                 GuiFactory.createErrorPopup("Internal server error").show();
             }
         }
@@ -161,5 +171,9 @@ public class MyScene extends Scene {
         catch (Exception e) {
             GuiFactory.createErrorPopup("Err").show();
         }
+    }
+
+    public StringProperty getSyncProperty() {
+        return syncLabel.textProperty();
     }
 }

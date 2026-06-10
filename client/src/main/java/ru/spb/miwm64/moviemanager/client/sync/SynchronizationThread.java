@@ -1,11 +1,14 @@
 package ru.spb.miwm64.moviemanager.client.sync;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import javafx.application.Platform;
+import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import ru.spb.miwm64.moviemanager.client.collectionmanager.BatchRemoteCollectionManager;
+import ru.spb.miwm64.moviemanager.client.gui.util.I18N;
 import ru.spb.miwm64.moviemanager.client.net.JsonRpcClient;
 import ru.spb.miwm64.moviemanager.common.io.Writer;
 import ru.spb.miwm64.moviemanager.common.net.Batch;
@@ -32,17 +35,21 @@ public class SynchronizationThread extends Thread {
     private final BatchRemoteCollectionManager collectionManager;
     private final ObservableList<Ownership> ownerships;
 
+    private final StringProperty syncLabel;
+
     private static final ReentrantLock mutex = new ReentrantLock();
+
 
 
     public SynchronizationThread(JsonRpcClient jsonRpcClient, PendingChangeQueue pendingChangeQueue,
                                  BatchRemoteCollectionManager collectionManager, ObservableList<String> messages,
-                                 ObservableList<Ownership> ownerships) {
+                                 ObservableList<Ownership> ownerships, StringProperty syncLabelProperty) {
         this.ownerships = ownerships;
         this.jsonRpcClient = jsonRpcClient;
         this.pendingChangeQueue = pendingChangeQueue;
         this.messages = messages;
         this.collectionManager = collectionManager;
+        this.syncLabel = syncLabelProperty;
     }
 
     @Override
@@ -52,11 +59,17 @@ public class SynchronizationThread extends Thread {
             try {
                 if (sync()) {
                     if (retryDelay != BASE_RETRY_MS){
+                        Platform.runLater(() -> {
+                            syncLabel.bind(I18N.createBinding("footer.label.sync_label.true"));
+                        });
                         messages.add("Connection restored");
                     }
                     retryDelay = BASE_RETRY_MS;
                     Thread.sleep(NORMAL_SYNC_INTERVAL_MS);
                 } else {
+                    Platform.runLater(() -> {
+                        syncLabel.bind(I18N.createBinding("footer.label.sync_label.false"));
+                    });
                     Thread.sleep(retryDelay);
                     retryDelay = Math.min(retryDelay * 2, MAX_RETRY_MS);
                 }
