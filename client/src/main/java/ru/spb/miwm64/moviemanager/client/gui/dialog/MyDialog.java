@@ -3,6 +3,7 @@ package ru.spb.miwm64.moviemanager.client.gui.dialog;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
@@ -49,6 +50,15 @@ public abstract sealed class MyDialog extends Dialog permits CreateDialog, Updat
         scrollPane.setContent(mainPane);
         scrollPane.setPrefViewportWidth(600);
         scrollPane.setPrefViewportHeight(700);
+
+        scrollPane.setStyle("-fx-background-color: #EEDEC5;");
+        scrollPane.viewportBoundsProperty().addListener((obs, old, bounds) -> {
+            // Force the viewport's background to match your color
+            Node viewport = scrollPane.lookup(".viewport");
+            if (viewport != null) {
+                viewport.setStyle("-fx-background-color: #EEDEC5;");
+            }
+        });
 
         titleLabel = new Label();
         titleLabel.setFont(Helper.getBoldFont(14));
