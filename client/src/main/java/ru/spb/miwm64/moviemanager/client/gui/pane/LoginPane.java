@@ -38,14 +38,14 @@ public class LoginPane extends VBox {
     }
 
     private void elementInit(){
-        nicknameEdit.setPromptText("nickname");
+        nicknameEdit.promptTextProperty().bind(I18N.createBinding("login_pane.prompt.nickname"));
         nicknameEdit.setMaxWidth(300);
         nicknameEdit.setMaxHeight(200);
         nicknameEdit.setStyle("-fx-background-color: #EEDEC5; -fx-background-radius: 24;" +
                 "-fx-border-color: E7B36F; -fx-border-width: 1; -fx-border-radius: 24;");
         nicknameEdit.setFont(Helper.getFont(14));
 
-        passwordEdit.setPromptText("password");
+        passwordEdit.promptTextProperty().bind(I18N.createBinding("login_pane.prompt.password"));
         passwordEdit.setMaxWidth(300);
         passwordEdit.setMaxHeight(200);
         passwordEdit.setStyle("-fx-background-color: #EEDEC5; -fx-background-radius: 24; " +

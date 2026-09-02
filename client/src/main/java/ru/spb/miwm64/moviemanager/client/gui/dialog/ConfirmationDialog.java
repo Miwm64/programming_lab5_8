@@ -9,6 +9,7 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import ru.spb.miwm64.moviemanager.client.gui.util.Helper;
+import ru.spb.miwm64.moviemanager.client.gui.util.I18N;
 
 public class ConfirmationDialog extends Dialog<Boolean> {
 
@@ -31,9 +32,9 @@ public class ConfirmationDialog extends Dialog<Boolean> {
         content.setAlignment(Pos.CENTER);
         getDialogPane().setContent(content);
 
-        // Add Yes/No buttons
-        ButtonType yesButton = new ButtonType("Yes");
-        ButtonType noButton = new ButtonType("No");
+        // Add Yes/No buttons with externalized text
+        ButtonType yesButton = new ButtonType(I18N.get("confirmation_dialog.button.yes"));
+        ButtonType noButton = new ButtonType(I18N.get("confirmation_dialog.button.no"));
         getDialogPane().getButtonTypes().addAll(yesButton, noButton);
 
         // Style the buttons after the dialog is shown

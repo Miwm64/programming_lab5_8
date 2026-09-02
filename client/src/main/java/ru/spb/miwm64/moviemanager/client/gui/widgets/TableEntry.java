@@ -8,12 +8,12 @@ import ru.spb.miwm64.moviemanager.client.command.Command;
 import ru.spb.miwm64.moviemanager.client.command.Parameter;
 import ru.spb.miwm64.moviemanager.client.commands.RemoveByIDCommand;
 import ru.spb.miwm64.moviemanager.client.gui.dialog.ConfirmationDialog;
-import ru.spb.miwm64.moviemanager.client.gui.dialog.CreateDialog;
 import ru.spb.miwm64.moviemanager.client.gui.dialog.MyDialog;
 import ru.spb.miwm64.moviemanager.client.gui.dialog.UpdateDialog;
 import ru.spb.miwm64.moviemanager.client.gui.pane.SortColumn;
 import ru.spb.miwm64.moviemanager.client.gui.util.GuiFactory;
 import ru.spb.miwm64.moviemanager.client.gui.util.Helper;
+import ru.spb.miwm64.moviemanager.client.gui.util.I18N;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Insets;
@@ -31,18 +31,17 @@ import ru.spb.miwm64.moviemanager.common.net.OwnershipType;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 
-// TODO i18n
 public class TableEntry extends HBox {
     private Button editButton = new Button();
-    private Label title = createLabel("Title");
-    private Label id = createLabel("ID");
-    private Label coordinate = createLabel("Coordinates");
-    private Label creationDate = createLabel("Creation date");
-    private Label oscars = createLabel("Oscars");
-    private Label goldenPalm = createLabel("Golden Palm");
-    private Label genre = createLabel("Genre");
-    private Label MPAA_RATING = createLabel("MPAA");
-    private Label person =  createLabel("Person");
+    private Label title;
+    private Label id;
+    private Label coordinate;
+    private Label creationDate;
+    private Label oscars;
+    private Label goldenPalm;
+    private Label genre;
+    private Label MPAA_RATING;
+    private Label person;
     private Button deleteButton = new Button();
     private Movie movie;
     private CollectionManager collectionManager;
@@ -59,44 +58,54 @@ public class TableEntry extends HBox {
     private static final DoubleProperty ratingWidth = new SimpleDoubleProperty(50);
     private static final DoubleProperty personWidth = new SimpleDoubleProperty(100);
 
+    // Constructor for header row (bound labels)
     public TableEntry(boolean showButtons, CollectionManager collectionManager,
                       Consumer<SortColumn> sortHandler) {
-        this();
+        this(true); // true = header mode (bound labels)
         this.sortHandler = sortHandler;
 
         if (!showButtons) {
             editButton.setVisible(false);
             deleteButton.setVisible(false);
-
             makeHeaderClickable();
         }
-
         this.collectionManager = collectionManager;
     }
+
+    // Constructor for data row (unbound labels, movie data)
     public TableEntry(Movie movie, CollectionManager collectionManager, ObservableList<Ownership> ownerships) {
-        this();
+        this(false); // false = data mode (unbound labels)
         this.ownerships = ownerships;
-        setMovie(movie);
         this.collectionManager = collectionManager;
+        setMovie(movie);
     }
 
-    public void setMovie(Movie movie) {
-        this.movie = movie;
-        this.id.setText(""+movie.getId());
-        this.title.setText(movie.getName());
-        this.coordinate.setText("(" + movie.getCoordinates().getX() + ", " + movie.getCoordinates().getY() + ")");
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy-HH:mm");
-        String formattedString = movie.getCreationDate().format(formatter);
-        this.creationDate.setText(formattedString);
-        this.oscars.setText(""+movie.getOscarsCount());
-        this.goldenPalm.setText(""+movie.getGoldenPalmCount());
-        this.genre.setText(movie.getGenre().toString());
-        this.MPAA_RATING.setText(movie.getMpaaRating().toString());
-        this.person.setText(movie.getOperator() == null ? "None" : movie.getOperator().toString());
-        updateWidths();
-    }
+    // Private constructor that decides whether to bind label texts
+    private TableEntry(boolean isHeader) {
+        if (isHeader) {
+            // Header: bound labels
+            title = createBoundLabel("table_entry.column.title");
+            id = createBoundLabel("table_entry.column.id");
+            coordinate = createBoundLabel("table_entry.column.coordinates");
+            creationDate = createBoundLabel("table_entry.column.creation_date");
+            oscars = createBoundLabel("table_entry.column.oscars");
+            goldenPalm = createBoundLabel("table_entry.column.golden_palm");
+            genre = createBoundLabel("table_entry.column.genre");
+            MPAA_RATING = createBoundLabel("table_entry.column.mpaa");
+            person = createBoundLabel("table_entry.column.person");
+        } else {
+            // Data row: unbound labels (text will be set in setMovie)
+            title = createUnboundLabel();
+            id = createUnboundLabel();
+            coordinate = createUnboundLabel();
+            creationDate = createUnboundLabel();
+            oscars = createUnboundLabel();
+            goldenPalm = createUnboundLabel();
+            genre = createUnboundLabel();
+            MPAA_RATING = createUnboundLabel();
+            person = createUnboundLabel();
+        }
 
-    private TableEntry() {
         editButton.setMinWidth(Button.USE_PREF_SIZE);
         deleteButton.setMinWidth(Button.USE_PREF_SIZE);
         editButton.setMaxWidth(Double.MAX_VALUE);
@@ -105,7 +114,7 @@ public class TableEntry extends HBox {
         this.getChildren().addAll(editButton, id, title, coordinate, creationDate,
                 oscars, goldenPalm, genre, MPAA_RATING, person, deleteButton);
 
-        // 3. Bind label widths (unchanged)
+        // Bind label widths (same for both header and data)
         title.prefWidthProperty().bind(titleWidth);
         id.prefWidthProperty().bind(idWidth);
         coordinate.prefWidthProperty().bind(coordWidth);
@@ -134,6 +143,7 @@ public class TableEntry extends HBox {
         HBox.setMargin(deleteButton, new Insets(0, 0, 0, 10));
         setMinWidth(800);
 
+        // Icons (edit/delete) – unchanged
         String resourcePath = "/images/edit.png";
         var resourceUrl = getClass().getResourceAsStream(resourcePath);
         Image icon = new Image(resourceUrl);
@@ -143,7 +153,6 @@ public class TableEntry extends HBox {
         imageView.setPreserveRatio(true);
         editButton.setStyle("-fx-background-color: transparent;");
         editButton.setGraphic(imageView);
-
 
         String resourcePath2 = "/images/delete.png";
         var resourceUrl2 = getClass().getResourceAsStream(resourcePath2);
@@ -155,56 +164,86 @@ public class TableEntry extends HBox {
         deleteButton.setStyle("-fx-background-color: transparent;");
         deleteButton.setGraphic(imageView2);
 
+        // Event handlers (same for both)
         editButton.setOnMouseClicked(event -> {
-            boolean hasPermission = ownerships.stream().anyMatch(ow ->
-                    ow.userId().equals(JsonRpcRequest.userId) &&
-                            ow.movieId().equals(this.movie.getId()) &&
-                            (ow.type() == OwnershipType.edit || ow.type() == OwnershipType.owner)
-            );
-            if (hasPermission) {
-                MyDialog dialog = new UpdateDialog(movie, collectionManager);
-                dialog.showAndWait();
-            } else {
-                GuiFactory.createErrorPopupWithProperty("error.no_permission").showAndWait();
+            if (ownerships != null) {
+                boolean hasPermission = ownerships.stream().anyMatch(ow ->
+                        ow.userId().equals(JsonRpcRequest.userId) &&
+                                ow.movieId().equals(this.movie.getId()) &&
+                                (ow.type() == OwnershipType.edit || ow.type() == OwnershipType.owner)
+                );
+                if (hasPermission) {
+                    MyDialog dialog = new UpdateDialog(movie, collectionManager);
+                    dialog.showAndWait();
+                } else {
+                    GuiFactory.createErrorPopupWithProperty("table_entry.error.no_permission").showAndWait();
+                }
             }
         });
-        deleteButton.setOnMouseClicked(event -> {
-            boolean isOwner = ownerships.stream().anyMatch(ow ->
-                    ow.userId().equals(JsonRpcRequest.userId) &&
-                            ow.movieId().equals(this.movie.getId()) &&
-                            ow.type() == OwnershipType.owner
-            );
-            if (isOwner) {
-                Platform.runLater(() -> {
-                    ConfirmationDialog dialog = new ConfirmationDialog("Do you really want to delete this movie?",
-                            "Movie deletion");
-                    dialog.showAndWait().ifPresent(result -> {
-                        if (!result) {
-                            return;
-                        }
 
-                        Command deleteCommand = new RemoveByIDCommand(collectionManager);
-                        Parameter param = deleteCommand.getParams().get(0);
-                        param.fromString(movie.getId() + "");
-                        deleteCommand.setParam(param);
-                        deleteCommand.execute();
+        deleteButton.setOnMouseClicked(event -> {
+            if (ownerships != null) {
+                boolean isOwner = ownerships.stream().anyMatch(ow ->
+                        ow.userId().equals(JsonRpcRequest.userId) &&
+                                ow.movieId().equals(this.movie.getId()) &&
+                                ow.type() == OwnershipType.owner
+                );
+                if (isOwner) {
+                    Platform.runLater(() -> {
+                        ConfirmationDialog dialog = new ConfirmationDialog(
+                                I18N.get("table_entry.confirmation.delete_message"),
+                                I18N.get("table_entry.confirmation.delete_title"));
+                        dialog.showAndWait().ifPresent(result -> {
+                            if (!result) return;
+                            Command deleteCommand = new RemoveByIDCommand(collectionManager);
+                            Parameter param = deleteCommand.getParams().get(0);
+                            param.fromString(movie.getId() + "");
+                            deleteCommand.setParam(param);
+                            deleteCommand.execute();
+                        });
                     });
-                });
-            } else {
-                GuiFactory.createErrorPopupWithProperty("error.no_permission").showAndWait();
+                } else {
+                    GuiFactory.createErrorPopupWithProperty("table_entry.error.no_permission").showAndWait();
+                }
             }
         });
     }
 
-    private static Label createLabel(String text) {
-        Label label = new Label(text);
+    private static Label createBoundLabel(String key) {
+        Label label = new Label();
+        label.textProperty().bind(I18N.createBinding(key));
+        applyLabelStyle(label);
+        return label;
+    }
+
+    private static Label createUnboundLabel() {
+        Label label = new Label();
+        applyLabelStyle(label);
+        return label;
+    }
+
+    private static void applyLabelStyle(Label label) {
         label.setMaxWidth(300);
         label.setMaxHeight(200);
         label.setStyle("-fx-background-color: #EEDEC5; -fx-border-color: black;");
         label.setFont(Helper.getFont(14));
         label.setAlignment(Pos.CENTER);
         setMargin(label, new Insets(0, 10, 0, 0));
-        return label;
+    }
+
+    public void setMovie(Movie movie) {
+        this.movie = movie;
+        this.id.setText(String.valueOf(movie.getId()));
+        this.title.setText(movie.getName());
+        this.coordinate.setText("(" + movie.getCoordinates().getX() + ", " + movie.getCoordinates().getY() + ")");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy-HH:mm");
+        this.creationDate.setText(movie.getCreationDate().format(formatter));
+        this.oscars.setText(String.valueOf(movie.getOscarsCount()));
+        this.goldenPalm.setText(String.valueOf(movie.getGoldenPalmCount()));
+        this.genre.setText(movie.getGenre().toString());  // enum – not translated
+        this.MPAA_RATING.setText(movie.getMpaaRating().toString()); // enum – not translated
+        this.person.setText(movie.getOperator() == null ? I18N.get("table_entry.value.none") : movie.getOperator().toString());
+        updateWidths();
     }
 
     private void updateWidths() {
@@ -233,29 +272,13 @@ public class TableEntry extends HBox {
     }
 
     private void makeHeaderClickable() {
-
-        id.setOnMouseClicked(e ->
-                sortHandler.accept(SortColumn.ID));
-
-        title.setOnMouseClicked(e ->
-                sortHandler.accept(SortColumn.TITLE));
-
-        coordinate.setOnMouseClicked(e ->
-                sortHandler.accept(SortColumn.COORDINATES));
-
-        creationDate.setOnMouseClicked(e ->
-                sortHandler.accept(SortColumn.CREATION_DATE));
-
-        oscars.setOnMouseClicked(e ->
-                sortHandler.accept(SortColumn.OSCARS));
-
-        goldenPalm.setOnMouseClicked(e ->
-                sortHandler.accept(SortColumn.GOLDEN_PALM));
-
-        genre.setOnMouseClicked(e ->
-                sortHandler.accept(SortColumn.GENRE));
-
-        MPAA_RATING.setOnMouseClicked(e ->
-                sortHandler.accept(SortColumn.MPAA));
+        id.setOnMouseClicked(e -> sortHandler.accept(SortColumn.ID));
+        title.setOnMouseClicked(e -> sortHandler.accept(SortColumn.TITLE));
+        coordinate.setOnMouseClicked(e -> sortHandler.accept(SortColumn.COORDINATES));
+        creationDate.setOnMouseClicked(e -> sortHandler.accept(SortColumn.CREATION_DATE));
+        oscars.setOnMouseClicked(e -> sortHandler.accept(SortColumn.OSCARS));
+        goldenPalm.setOnMouseClicked(e -> sortHandler.accept(SortColumn.GOLDEN_PALM));
+        genre.setOnMouseClicked(e -> sortHandler.accept(SortColumn.GENRE));
+        MPAA_RATING.setOnMouseClicked(e -> sortHandler.accept(SortColumn.MPAA));
     }
 }

@@ -43,28 +43,28 @@ public class RegisterPane extends VBox {
     }
 
     private void elementInit(){
-        nicknameEdit.setPromptText("nickname");
+        nicknameEdit.promptTextProperty().bind(I18N.createBinding("register_pane.prompt.nickname"));
         nicknameEdit.setMaxWidth(300);
         nicknameEdit.setMaxHeight(200);
         nicknameEdit.setStyle("-fx-background-color: #EEDEC5; -fx-background-radius: 24;" +
                 "-fx-border-color: E7B36F; -fx-border-width: 1; -fx-border-radius: 24;");
         nicknameEdit.setFont(Helper.getFont(14));
 
-        emailEdit.setPromptText("email");
+        emailEdit.promptTextProperty().bind(I18N.createBinding("register_pane.prompt.email"));
         emailEdit.setMaxWidth(300);
         emailEdit.setMaxHeight(200);
         emailEdit.setStyle("-fx-background-color: #EEDEC5; -fx-background-radius: 24;" +
                 "-fx-border-color: E7B36F; -fx-border-width: 1; -fx-border-radius: 24;");
         emailEdit.setFont(Helper.getFont(14));
 
-        passwordEdit.setPromptText("password");
+        passwordEdit.promptTextProperty().bind(I18N.createBinding("register_pane.prompt.password"));
         passwordEdit.setMaxWidth(300);
         passwordEdit.setMaxHeight(200);
         passwordEdit.setStyle("-fx-background-color: #EEDEC5; -fx-background-radius: 24; " +
                 "-fx-border-color: E7B36F; -fx-border-width: 1; -fx-border-radius: 24;");
         passwordEdit.setFont(Helper.getFont(14));
 
-        password2Edit.setPromptText("repeat password");
+        password2Edit.promptTextProperty().bind(I18N.createBinding("register_pane.prompt.repeat_password"));
         password2Edit.setMaxWidth(300);
         password2Edit.setMaxHeight(200);
         password2Edit.setStyle("-fx-background-color: #EEDEC5; -fx-background-radius: 24; " +
@@ -81,7 +81,7 @@ public class RegisterPane extends VBox {
         switchButton.setTextFill(Color.BLACK);
         switchButton.textProperty().bind(I18N.createBinding("register_pane.button.switch_to_login"));
 
-        titleLabel.textProperty().bind(I18N.createBinding("table_pane.label.title"));
+        titleLabel.textProperty().bind(I18N.createBinding("register_pane.label.title"));
         titleLabel.setStyle("-fx-background-color: #EEDEC5; -fx-background-radius: 20px;");
         titleLabel.setFont(Helper.getBoldFont(18));
         titleLabel.setPadding(new Insets(0, 10, 0, 10));
