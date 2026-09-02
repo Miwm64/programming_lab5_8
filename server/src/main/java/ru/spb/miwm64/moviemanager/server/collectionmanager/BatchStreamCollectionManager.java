@@ -168,7 +168,7 @@ public class BatchStreamCollectionManager implements BatchCollectionManager{
             }
         }
 
-        return new Batch(deltaCreates, deltaUpdates, deltaDeletes, messages);
+        return new Batch(deltaCreates, deltaUpdates, deltaDeletes, messages, null);
     }
 
     public void setCollection(ArrayList<Movie> movies) {

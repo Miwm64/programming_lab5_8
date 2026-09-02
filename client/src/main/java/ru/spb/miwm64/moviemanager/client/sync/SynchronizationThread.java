@@ -1,14 +1,19 @@
-package ru.spb.miwm64.moviemanager.client;
+package ru.spb.miwm64.moviemanager.client.sync;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import javafx.application.Platform;
+import javafx.beans.property.StringProperty;
+import javafx.collections.ObservableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import ru.spb.miwm64.moviemanager.client.collectionmanager.BatchRemoteCollectionManager;
+import ru.spb.miwm64.moviemanager.client.gui.util.I18N;
 import ru.spb.miwm64.moviemanager.client.net.JsonRpcClient;
 import ru.spb.miwm64.moviemanager.common.io.Writer;
 import ru.spb.miwm64.moviemanager.common.net.Batch;
 import ru.spb.miwm64.moviemanager.common.net.JsonRpcRequest;
+import ru.spb.miwm64.moviemanager.common.net.Ownership;
 
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class SynchronizationThread extends Thread {
-    private static final long NORMAL_SYNC_INTERVAL_MS = 15_000L;
+    private static final long NORMAL_SYNC_INTERVAL_MS = 2_000L;
     private static final long BASE_RETRY_MS = 1_000L;
     private static final long MAX_RETRY_MS = 64_000L;
 
@@ -28,16 +33,23 @@ public class SynchronizationThread extends Thread {
     private final PendingChangeQueue pendingChangeQueue;
     private final List<String> messages;
     private final BatchRemoteCollectionManager collectionManager;
+    private final ObservableList<Ownership> ownerships;
+
+    private final StringProperty syncLabel;
 
     private static final ReentrantLock mutex = new ReentrantLock();
 
 
+
     public SynchronizationThread(JsonRpcClient jsonRpcClient, PendingChangeQueue pendingChangeQueue,
-                                 BatchRemoteCollectionManager collectionManager, List<String> messages) {
+                                 BatchRemoteCollectionManager collectionManager, ObservableList<String> messages,
+                                 ObservableList<Ownership> ownerships, StringProperty syncLabelProperty) {
+        this.ownerships = ownerships;
         this.jsonRpcClient = jsonRpcClient;
         this.pendingChangeQueue = pendingChangeQueue;
         this.messages = messages;
         this.collectionManager = collectionManager;
+        this.syncLabel = syncLabelProperty;
     }
 
     @Override
@@ -47,11 +59,17 @@ public class SynchronizationThread extends Thread {
             try {
                 if (sync()) {
                     if (retryDelay != BASE_RETRY_MS){
+                        Platform.runLater(() -> {
+                            syncLabel.bind(I18N.createBinding("footer.label.sync_label.true"));
+                        });
                         messages.add("Connection restored");
                     }
                     retryDelay = BASE_RETRY_MS;
                     Thread.sleep(NORMAL_SYNC_INTERVAL_MS);
                 } else {
+                    Platform.runLater(() -> {
+                        syncLabel.bind(I18N.createBinding("footer.label.sync_label.false"));
+                    });
                     Thread.sleep(retryDelay);
                     retryDelay = Math.min(retryDelay * 2, MAX_RETRY_MS);
                 }
@@ -67,7 +85,6 @@ public class SynchronizationThread extends Thread {
         mutex.lock();
         try {
             if (JsonRpcRequest.token == null || JsonRpcRequest.token.isEmpty()) {
-                messages.add("You need to login first");
                 return true;
             }
             LOG.info("Synchronization started");
@@ -76,8 +93,6 @@ public class SynchronizationThread extends Thread {
             syncRequest.put("pendingBatch", localBatch);
             syncRequest.put("clientVersions", collectionManager.getVersionMap());
             Batch serverBatch = callRpc("sync", syncRequest, new TypeReference<Batch>() {});
-
-            LOG.info("Synchronization successful");
 
             if (localBatch != null) {
                 pendingChangeQueue.removeFirstBatch();
@@ -91,8 +106,9 @@ public class SynchronizationThread extends Thread {
                 }
                 messages.add(message.toString());
             }
-
+            ownerships.setAll(serverBatch.ownerships);
             collectionManager.applyRemoteBatch(serverBatch);
+            LOG.info("Synchronization successful");
             return true;
         } catch (Exception e) {
             LOG.error("Synchronization failed", e);

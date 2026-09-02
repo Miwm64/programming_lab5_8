@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import ru.spb.miwm64.moviemanager.common.exceptions.WrongCredentials;
+import ru.spb.miwm64.moviemanager.common.net.LoginResult;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -157,7 +158,7 @@ public class KeycloakService implements UserAuthService {
 
     // ---------- Login ----------
     @Override
-    public String login(String username, String password) {
+    public LoginResult login(String username, String password) {
         String path = String.format("/realms/%s/protocol/openid-connect/token", config.targetRealmName);
         String body = String.format(
                 "client_id=%s&client_secret=%s&grant_type=password&username=%s&password=%s",
@@ -176,7 +177,11 @@ public class KeycloakService implements UserAuthService {
                 }
                 throw new RuntimeException("Keycloak error: " + error);
             }
-            return root.get("access_token").asText();
+            String token = root.get("access_token").asText();
+            UserInfo userInfo = new UserInfo();
+            userInfo.username = username;
+            userInfo = getUserInfo(userInfo);
+            return new LoginResult(userInfo.userId, token);
         } catch (WrongCredentials e) {
             throw e;
         } catch (Exception e) {

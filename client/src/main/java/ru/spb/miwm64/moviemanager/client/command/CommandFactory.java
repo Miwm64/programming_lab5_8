@@ -58,7 +58,7 @@ public final class CommandFactory {
         register("remove_greater", () -> new RemoveGreaterCommand(collectionManager));
         register("clear", () -> new ClearCommand(collectionManager));
 
-        register("execute_script", () -> new ExecuteScriptCommand(readers, openedFilesSet));
+        register("execute_script", () -> new ExecuteScriptCommand(readers, openedFilesSet, collectionManager, xmlParser, jsonRpcClient));
 
         register("login", () -> new LoginCommand(jsonRpcClient));
         register("register", () -> new RegisterCommand(jsonRpcClient));

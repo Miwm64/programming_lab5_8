@@ -175,7 +175,6 @@ public final class UpdateByIDCommand extends AbstractCommand {
                     MpaaRating.PG_13,
                     operator
             );
-
             collectionManager.setById(getValue("id"), movie);
 
             return new CommandResultSuccess(

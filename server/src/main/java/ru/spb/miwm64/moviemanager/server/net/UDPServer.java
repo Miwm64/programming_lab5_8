@@ -68,9 +68,9 @@ public class UDPServer {
         this.loadManager = new LoadManager(collectionManager, xmlParser);
         this.reader = new NonBlockingConsoleReader();
 
-        this.readPool = Executors.newFixedThreadPool(READ_POOL_SIZE);
-        this.processPool = Executors.newFixedThreadPool(PROCESS_POOL_SIZE);
-        this.writePool = Executors.newFixedThreadPool(WRITE_POOL_SIZE);
+        this.readPool = Executors.newVirtualThreadPerTaskExecutor();
+        this.processPool = Executors.newVirtualThreadPerTaskExecutor();
+        this.writePool = Executors.newVirtualThreadPerTaskExecutor();
 
         this.readQueue = new LinkedBlockingQueue<>();
         this.processQueue = new LinkedBlockingQueue<>();
@@ -80,7 +80,7 @@ public class UDPServer {
 
         mainLOG.info("Server started");
         LOG.info("Server fully initialized with thread pools (read:{}, process:{}, write:{})",
-                READ_POOL_SIZE, PROCESS_POOL_SIZE, WRITE_POOL_SIZE);
+                    READ_POOL_SIZE, PROCESS_POOL_SIZE, WRITE_POOL_SIZE);
     }
 
     public void run() {

@@ -1,0 +1,34 @@
+package ru.spb.miwm64.moviemanager.client.gui.util;
+
+import javafx.scene.control.Alert;
+import javafx.stage.StageStyle;
+
+public class GuiFactory {
+    public static Alert createInfoPopup(String text) {
+        Alert popup = new Alert(Alert.AlertType.INFORMATION);
+        popup.initStyle(StageStyle.UTILITY);
+        popup.setContentText(text);
+        return popup;
+    }
+
+    public static Alert createErrorPopup(String text) {
+        Alert popup = new Alert(Alert.AlertType.ERROR);
+        popup.initStyle(StageStyle.UTILITY);
+        popup.setContentText(text);
+        return popup;
+    }
+
+    public static Alert createInfoPopupWithProperty(String text) {
+        Alert popup = new Alert(Alert.AlertType.INFORMATION);
+        popup.initStyle(StageStyle.UTILITY);
+        popup.contentTextProperty().bind(I18N.createBinding(text));
+        return popup;
+    }
+
+    public static Alert createErrorPopupWithProperty(String text) {
+        Alert popup = new Alert(Alert.AlertType.ERROR);
+        popup.initStyle(StageStyle.UTILITY);
+        popup.contentTextProperty().bind(I18N.createBinding(text));
+        return popup;
+    }
+}
